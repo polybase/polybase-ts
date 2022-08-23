@@ -1,5 +1,6 @@
 
-import { AxiosRequestConfig } from 'axios'
+import { AxiosError, AxiosRequestConfig } from 'axios'
+import { createErrorFromAxiosError } from './errors'
 import { BasicValue, Request, RequestParams, Sender, SenderResponse } from './types'
 
 export interface ClientConfig {
@@ -46,10 +47,17 @@ export class ClientRequest {
   }
 
   send = async (): Promise<SenderResponse> => {
-    return this.sender({
-      ...this.req,
-      signal: this.aborter.signal,
-    })
+    try {
+      return this.sender({
+        ...this.req,
+        signal: this.aborter.signal,
+      })
+    } catch (e: unknown) {
+      if (e instanceof AxiosError) {
+        throw createErrorFromAxiosError(e)
+      }
+      throw e
+    }
   }
 }
 
