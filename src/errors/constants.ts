@@ -14,7 +14,9 @@ export const ERROR_CODES = {
   'deadline-exceeded': 504,
 }
 
-export const ERROR_REASONS: Record<string, { code: keyof typeof ERROR_CODES, message: string }> = {
+export const ERROR_REASONS: Record<string, { code?: keyof typeof ERROR_CODES, message: string }> = {
   'not-found': { code: 'not-found', message: 'Not found' },
   'server-error': { code: 'internal', message: 'An internal error occured' },
+  'request-cancelled': { message: 'Request was cancelled by the client' },
+  'unknown-error': { message: 'Unexpected error received' },
 }

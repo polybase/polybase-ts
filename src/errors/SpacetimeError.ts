@@ -44,7 +44,10 @@ export class SpacetimeError extends Error {
 
     this.message = extra?.message ?? message
     this.code = code
-    this.statusCode = extra?.statusCode ?? ERROR_CODES[code]
+    this.statusCode = extra?.statusCode
+    if (code && !this.statusCode) {
+      this.statusCode = ERROR_CODES[code]
+    }
 
     if (extra?.originalError) {
       this.stack = extra.originalError?.stack

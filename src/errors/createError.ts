@@ -2,8 +2,12 @@ import { AxiosError } from 'axios'
 import { ERROR_CODES } from './constants'
 import { SpacetimeError, SpacetimeErrorExtra } from './SpacetimeError'
 
-export function createError (reason: string, extra: SpacetimeErrorExtra) {
+export function createError (reason: string, extra?: SpacetimeErrorExtra) {
   return new SpacetimeError(reason, extra)
+}
+
+export function wrapError (err: any) {
+  return createError(err?.reason ?? 'unknown-error', { originalError: err, message: err?.message })
 }
 
 export interface ErrorResponseData {

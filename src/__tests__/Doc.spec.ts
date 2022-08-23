@@ -96,5 +96,5 @@ test('registers snapshot', () => {
 
   d.onSnapshot(listener)
 
-  expect(register).toHaveBeenCalledWith(listener, d)
+  expect(register).toHaveBeenCalledWith(d, listener, undefined)
 })

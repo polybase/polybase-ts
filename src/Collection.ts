@@ -1,7 +1,7 @@
 import Ajv, { ValidateFunction } from 'ajv'
 import { Doc } from './Doc'
 import { Query } from './Query'
-import { Subscription, SubscriptionFn } from './Subscription'
+import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
 import { BasicValue, CollectionMeta } from './types'
 
@@ -87,19 +87,19 @@ export class Collection<T = any> {
     return new Query<T>(this.id, this.client, this.onQuerySnapshotRegister)
   }
 
-  private onQuerySnapshotRegister = (fn: SubscriptionFn<T[]>, q: Query<T>) => {
+  private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<T[]>, errFn?: SubscriptionErrorFn) => {
     const k = q.key()
     if (!this.querySubs[k]) {
       this.querySubs[k] = new Subscription<T[]>(q.request(), this.client)
     }
-    this.querySubs[k].subscribe(fn)
+    this.querySubs[k].subscribe(fn, errFn)
   }
 
-  private onDocSnapshotRegister = (fn: SubscriptionFn<T>, d: Doc<T>) => {
+  private onDocSnapshotRegister = (d: Doc<T>, fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => {
     const k = d.key()
     if (!this.docSubs[k]) {
       this.docSubs[k] = new Subscription<T>(d.request(), this.client)
     }
-    this.docSubs[k].subscribe(fn)
+    this.docSubs[k].subscribe(fn, errFn)
   }
 }

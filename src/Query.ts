@@ -1,8 +1,8 @@
 import { Client } from './Client'
-import { SubscriptionFn } from './Subscription'
+import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Request, RequestParams } from './types'
 
-export type QuerySnapshotRegister<T> = (fn: SubscriptionFn<T[]>, q: Query<T>) => void
+export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<T[]>, errFn?: SubscriptionErrorFn) => void
 
 export class Query<T> {
   private id: string
@@ -46,8 +46,8 @@ export class Query<T> {
     return `query:${this.id}?${JSON.stringify(this.params)}`
   }
 
-  onSnapshot = (fn: SubscriptionFn<T[]>) => {
-    this.onSnapshotRegister(fn, this)
+  onSnapshot = (fn: SubscriptionFn<T[]>, errFn?: SubscriptionErrorFn) => {
+    this.onSnapshotRegister(this, fn, errFn)
   }
 
   request = (): Request => {

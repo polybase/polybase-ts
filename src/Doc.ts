@@ -1,9 +1,9 @@
 import { Collection } from './Collection'
-import { SubscriptionFn } from './Subscription'
+import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
 import { Client } from './Client'
 import { Request } from './types'
 
-export type DocSnapshotRegister<T> = (fn: SubscriptionFn<T>, d: Doc<T>) => void
+export type DocSnapshotRegister<T> = (d: Doc<T>, fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => void
 
 export class Doc<T> {
   private id: string
@@ -51,8 +51,8 @@ export class Doc<T> {
     return `doc:${this.collection.id}/${this.id}`
   }
 
-  onSnapshot = (fn: SubscriptionFn<T>) => {
-    this.onSnapshotRegister(fn, this)
+  onSnapshot = (fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => {
+    this.onSnapshotRegister(this, fn, errFn)
   }
 
   request = (): Request => ({

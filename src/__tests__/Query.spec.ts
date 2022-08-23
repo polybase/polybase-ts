@@ -45,5 +45,5 @@ test('registers snapshot', () => {
 
   q.limit(100).where('name', '==', 'Hannah').onSnapshot(listener)
 
-  expect(register).toHaveBeenCalledWith(listener, q)
+  expect(register).toHaveBeenCalledWith(q, listener, undefined)
 })

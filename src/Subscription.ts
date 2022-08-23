@@ -1,9 +1,11 @@
 import { AxiosError } from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'
+import { wrapError, SpacetimeError } from './errors'
 import { Request } from './types'
 
 export type SubscriptionFn<T> = ((data: T) => void)
+export type SubscriptionErrorFn = ((err: SpacetimeError) => void)
 
 export interface SubscriptionOptions {
   // Default timeout between long poll requests
@@ -17,8 +19,13 @@ const defaultOptions: SubscriptionOptions = {
   maxErrorTimeout: 60 * 1000,
 }
 
+export interface Listener<T> {
+  fn: SubscriptionFn<T>
+  errFn?: SubscriptionErrorFn
+}
+
 export class Subscription<T> {
-  private listeners: ((data: T) => void)[]
+  private listeners: Listener<T>[]
   private req: Request
   private client: Client
   private since?: string
@@ -50,10 +57,10 @@ export class Subscription<T> {
 
       this.since = res.headers['x-spacetime-timestamp']
 
-      this.listeners.forEach((fn) => {
+      this.listeners.forEach(({ fn }) => {
         fn(res.data)
       })
-    } catch (err) {
+    } catch (err: any) {
       // TODO: we should create a client abort error
       if (err instanceof AxiosError) {
         // We cancelled the request
@@ -62,8 +69,19 @@ export class Subscription<T> {
         }
       }
 
-      // TODO: improve logging/error
-      console.error('error', err)
+      let e = err
+      if (!(err instanceof SpacetimeError)) {
+        e = wrapError(err)
+      }
+
+      if (e instanceof SpacetimeError) {
+        this.listeners.forEach(({ errFn }) => {
+          if (errFn) errFn(e)
+        })
+      }
+
+      // Also log to console
+      console.error(err)
 
       this.errors += 1
 
@@ -89,11 +107,12 @@ export class Subscription<T> {
     }
   }
 
-  subscribe = (fn: SubscriptionFn<T>) => {
-    this.listeners.push(fn)
+  subscribe = (fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => {
+    const l = { fn, errFn }
+    this.listeners.push(l)
     this.start()
     return () => {
-      const index = this.listeners.indexOf(fn)
+      const index = this.listeners.indexOf(l)
 
       // Already removed, shouldn't happen
       if (index === -1) return
