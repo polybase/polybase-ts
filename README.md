@@ -1,4 +1,4 @@
-# Spacetime (Browser/Node)
+# Spacetime Client (Browser/Node)
 
 A client to connect to the Spacetime decentralized database.
 
