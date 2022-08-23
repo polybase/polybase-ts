@@ -2,7 +2,7 @@ import { Collection } from './Collection'
 import { SubscriptionFn } from './Subscription'
 import { Client, Request } from './Client'
 
-export type DocSnapshotRegister<T> = (fn: SubscriptionFn<T>) => void
+export type DocSnapshotRegister<T> = (fn: SubscriptionFn<T>, d: Doc<T>) => void
 
 export class Doc<T> {
   private id: string
@@ -42,10 +42,7 @@ export class Doc<T> {
   }
 
   get = async () => {
-    const res = await this.client.request({
-      ...this.request(),
-      method: 'GET',
-    }).send()
+    const res = await this.client.request(this.request()).send()
     return res.data
   }
 
@@ -54,7 +51,7 @@ export class Doc<T> {
   }
 
   onSnapshot = (fn: SubscriptionFn<T>) => {
-    this.onSnapshotRegister(fn)
+    this.onSnapshotRegister(fn, this)
   }
 
   request = (): Request => ({

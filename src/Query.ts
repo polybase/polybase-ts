@@ -1,13 +1,13 @@
 import { Client, Request, RequestParams } from './Client'
 import { SubscriptionFn } from './Subscription'
 
-export type QuerySnapshotRegister<T> = (fn: SubscriptionFn<T>) => void
+export type QuerySnapshotRegister<T> = (fn: SubscriptionFn<T>, q: Query<T>) => void
 
 export class Query<T> {
-  id: string
-  params: RequestParams
-  client: Client
-  onSnapshotRegister: QuerySnapshotRegister<T>
+  private id: string
+  private params: RequestParams
+  private client: Client
+  private onSnapshotRegister: QuerySnapshotRegister<T>
 
   constructor (id: string, client: Client, onSnapshotRegister: QuerySnapshotRegister<T>) {
     this.id = id
@@ -34,24 +34,19 @@ export class Query<T> {
 
   get = async () => {
     // Activate query
-    const res = await this.client.request({
-      ...this.request(),
-      method: 'GET',
-    }).send()
+    const res = await this.client.request(this.request()).send()
     return res.data
   }
 
   // TODO: validate query has required indexes
-  validate = () => {
-
-  }
+  validate = () => {}
 
   key = () => {
     return `query:${this.id}?${JSON.stringify(this.params)}`
   }
 
   onSnapshot = (fn: SubscriptionFn<T>) => {
-    this.onSnapshotRegister(fn)
+    this.onSnapshotRegister(fn, this)
   }
 
   request = (): Request => {

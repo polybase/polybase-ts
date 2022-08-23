@@ -23,18 +23,20 @@ export interface SenderResponse {
 
 export class Client {
   private sender: Sender
+  private baseURL?: string
 
-  constructor (sender: Sender) {
+  constructor (sender: Sender, baseURL?: string) {
     this.sender = sender
+    this.baseURL = baseURL
   }
 
   request = (req: Request): ClientRequest => {
-    const aborter = new AbortController()
     return new ClientRequest(this.sender, {
       url: req.url,
       method: req.method,
       params: parseParams(req.params),
-      signal: aborter.signal,
+      baseURL: this.baseURL,
+      data: req.data,
     })
   }
 }
@@ -55,7 +57,10 @@ export class ClientRequest {
   }
 
   send = async (): Promise<SenderResponse> => {
-    return this.sender(this.req)
+    return this.sender({
+      ...this.req,
+      signal: this.aborter.signal,
+    })
   }
 }
 
