@@ -6,15 +6,17 @@ A client to connect to the Spacetime decentralized database.
 ## Install Spacetime
 
 ```bash
-npm install @spacetimedb/spacetime
+npm install @spacetimexyz/spacetime
 ```
 ```bash
-yarn add @spacetimedb/spacetime
+yarn add @spacetimexyz/spacetime
 ```
 
 ## Initialize the SDK
 
 ```typescript
+import Spacetime from '@spacetimexyz/spacetime'
+
 const db = new Spacetime({
   ...config
 })

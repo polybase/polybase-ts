@@ -1,17 +1,20 @@
 {
-  "name": "@spacetimehq/client",
+  "name": "@spacetimexyz/client",
   "version": "0.1.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "license": "MIT",
   "files": [
     "dist/*"
   ],
   "packageManager": "yarn@3.1.1",
   "scripts": {
     "start": "watch 'yarn build' ./src",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "jest"
   },
   "jest": {
+    "preset": "ts-jest",
     "roots": [
       "<rootDir>/src"
     ],
@@ -19,27 +22,31 @@
       "<rootDir>/src/**/__tests__/**/*.spec.{js,jsx,ts,tsx}",
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
     ],
-    "testEnvironment": "jest-environment-jsdom-fourteen"
+    "testEnvironment": "node"
   },
   "devDependencies": {
+    "@sinonjs/fake-timers": "^9.1.2",
+    "@types/jest": "^28.1.7",
     "@types/lodash.merge": "^4.6.7",
+    "@types/sinonjs__fake-timers": "^8.1.2",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
-    "eslint": "^8.15.0",
+    "axios-mock-adapter": "^1.21.2",
+    "eslint": "^8.22.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.8.7",
     "eslint-plugin-n": "^15.2.0",
     "eslint-plugin-promise": "^6.0.0",
+    "jest": "^28.1.3",
+    "ts-jest": "^28.0.8",
     "typescript": "^4.6.4",
     "watch": "^1.0.2"
   },
   "dependencies": {
     "ajv": "^8.11.0",
     "axios": "^0.27.2",
-    "buffer": "^6.0.3",
-    "ipfs-core": "^0.14.3",
     "lodash.merge": "^4.6.2",
-    "readable-stream": "^3.6.0",
     "util": "^0.12.4"
   }
 }

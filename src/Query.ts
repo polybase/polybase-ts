@@ -1,17 +1,15 @@
-import { AxiosInstance } from 'axios'
-import { Request, RequestParams } from './types'
+import { Client, Request, RequestParams } from './Client'
 import { SubscriptionFn } from './Subscription'
-import { toAxiosRequest } from './util'
 
 export type QuerySnapshotRegister<T> = (fn: SubscriptionFn<T>) => void
 
 export class Query<T> {
   id: string
   params: RequestParams
-  client: AxiosInstance
+  client: Client
   onSnapshotRegister: QuerySnapshotRegister<T>
 
-  constructor (id: string, client: AxiosInstance, onSnapshotRegister: QuerySnapshotRegister<T>) {
+  constructor (id: string, client: Client, onSnapshotRegister: QuerySnapshotRegister<T>) {
     this.id = id
     this.params = {}
     this.client = client
@@ -36,11 +34,16 @@ export class Query<T> {
 
   get = async () => {
     // Activate query
-    const res = await this.client({
+    const res = await this.client.request({
+      ...this.request(),
       method: 'GET',
-      ...toAxiosRequest(this.request()),
-    })
+    }).send()
     return res.data
+  }
+
+  // TODO: validate query has required indexes
+  validate = () => {
+
   }
 
   key = () => {
@@ -54,6 +57,7 @@ export class Query<T> {
   request = (): Request => {
     return {
       url: `/${this.id}`,
+      method: 'GET',
       params: this.params,
     }
   }

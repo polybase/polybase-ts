@@ -1,18 +1,16 @@
-import { AxiosInstance } from 'axios'
 import { Collection } from './Collection'
 import { SubscriptionFn } from './Subscription'
-import { Request } from './types'
-import { toAxiosRequest } from './util'
+import { Client, Request } from './Client'
 
 export type DocSnapshotRegister<T> = (fn: SubscriptionFn<T>) => void
 
 export class Doc<T> {
   private id: string
   private collection: Collection
-  private client: AxiosInstance
+  private client: Client
   private onSnapshotRegister: DocSnapshotRegister<T>
 
-  constructor (id: string, collection: Collection, client: AxiosInstance, onSnapshotRegister: DocSnapshotRegister<T>) {
+  constructor (id: string, collection: Collection, client: Client, onSnapshotRegister: DocSnapshotRegister<T>) {
     this.id = id
     this.collection = collection
     this.client = client
@@ -20,10 +18,10 @@ export class Doc<T> {
   }
 
   delete = async () => {
-    const res = await this.client({
+    const res = await this.client.request({
       ...this.request(),
       method: 'DELETE',
-    })
+    }).send()
     return res.data
   }
 
@@ -34,21 +32,20 @@ export class Doc<T> {
       throw new Error('doc is not valid')
     }
 
-    const res = await this.client({
-      ...toAxiosRequest(this.request()),
+    const res = await this.client.request({
+      url: `/${this.collection.id}/${this.id}`,
       method: 'PUT',
       data,
-    })
+    }).send()
 
     return res.data
   }
 
   get = async () => {
-    const res = await this.client({
-      ...toAxiosRequest(this.request()),
+    const res = await this.client.request({
+      ...this.request(),
       method: 'GET',
-    })
-
+    }).send()
     return res.data
   }
 
@@ -62,6 +59,6 @@ export class Doc<T> {
 
   request = (): Request => ({
     url: `/${this.collection.id}/${this.id}`,
-    params: {},
+    method: 'GET',
   })
 }

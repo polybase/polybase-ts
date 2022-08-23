@@ -1,72 +1,57 @@
 import Ajv, { ValidateFunction } from 'ajv'
-import { AxiosInstance } from 'axios'
-import type { Spacetime } from './Spacetime'
 import { Doc } from './Doc'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn } from './Subscription'
+import { Client } from './Client'
 import { BasicValue } from './types'
-
-const ajv = new Ajv()
-
-export interface Listener<T> {
-  fn: (val: T) => void
-}
 
 export interface CollectionMeta {
   schema: any
   indexes: string[]
 }
 
-export interface CollectionListQueryParams {
-  cursor: string
-  limit: number
-  where: CollectionListQueryParamsWhere
-  sort: CollectionListQueryParamsSort[]
-}
-
-interface CollectionListQueryParamsWhere {
-
-}
-
-interface CollectionListQueryParamsSort {
-  [key: string]: -1|1
-}
-
 export class Collection<T = any> {
-  private st: Spacetime
   id: string
   private querySubs: Record<string, Subscription<T[]>> = {}
   private docSubs: Record<string, Subscription<T>> = {}
-  private meta: Promise<CollectionMeta>
-  private validator: Promise<ValidateFunction<T>>
-  private client: AxiosInstance
+  private meta?: CollectionMeta
+  private validator?: ValidateFunction<T>
+  private client: Client
 
   // TODO: this will be fetched
-  constructor (id: string, st: Spacetime, client: AxiosInstance) {
-    this.st = st
+  constructor (id: string, client: Client) {
     this.id = id
-    this.meta = this.getMeta()
-    this.validator = this.getValidator()
     this.client = client
   }
 
+  load = async () => {
+    await Promise.all([
+      this.getValidator(),
+    ])
+  }
+
   getMeta = async () => {
-    if (this.meta) return this.meta
-    const res = await this.client({
-      url: `/$collections/${this.id}`,
-      method: 'GET',
-    })
-    return res.data
+    try {
+      if (this.meta) return this.meta
+      const res = await this.client.request({
+        url: `/$collections/${this.id}`,
+        method: 'GET',
+      }).send()
+      this.meta = res.data
+      return res.data
+    } catch (e) {
+      // TODO: handle missing collection
+      throw new Error('Unable to fetch metadata')
+    }
   }
 
   private getValidator = async (): Promise<ValidateFunction<T>> => {
     if (this.validator) return this.validator
     const meta = await this.getMeta()
-    if (!meta) {
-      // TODO: handle errors better
-      throw new Error('Schema is not defined')
-    }
-    return ajv.compile<T>(meta.schema)
+    const ajv = new Ajv()
+    const v = ajv.compile<T>(meta.schema)
+    this.validator = v
+    return v
   }
 
   validate = async (data: T) => {
@@ -75,10 +60,10 @@ export class Collection<T = any> {
   }
 
   get = async () => {
-    const res = await this.client({
+    const res = await this.client.request({
       url: `/${this.id}`,
       method: 'GET',
-    })
+    }).send()
 
     return res.data
   }
