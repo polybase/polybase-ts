@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios'
 import merge from 'lodash.merge'
-import { Client, Request } from './Client'
+import { Client } from './Client'
+import { Request } from './types'
 
 export type SubscriptionFn<T> = ((data: T) => void)
 

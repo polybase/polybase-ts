@@ -1,5 +1,6 @@
-import { Client, Request, RequestParams } from './Client'
+import { Client } from './Client'
 import { SubscriptionFn } from './Subscription'
+import { Request, RequestParams } from './types'
 
 export type QuerySnapshotRegister<T> = (fn: SubscriptionFn<T>, q: Query<T>) => void
 

@@ -1,8 +1,8 @@
 import axios from 'axios'
 import merge from 'lodash.merge'
-import { Client, Sender } from './Client'
+import { Client } from './Client'
 import { Collection } from './Collection'
-import { CollectionMeta } from './types'
+import { CollectionMeta, Sender } from './types'
 
 export interface SpacetimeConfig {
   baseURL: string

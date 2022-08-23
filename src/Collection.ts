@@ -3,12 +3,7 @@ import { Doc } from './Doc'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn } from './Subscription'
 import { Client } from './Client'
-import { BasicValue } from './types'
-
-export interface CollectionMeta {
-  schema: any
-  indexes: string[]
-}
+import { BasicValue, CollectionMeta } from './types'
 
 export class Collection<T = any> {
   id: string

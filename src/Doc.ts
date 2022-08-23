@@ -1,6 +1,7 @@
 import { Collection } from './Collection'
 import { SubscriptionFn } from './Subscription'
-import { Client, Request } from './Client'
+import { Client } from './Client'
+import { Request } from './types'
 
 export type DocSnapshotRegister<T> = (fn: SubscriptionFn<T>, d: Doc<T>) => void
 

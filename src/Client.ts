@@ -1,25 +1,6 @@
+
 import { AxiosRequestConfig } from 'axios'
-import { BasicValue } from './types'
-
-export interface Request {
-  url: string
-  method: 'GET'|'POST'|'PUT'|'DELETE'
-  params?: RequestParams
-  data?: any
-}
-
-export interface RequestParams {
-  limit?: number
-  since?: string
-  where?: Record<string, BasicValue>
-}
-
-export type Sender = (config: AxiosRequestConfig) => Promise<SenderResponse>
-export interface SenderResponse {
-  status: number
-  headers: Record<string, string>
-  data: any
-}
+import { BasicValue, Request, RequestParams, Sender, SenderResponse } from './types'
 
 export class Client {
   private sender: Sender

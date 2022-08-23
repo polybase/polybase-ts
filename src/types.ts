@@ -1,4 +1,5 @@
 
+import { AxiosRequestConfig } from 'axios'
 export type BasicValue = string|number|boolean
 
 export interface CollectionMeta {
@@ -23,4 +24,24 @@ export interface CollectionMetaIndexField {
 
 export interface CollectionMetaSchemaField {
   type: 'string'|'number'|'boolean'
+}
+
+export interface Request {
+  url: string
+  method: 'GET'|'POST'|'PUT'|'DELETE'
+  params?: RequestParams
+  data?: any
+}
+
+export interface RequestParams {
+  limit?: number
+  since?: string
+  where?: Record<string, BasicValue>
+}
+
+export type Sender = (config: AxiosRequestConfig) => Promise<SenderResponse>
+export interface SenderResponse {
+  status: number
+  headers: Record<string, string>
+  data: any
 }
