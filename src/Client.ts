@@ -2,13 +2,18 @@
 import { AxiosRequestConfig } from 'axios'
 import { BasicValue, Request, RequestParams, Sender, SenderResponse } from './types'
 
+export interface ClientConfig {
+  userAgent: string
+  baseURL: string
+}
+
 export class Client {
   private sender: Sender
-  private baseURL?: string
+  private config?: ClientConfig
 
-  constructor (sender: Sender, baseURL?: string) {
+  constructor (sender: Sender, config?: ClientConfig) {
     this.sender = sender
-    this.baseURL = baseURL
+    this.config = config
   }
 
   request = (req: Request): ClientRequest => {
@@ -16,8 +21,11 @@ export class Client {
       url: req.url,
       method: req.method,
       params: parseParams(req.params),
-      baseURL: this.baseURL,
+      baseURL: this.config?.baseURL,
       data: req.data,
+      headers: {
+        'User-Agent': this.config?.userAgent ?? 'Spacetime',
+      },
     })
   }
 }

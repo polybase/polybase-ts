@@ -1,6 +1,7 @@
 import { Doc } from '../Doc'
 import { Collection } from '../Collection'
 import { Client } from '../Client'
+import { defaultRequest } from './util'
 
 let sender: jest.Mock
 let register: jest.Mock
@@ -31,10 +32,9 @@ test('get request is sent to client', async () => {
 
   expect(sender).toBeCalledTimes(1)
   expect(sender).toBeCalledWith({
+    ...defaultRequest,
     url: '/col1/id1',
     method: 'GET',
-    signal: expect.objectContaining({}),
-    params: {},
   })
 })
 
@@ -50,10 +50,9 @@ test('delete request is sent to client', async () => {
 
   expect(sender).toBeCalledTimes(1)
   expect(sender).toBeCalledWith({
+    ...defaultRequest,
     url: '/col1/id1',
     method: 'DELETE',
-    signal: expect.objectContaining({}),
-    params: {},
   })
 })
 
@@ -84,11 +83,10 @@ test('set request is sent to client', async () => {
 
   expect(sender).toBeCalledTimes(2)
   expect(sender).toBeCalledWith({
+    ...defaultRequest,
     url: '/col1/id1',
     method: 'PUT',
-    signal: expect.objectContaining({}),
     data: set,
-    params: {},
   })
 })
 

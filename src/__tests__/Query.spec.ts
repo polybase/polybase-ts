@@ -1,5 +1,6 @@
 import { Query } from '../Query'
 import { Client } from '../Client'
+import { defaultRequest } from './util'
 
 let sender: jest.Mock
 let register: jest.Mock
@@ -28,13 +29,13 @@ test('query is sent to client', async () => {
 
   expect(sender).toBeCalledTimes(1)
   expect(sender).toBeCalledWith({
+    ...defaultRequest,
     url: '/col1',
     method: 'GET',
     params: {
       limit: 100,
       where: JSON.stringify({ name: 'Hannah' }),
     },
-    signal: expect.objectContaining({}),
   })
 })
 

@@ -2,6 +2,7 @@
 import { Spacetime } from '../Spacetime'
 import { Collection } from '../Collection'
 import { CollectionMeta } from '../types'
+import { defaultRequest } from './util'
 
 // const clock = FakeTimers.install()
 const baseURL = 'https://base.com/'
@@ -46,12 +47,14 @@ test('creates collection and returns it', async () => {
   const n = await s.createCollection(meta)
 
   expect(sender).toBeCalledWith({
+    ...defaultRequest,
     baseURL,
     url: '/$collections/new',
     method: 'POST',
     data: meta,
-    params: {},
-    signal: expect.objectContaining({}),
+    headers: {
+      'User-Agent': 'Spacetime:v0',
+    },
   })
 
   expect(n).toBeInstanceOf(Collection)
