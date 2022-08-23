@@ -12,7 +12,7 @@ export interface SpacetimeConfig {
 
 const defaultConfig = {
   baseURL: 'https://testnet.spacetime.is/v0/data',
-  userAgent: 'Spacetime:v0',
+  userAgent: 'spacetime@ts/client:v0',
   sender: axios,
 }
 

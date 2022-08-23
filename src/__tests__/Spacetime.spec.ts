@@ -53,7 +53,7 @@ test('creates collection and returns it', async () => {
     method: 'POST',
     data: meta,
     headers: {
-      'User-Agent': 'Spacetime:v0',
+      'User-Agent': 'spacetime@ts/client:v0',
     },
   })
 
