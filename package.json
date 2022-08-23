@@ -9,9 +9,13 @@
   ],
   "packageManager": "yarn@3.1.1",
   "scripts": {
+    "clean": "rimraf dist/* &",
     "start": "watch 'yarn build' ./src",
-    "build": "tsc",
-    "test": "jest"
+    "build": "yarn clean &&  tsc",
+    "prepare": "yarn build",
+    "release": "yarn np",
+    "test": "jest",
+    "fix": "yarn eslint \"./src/**/*.{js,jsx}\" --fix"
   },
   "jest": {
     "preset": "ts-jest",
@@ -39,6 +43,8 @@
     "eslint-plugin-n": "^15.2.0",
     "eslint-plugin-promise": "^6.0.0",
     "jest": "^28.1.3",
+    "np": "^7.6.2",
+    "rimraf": "^3.0.2",
     "ts-jest": "^28.0.8",
     "typescript": "^4.6.4",
     "watch": "^1.0.2"
