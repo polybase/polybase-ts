@@ -78,7 +78,7 @@ export class Collection<T = any> {
     return this.createQuery().limit(limit)
   }
 
-  onSnapshot = (fn: SubscriptionFn<T>) => {
+  onSnapshot = (fn: SubscriptionFn<T[]>) => {
     this.createQuery().onSnapshot(fn)
   }
 
