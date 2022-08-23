@@ -78,6 +78,10 @@ export class Collection<T = any> {
     return this.createQuery().limit(limit)
   }
 
+  onSnapshot = (fn: SubscriptionFn<T>) => {
+    this.createQuery().onSnapshot(fn)
+  }
+
   private createQuery () {
     const q = new Query<T[]>(this.id, this.client, (fn) => {
       this.onQuerySnapshotRegister(q, fn)
