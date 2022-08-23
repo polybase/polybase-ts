@@ -82,6 +82,10 @@ export class Collection<T = any> {
     this.createQuery().onSnapshot(fn)
   }
 
+  key = () => {
+    return `collection:${this.id}`
+  }
+
   private createQuery () {
     const q = new Query<T[]>(this.id, this.client, (fn) => {
       this.onQuerySnapshotRegister(q, fn)
