@@ -64,17 +64,14 @@ export class Collection<T = any> {
   }
 
   doc = (id: string): Doc<T> => {
-    const d = new Doc<T>(id, this, this.client, (fn) => {
-      this.onDocSnapshotRegister(d, fn)
-    })
-    return d
+    return new Doc<T>(id, this, this.client, this.onDocSnapshotRegister)
   }
 
-  where = (field: string, op: '==', value: BasicValue): Query<T[]> => {
+  where = (field: string, op: '==', value: BasicValue): Query<T> => {
     return this.createQuery().where(field, op, value)
   }
 
-  limit = (limit: number): Query<T[]> => {
+  limit = (limit: number): Query<T> => {
     return this.createQuery().limit(limit)
   }
 
@@ -87,13 +84,10 @@ export class Collection<T = any> {
   }
 
   private createQuery () {
-    const q = new Query<T[]>(this.id, this.client, (fn) => {
-      this.onQuerySnapshotRegister(q, fn)
-    })
-    return q
+    return new Query<T>(this.id, this.client, this.onQuerySnapshotRegister)
   }
 
-  private onQuerySnapshotRegister = (q: Query<T[]>, fn: SubscriptionFn<T[]>) => {
+  private onQuerySnapshotRegister = (fn: SubscriptionFn<T[]>, q: Query<T>) => {
     const k = q.key()
     if (!this.querySubs[k]) {
       this.querySubs[k] = new Subscription<T[]>(q.request(), this.client)
@@ -101,16 +95,11 @@ export class Collection<T = any> {
     this.querySubs[k].subscribe(fn)
   }
 
-  private onDocSnapshotRegister = (d: Doc<T>, fn: SubscriptionFn<T>) => {
+  private onDocSnapshotRegister = (fn: SubscriptionFn<T>, d: Doc<T>) => {
     const k = d.key()
     if (!this.docSubs[k]) {
       this.docSubs[k] = new Subscription<T>(d.request(), this.client)
     }
     this.docSubs[k].subscribe(fn)
   }
-
-  // private onDocSnapshotRegister = (doc: Doc<T[]>) => {
-  //   const k = doc.key()
-  //   const sub =
-  // }
 }
