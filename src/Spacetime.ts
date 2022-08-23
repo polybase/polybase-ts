@@ -35,7 +35,7 @@ export class Spacetime {
 
   createCollection = async (id: string, data: CollectionMeta) => {
     const res = await this.client.request({
-      url: '/$collections',
+      url: `/$collections/${id}`,
       method: 'POST',
       data,
     }).send()
