@@ -13,7 +13,7 @@
     "start": "watch 'yarn build' ./src",
     "build": "yarn clean &&  tsc",
     "prepare": "yarn build",
-    "release": "yarn np",
+    "release": "npx np",
     "test": "jest",
     "fix": "yarn eslint \"./src/**/*.{js,jsx}\" --fix"
   },
