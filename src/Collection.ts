@@ -7,8 +7,8 @@ import { BasicValue, CollectionMeta, CollectionDocument } from './types'
 
 export class Collection<T = any> {
   id: string
-  private querySubs: Record<string, Subscription<T[]>> = {}
-  private docSubs: Record<string, Subscription<T>> = {}
+  private querySubs: Record<string, Subscription<CollectionDocument<T>[]>> = {}
+  private docSubs: Record<string, Subscription<CollectionDocument<T>>> = {}
   private meta?: CollectionMeta
   private validator?: ValidateFunction<T>
   private client: Client
@@ -75,7 +75,7 @@ export class Collection<T = any> {
     return this.createQuery().limit(limit)
   }
 
-  onSnapshot = (fn: SubscriptionFn<T[]>) => {
+  onSnapshot = (fn: SubscriptionFn<CollectionDocument<T>[]>) => {
     return this.createQuery().onSnapshot(fn)
   }
 
@@ -87,18 +87,18 @@ export class Collection<T = any> {
     return new Query<T>(this.id, this.client, this.onQuerySnapshotRegister)
   }
 
-  private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<T[]>, errFn?: SubscriptionErrorFn) => {
+  private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<CollectionDocument<T>[]>, errFn?: SubscriptionErrorFn) => {
     const k = q.key()
     if (!this.querySubs[k]) {
-      this.querySubs[k] = new Subscription<T[]>(q.request(), this.client)
+      this.querySubs[k] = new Subscription<CollectionDocument<T>[]>(q.request(), this.client)
     }
     return this.querySubs[k].subscribe(fn, errFn)
   }
 
-  private onDocSnapshotRegister = (d: Doc<T>, fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => {
+  private onDocSnapshotRegister = (d: Doc<T>, fn: SubscriptionFn<CollectionDocument<T>>, errFn?: SubscriptionErrorFn) => {
     const k = d.key()
     if (!this.docSubs[k]) {
-      this.docSubs[k] = new Subscription<T>(d.request(), this.client)
+      this.docSubs[k] = new Subscription<CollectionDocument<T>>(d.request(), this.client)
     }
     return this.docSubs[k].subscribe(fn, errFn)
   }

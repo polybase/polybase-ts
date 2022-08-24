@@ -2,7 +2,7 @@ import { Client } from './Client'
 import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Request, RequestParams, CollectionDocument } from './types'
 
-export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<T[]>, errFn?: SubscriptionErrorFn) => (() => void)
+export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionDocument<T>[]>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export class Query<T> {
   private id: string
@@ -46,7 +46,7 @@ export class Query<T> {
     return `query:${this.id}?${JSON.stringify(this.params)}`
   }
 
-  onSnapshot = (fn: SubscriptionFn<T[]>, errFn?: SubscriptionErrorFn) => {
+  onSnapshot = (fn: SubscriptionFn<CollectionDocument<T>[]>, errFn?: SubscriptionErrorFn) => {
     return this.onSnapshotRegister(this, fn, errFn)
   }
 
