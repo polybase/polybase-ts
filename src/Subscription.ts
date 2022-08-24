@@ -121,6 +121,9 @@ export class Subscription<T> {
   subscribe = (fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => {
     const l = { fn, errFn }
     this.listeners.push(l)
+    if (this.data) {
+      fn(this.data)
+    }
     this.start()
     return () => {
       const index = this.listeners.indexOf(l)
