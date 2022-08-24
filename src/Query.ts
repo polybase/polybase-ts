@@ -1,8 +1,8 @@
 import { Client } from './Client'
 import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
-import { Request, RequestParams } from './types'
+import { Request, RequestParams, CollectionDocument } from './types'
 
-export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<T[]>, errFn?: SubscriptionErrorFn) => void
+export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<T[]>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export class Query<T> {
   private id: string
@@ -33,10 +33,10 @@ export class Query<T> {
     return this
   }
 
-  get = async () => {
+  get = async (): Promise<CollectionDocument<T>[]> => {
     // Activate query
     const res = await this.client.request(this.request()).send()
-    return res.data
+    return res.data?.data
   }
 
   // TODO: validate query has required indexes
@@ -47,7 +47,7 @@ export class Query<T> {
   }
 
   onSnapshot = (fn: SubscriptionFn<T[]>, errFn?: SubscriptionErrorFn) => {
-    this.onSnapshotRegister(this, fn, errFn)
+    return this.onSnapshotRegister(this, fn, errFn)
   }
 
   request = (): Request => {

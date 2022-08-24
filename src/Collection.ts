@@ -3,7 +3,7 @@ import { Doc } from './Doc'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
-import { BasicValue, CollectionMeta } from './types'
+import { BasicValue, CollectionMeta, CollectionDocument } from './types'
 
 export class Collection<T = any> {
   id: string
@@ -32,8 +32,8 @@ export class Collection<T = any> {
         url: `/$collections/${this.id}`,
         method: 'GET',
       }).send()
-      this.meta = res.data
-      return res.data
+      this.meta = res.data?.data as CollectionMeta
+      return this.meta
     } catch (e) {
       // TODO: handle missing collection
       throw new Error('Unable to fetch metadata')
@@ -54,13 +54,13 @@ export class Collection<T = any> {
     return validator(data)
   }
 
-  get = async () => {
+  get = async (): Promise<CollectionDocument<T>[]> => {
     const res = await this.client.request({
       url: `/${this.id}`,
       method: 'GET',
     }).send()
 
-    return res.data
+    return res.data?.data
   }
 
   doc = (id: string): Doc<T> => {
@@ -76,7 +76,7 @@ export class Collection<T = any> {
   }
 
   onSnapshot = (fn: SubscriptionFn<T[]>) => {
-    this.createQuery().onSnapshot(fn)
+    return this.createQuery().onSnapshot(fn)
   }
 
   key = () => {
@@ -92,7 +92,7 @@ export class Collection<T = any> {
     if (!this.querySubs[k]) {
       this.querySubs[k] = new Subscription<T[]>(q.request(), this.client)
     }
-    this.querySubs[k].subscribe(fn, errFn)
+    return this.querySubs[k].subscribe(fn, errFn)
   }
 
   private onDocSnapshotRegister = (d: Doc<T>, fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => {
@@ -100,6 +100,6 @@ export class Collection<T = any> {
     if (!this.docSubs[k]) {
       this.docSubs[k] = new Subscription<T>(d.request(), this.client)
     }
-    this.docSubs[k].subscribe(fn, errFn)
+    return this.docSubs[k].subscribe(fn, errFn)
   }
 }

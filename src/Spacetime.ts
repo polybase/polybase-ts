@@ -46,7 +46,9 @@ export class Spacetime {
     await this.client.request({
       url: `/$collections/${id}`,
       method: 'POST',
-      data,
+      data: {
+        data,
+      },
     }).send()
     return this.collection(data.id)
   }

@@ -58,10 +58,15 @@ export class Subscription<T> {
 
       const timestamp = res.headers['x-spacetime-timestamp']
       this.since = timestamp ? parseFloat(timestamp) : Date.now() * 1000
-      this.data = res.data
+
+      // TODO: this is not nice, we should handle proccessing resp in
+      // parent doc or query
+      this.data = Array.isArray(res.data?.data)
+        ? res.data?.data
+        : res.data
 
       this.listeners.forEach(({ fn }) => {
-        fn(res.data)
+        if (this.data) fn(this.data)
       })
     } catch (err: any) {
       const statusCode = err.statusCode ?? err.status ?? err.code

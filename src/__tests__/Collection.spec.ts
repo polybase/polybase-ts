@@ -40,7 +40,9 @@ test('get metadata - success', async () => {
 
   sender.mockResolvedValue({
     status: 200,
-    data: meta,
+    data: {
+      data: meta,
+    },
   })
 
   const c = new Collection('col', client)
@@ -62,7 +64,9 @@ test('validate valid doc', async () => {
 
   sender.mockResolvedValue({
     status: 200,
-    data: meta,
+    data: {
+      data: meta,
+    },
   })
 
   const c = new Collection('col', client)
@@ -85,7 +89,9 @@ test('validate invalid doc', async () => {
 
   sender.mockResolvedValue({
     status: 200,
-    data: meta,
+    data: {
+      data: meta,
+    },
   })
 
   const c = new Collection('col', client)
@@ -101,7 +107,9 @@ test('get collection', async () => {
 
   sender.mockResolvedValue({
     status: 200,
-    data: want,
+    data: {
+      data: want,
+    },
   })
 
   const c = new Collection('col', client)

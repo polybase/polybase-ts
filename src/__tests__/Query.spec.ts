@@ -22,7 +22,9 @@ test('query is sent to client', async () => {
     id: 'id1',
   }]
   sender.mockResolvedValue({
-    data,
+    data: {
+      data,
+    },
   })
   const q = new Query('col1', client, register)
   await q.limit(100).where('name', '==', 'Hannah').get()

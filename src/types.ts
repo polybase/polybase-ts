@@ -2,6 +2,11 @@
 import { AxiosRequestConfig } from 'axios'
 export type BasicValue = string|number|boolean
 
+export interface CollectionDocument<T> {
+  block: string
+  data: T
+}
+
 export interface CollectionMeta {
   id: string
   schema: CollectionMetaSchema
@@ -19,7 +24,7 @@ export interface CollectionMetaIndex {
 
 export interface CollectionMetaIndexField {
   field: string
-  direction: 'asc'|'desc'
+  direction?: 'asc'|'desc'
 }
 
 export interface CollectionMetaSchemaField {

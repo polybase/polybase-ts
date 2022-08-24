@@ -51,7 +51,9 @@ test('creates collection and returns it', async () => {
     baseURL,
     url: '/$collections/new',
     method: 'POST',
-    data: meta,
+    data: {
+      data: meta,
+    },
     headers: {
       'X-Spacetime-Client': 'spacetime@ts/client:v0',
     },

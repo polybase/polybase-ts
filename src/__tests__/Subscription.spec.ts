@@ -30,7 +30,9 @@ test('add subscriber', async () => {
 
   sender.mockResolvedValue({
     status: 200,
-    data: rec,
+    data: {
+      data: rec,
+    },
     headers: {
       'x-spacetime-timestamp': timestamp,
     },
@@ -49,7 +51,9 @@ test('add subscriber', async () => {
   await clock.tickAsync(0)
 
   expect(spy).toHaveBeenCalledTimes(1)
-  expect(spy).toHaveBeenCalledWith(rec)
+  expect(spy).toHaveBeenCalledWith({
+    data: rec,
+  })
 
   // Stops on the next run
   await clock.tickAsync(100)

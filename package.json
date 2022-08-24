@@ -14,17 +14,18 @@
     "build": "yarn clean &&  tsc",
     "prepare": "yarn build",
     "release": "npx np",
-    "test": "jest",
+    "test": "jest ./src",
+    "test:e2e": "jest ./e2e",
     "fix": "yarn eslint \"./src/**/*.{js,jsx}\" --fix"
   },
   "jest": {
     "preset": "ts-jest",
     "roots": [
-      "<rootDir>/src"
+      "<rootDir>/src",
+      "<rootDir>/e2e"
     ],
     "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.spec.{js,jsx,ts,tsx}",
-      "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
+      "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
     ],
     "testEnvironment": "node"
   },

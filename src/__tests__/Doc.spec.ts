@@ -25,7 +25,9 @@ test('get request is sent to client', async () => {
     id: 'id1',
   }
   sender.mockResolvedValue({
-    data,
+    data: {
+      data,
+    },
   })
   const d = new Doc('id1', collection, client, register)
   await d.get()
@@ -43,7 +45,9 @@ test('delete request is sent to client', async () => {
     id: 'id1',
   }
   sender.mockResolvedValue({
-    data,
+    data: {
+      data,
+    },
   })
   const d = new Doc('id1', collection, client, register)
   await d.delete()
@@ -72,10 +76,14 @@ test('set request is sent to client', async () => {
     id: 'id1',
   }]
   sender.mockResolvedValueOnce({
-    data: meta,
+    data: {
+      data: meta,
+    },
   })
   sender.mockResolvedValueOnce({
-    data,
+    data: {
+      data,
+    },
   })
   const d = new Doc('id1', collection, client, register)
   const set = { name: 'Jenna' }
@@ -86,7 +94,9 @@ test('set request is sent to client', async () => {
     ...defaultRequest,
     url: '/col1/id1',
     method: 'PUT',
-    data: set,
+    data: {
+      data: set,
+    },
   })
 })
 

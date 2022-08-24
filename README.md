@@ -44,3 +44,11 @@ const doc = await colRef.doc("london").set({
 })
 ```
 
+
+# Tests
+
+To run E2E tests, ensure that [Spacetime](https://github.com/spacetimehq/spacetime) is running, and then run:
+
+```
+yarn test:e2e
+```

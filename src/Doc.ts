@@ -1,9 +1,9 @@
 import { Collection } from './Collection'
 import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
 import { Client } from './Client'
-import { Request } from './types'
+import { Request, CollectionDocument } from './types'
 
-export type DocSnapshotRegister<T> = (d: Doc<T>, fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => void
+export type DocSnapshotRegister<T> = (d: Doc<T>, fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export class Doc<T> {
   private id: string
@@ -26,7 +26,7 @@ export class Doc<T> {
     return res.data
   }
 
-  set = async (data: T) => {
+  set = async (data: T): Promise<CollectionDocument<T>> => {
     // TODO: check validatoon results
     const isValid = await this.collection.validate(data)
     if (!isValid) {
@@ -36,7 +36,9 @@ export class Doc<T> {
     const res = await this.client.request({
       url: `/${this.collection.id}/${this.id}`,
       method: 'PUT',
-      data,
+      data: {
+        data,
+      },
     }).send()
 
     return res.data
@@ -52,7 +54,7 @@ export class Doc<T> {
   }
 
   onSnapshot = (fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => {
-    this.onSnapshotRegister(this, fn, errFn)
+    return this.onSnapshotRegister(this, fn, errFn)
   }
 
   request = (): Request => ({
