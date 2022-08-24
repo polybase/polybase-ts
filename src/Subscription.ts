@@ -28,7 +28,7 @@ export class Subscription<T> {
   private listeners: Listener<T>[]
   private req: Request
   private client: Client
-  private since?: string
+  private since?: number
   private aborter?: () => void
   private stopped = true
   private options: SubscriptionOptions
@@ -44,7 +44,7 @@ export class Subscription<T> {
   tick = async () => {
     const params = this.req.params ?? {}
     if (this.since) {
-      params.since = this.since
+      params.since = `${this.since}`
     }
 
     try {
@@ -55,7 +55,8 @@ export class Subscription<T> {
       this.aborter = req.abort
       const res = await req.send()
 
-      this.since = res.headers['x-spacetime-timestamp']
+      const timestamp = res.headers['x-spacetime-timestamp']
+      this.since = timestamp ? parseFloat(res.headers['x-spacetime-timestamp']) : Date.now() * 1000
 
       this.listeners.forEach(({ fn }) => {
         fn(res.data)
@@ -100,8 +101,11 @@ export class Subscription<T> {
 
     this.errors = 0
 
+    // If no since has been stored, then we need to wait longer
+    // because
     if (!this.stopped) {
       setTimeout(() => {
+        if (this.stopped) return
         this.tick()
       }, this.options.timeout)
     }

@@ -51,11 +51,11 @@ test('add subscriber', async () => {
   expect(spy).toHaveBeenCalledTimes(1)
   expect(spy).toHaveBeenCalledWith(rec)
 
-  c.stop()
-
   // Stops on the next run
-  await clock.tickAsync(200)
+  await clock.tickAsync(100)
   expect(spy).toHaveBeenCalledTimes(2)
+
+  c.stop()
 
   // Has stopped
   await clock.tickAsync(200)
