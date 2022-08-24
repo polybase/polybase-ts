@@ -57,7 +57,7 @@ export class Subscription<T> {
       const res = await req.send()
 
       const timestamp = res.headers['x-spacetime-timestamp']
-      this.since = timestamp ? parseFloat(res.headers['x-spacetime-timestamp']) : Date.now() * 1000
+      this.since = timestamp ? parseFloat(timestamp) : Date.now() * 1000
       this.data = res.data
 
       this.listeners.forEach(({ fn }) => {

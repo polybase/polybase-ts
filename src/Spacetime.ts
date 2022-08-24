@@ -2,18 +2,23 @@ import axios from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'
 import { Collection } from './Collection'
-import { CollectionMeta, Sender } from './types'
+import { CollectionMeta, Hasher, Sender, Signer } from './types'
+import { defaultSigner } from './util'
 
 export interface SpacetimeConfig {
   baseURL: string
   clientId: string
   sender: Sender
+  signer: Signer
+  hasher: Hasher
 }
 
 const defaultConfig = {
   baseURL: 'https://testnet.spacetime.is/v0/data',
   clientId: 'spacetime@ts/client:v0',
   sender: axios,
+  signer: defaultSigner,
+  hasher: () => { throw new Error('No hasher fn provided') },
 }
 
 export class Spacetime {

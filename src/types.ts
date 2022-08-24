@@ -45,3 +45,6 @@ export interface SenderResponse {
   headers: Record<string, string>
   data: any
 }
+
+export type Signer = (address: string, data: string) => Promise<string>
+export type Hasher = (str: string) => Promise<string>
