@@ -2,6 +2,6 @@ export const defaultRequest = {
   signal: expect.objectContaining({}),
   params: {},
   headers: {
-    'User-Agent': 'Spacetime',
+    'X-Spacetime-Client': 'Spacetime',
   },
 }

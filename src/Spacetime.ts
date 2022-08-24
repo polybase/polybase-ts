@@ -6,13 +6,13 @@ import { CollectionMeta, Sender } from './types'
 
 export interface SpacetimeConfig {
   baseURL: string
-  userAgent: string
+  clientId: string
   sender: Sender
 }
 
 const defaultConfig = {
   baseURL: 'https://testnet.spacetime.is/v0/data',
-  userAgent: 'spacetime@ts/client:v0',
+  clientId: 'spacetime@ts/client:v0',
   sender: axios,
 }
 
@@ -25,8 +25,8 @@ export class Spacetime {
 
   constructor (config?: Partial<SpacetimeConfig>) {
     this.config = merge({}, defaultConfig, config)
-    const { userAgent, baseURL } = this.config
-    this.client = new Client(this.config.sender, { userAgent, baseURL })
+    const { clientId, baseURL } = this.config
+    this.client = new Client(this.config.sender, { clientId, baseURL })
   }
 
   collection (id: string) {

@@ -4,7 +4,7 @@ import { createError, createErrorFromAxiosError } from './errors'
 import { BasicValue, Request, RequestParams, Sender, SenderResponse } from './types'
 
 export interface ClientConfig {
-  userAgent: string
+  clientId: string
   baseURL: string
 }
 
@@ -25,7 +25,7 @@ export class Client {
       baseURL: this.config?.baseURL,
       data: req.data,
       headers: {
-        'User-Agent': this.config?.userAgent ?? 'Spacetime',
+        'X-Spacetime-Client': this.config?.clientId ?? 'Spacetime',
       },
     })
   }
