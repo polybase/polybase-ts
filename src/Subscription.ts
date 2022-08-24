@@ -33,6 +33,7 @@ export class Subscription<T> {
   private stopped = true
   private options: SubscriptionOptions
   private errors = 0
+  private data?: T
 
   constructor (req: Request, client: Client, options?: Partial<SubscriptionOptions>) {
     this.req = req
@@ -57,46 +58,52 @@ export class Subscription<T> {
 
       const timestamp = res.headers['x-spacetime-timestamp']
       this.since = timestamp ? parseFloat(res.headers['x-spacetime-timestamp']) : Date.now() * 1000
+      this.data = res.data
 
       this.listeners.forEach(({ fn }) => {
         fn(res.data)
       })
     } catch (err: any) {
-      // TODO: we should create a client abort error
-      if (err instanceof AxiosError) {
-        // We cancelled the request
-        if (err.code === 'ERR_CANCELED') {
-          return
+      const statusCode = err.statusCode ?? err.status ?? err.code
+
+      // Don't error for 304
+      if (statusCode !== 304) {
+        // TODO: we should create a client abort error
+        if (err instanceof AxiosError) {
+          // We cancelled the request
+          if (err.code === 'ERR_CANCELED') {
+            return
+          }
         }
+
+        let e = err
+        if (!(err instanceof SpacetimeError)) {
+          e = wrapError(err)
+        }
+
+        if (e instanceof SpacetimeError) {
+          this.listeners.forEach(({ errFn }) => {
+            if (errFn) errFn(e)
+          })
+        }
+
+        // Also log to console
+        console.error(err)
+
+        this.errors += 1
+
+        // Longer timeout before next tick if we
+        //  received an error
+        const errTimeout = Math.min(
+          1000 * this.errors,
+          this.options.maxErrorTimeout,
+        )
+        setTimeout(() => {
+          this.tick()
+        }, errTimeout)
+
+        return
       }
-
-      let e = err
-      if (!(err instanceof SpacetimeError)) {
-        e = wrapError(err)
-      }
-
-      if (e instanceof SpacetimeError) {
-        this.listeners.forEach(({ errFn }) => {
-          if (errFn) errFn(e)
-        })
-      }
-
-      // Also log to console
-      console.error(err)
-
-      this.errors += 1
-
-      // Longer timeout before next tick if we
-      //  received an error
-      const errTimeout = Math.min(
-        1000 * this.errors,
-        this.options.maxErrorTimeout,
-      )
-      setTimeout(() => {
-        this.tick()
-      }, errTimeout)
-
-      return
     }
 
     this.errors = 0
