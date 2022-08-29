@@ -1,3 +1,8 @@
+// import { generateKeyPair, createSign, createVerify } from 'crypto'
+// import { keccak256 } from 'keccak256'
+// import { hashPersonalMessage, ecsign, toRpcSig } from 'ethereumjs-util'
+import { utils } from 'ethers'
+import Wallet from 'ethereumjs-wallet'
 import { Spacetime, CollectionMeta, Collection } from '../src'
 
 jest.setTimeout(7000)
@@ -146,4 +151,33 @@ test('list data with snapshot', async () => {
   // }])
 
   unsub()
+})
+
+test('signing', async () => {
+  const wallet = Wallet.generate()
+  const pk = `0x${wallet.getPublicKey().toString('hex')}`
+
+  s = new Spacetime({
+    baseURL: API_URL,
+    signer: async (d: string) => {
+      const signingKey = new utils.SigningKey(wallet.getPrivateKey())
+      const digest = utils.hashMessage(d)
+      const signature = signingKey.signDigest(digest)
+      const sig = utils.joinSignature(signature)
+      return {
+        sig,
+        h: 'eth-personal-sign',
+      }
+    },
+  })
+  const c = await s.collection(id)
+
+  await c.doc('id1').set({ name: 'Calum2' }, [pk])
+
+  const res = await c.doc('id1').set({ name: 'Calum4' }, [pk])
+
+  await expect(res.data).toEqual({
+    id: 'id1',
+    name: 'Calum3',
+  })
 })

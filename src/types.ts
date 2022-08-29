@@ -5,6 +5,7 @@ export type BasicValue = string|number|boolean
 export interface CollectionDocument<T> {
   block: string
   data: T
+  publicKeys: string[]
 }
 
 export interface CollectionMeta {
@@ -51,5 +52,9 @@ export interface SenderResponse {
   data: any
 }
 
-export type Signer = (address: string, data: string) => Promise<string>
-export type Hasher = (str: string) => Promise<string>
+export type Signer = (data: string) => Promise<SignerResponse>
+
+export interface SignerResponse {
+  sig: string
+  h: 'eth-personal-sign'
+}

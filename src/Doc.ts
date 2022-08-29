@@ -26,7 +26,7 @@ export class Doc<T> {
     return res.data
   }
 
-  set = async (data: T): Promise<CollectionDocument<T>> => {
+  set = async (data: T, publicKeys?: string[]): Promise<CollectionDocument<T>> => {
     // TODO: check validatoon results
     const isValid = await this.collection.validate(data)
     if (!isValid) {
@@ -37,7 +37,10 @@ export class Doc<T> {
       url: `/${this.collection.id}/${this.id}`,
       method: 'PUT',
       data: {
-        data,
+        data: {
+          ...data,
+          $pk: publicKeys?.join(','),
+        },
       },
     }).send()
 

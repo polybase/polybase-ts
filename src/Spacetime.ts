@@ -2,7 +2,7 @@ import axios from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'
 import { Collection } from './Collection'
-import { CollectionMeta, Hasher, Sender, Signer } from './types'
+import { CollectionMeta, Sender, Signer } from './types'
 import { defaultSigner } from './util'
 
 export interface SpacetimeConfig {
@@ -10,7 +10,6 @@ export interface SpacetimeConfig {
   clientId: string
   sender: Sender
   signer: Signer
-  hasher: Hasher
 }
 
 const defaultConfig = {
@@ -18,20 +17,21 @@ const defaultConfig = {
   clientId: 'spacetime@ts/client:v0',
   sender: axios,
   signer: defaultSigner,
-  hasher: () => { throw new Error('No hasher fn provided') },
 }
 
 export class Spacetime {
-  id: string|null = null
-  config: SpacetimeConfig
-
+  private config: SpacetimeConfig
   private client: Client
-  collections: Record<string, Collection> = {}
+  private collections: Record<string, Collection> = {}
 
   constructor (config?: Partial<SpacetimeConfig>) {
     this.config = merge({}, defaultConfig, config)
     const { clientId, baseURL } = this.config
-    this.client = new Client(this.config.sender, { clientId, baseURL })
+    this.client = new Client(
+      this.config.sender,
+      this.config.signer,
+      { clientId, baseURL },
+    )
   }
 
   collection (id: string) {
@@ -51,9 +51,5 @@ export class Spacetime {
       },
     }).send()
     return this.collection(data.id)
-  }
-
-  // TODO
-  auth () {
   }
 }
