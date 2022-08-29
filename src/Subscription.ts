@@ -43,6 +43,8 @@ export class Subscription<T> {
   }
 
   tick = async () => {
+    if (this.stopped) return
+
     const params = this.req.params ?? {}
     if (this.since) {
       params.since = `${this.since}`
@@ -104,6 +106,7 @@ export class Subscription<T> {
           this.options.maxErrorTimeout,
         )
         setTimeout(() => {
+          if (this.stopped) return
           this.tick()
         }, errTimeout)
 
