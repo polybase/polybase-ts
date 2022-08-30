@@ -52,7 +52,7 @@ export class Query<T> {
 
   request = (): Request => {
     return {
-      url: `/${this.id}`,
+      url: `/${encodeURIComponent(this.id)}`,
       method: 'GET',
       params: this.params,
     }
