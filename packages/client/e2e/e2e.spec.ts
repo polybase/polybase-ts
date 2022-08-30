@@ -153,6 +153,27 @@ test('list data with snapshot', async () => {
   unsub()
 })
 
+test('set data multiple times without signing', async () => {
+  const c = s.collection(id)
+
+  await c.doc('id4').set({
+    name: 'Peter',
+  })
+
+  await c.doc('id4').set({
+    name: 'Pepper',
+  })
+
+  const res = await c.doc('id4').set({
+    name: 'Polly',
+  })
+
+  expect(res.data).toEqual({
+    id: 'id4',
+    name: 'Polly',
+  })
+})
+
 test('signing', async () => {
   const wallet = Wallet.generate()
   const pk = `0x${wallet.getPublicKey().toString('hex')}`
