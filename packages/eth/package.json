@@ -1,7 +1,7 @@
 {
   "name": "@spacetimexyz/eth",
   "description": "Ethereum helper utility for Spacetime",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "^9.1.2",
-    "@spacetimexyz/util": "^0.1.13",
+    "@spacetimexyz/util": "^0.1.14",
     "@types/jest": "^28.1.7",
     "@types/sinonjs__fake-timers": "^8.1.2",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
@@ -42,6 +42,5 @@
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.8",
     "typescript": "^4.6.4"
-  },
-  "dependencies": {}
+  }
 }
