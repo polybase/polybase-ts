@@ -1,4 +1,4 @@
-import { isNullish } from '../encrypt'
+import { isNullish } from '../util'
 
 test('nullish should return true', () => {
   expect(isNullish(null)).toBe(true)

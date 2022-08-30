@@ -1,8 +1,19 @@
 import * as nacl from 'tweetnacl'
 import * as naclUtil from 'tweetnacl-util'
+import { stringifiableToHex, isNullish } from './util'
 
-export function isNullish (value: any) {
-  return value === null || value === undefined
+export function encryptToHex (publicKey: string, data: unknown) {
+  const e = encrypt({ publicKey, data, version: 'x25519-xsalsa20-poly1305' })
+  return stringifiableToHex(e)
+}
+
+export function decryptFromHex (privateKey: string, hex: string) {
+  let h = hex
+  if (hex.startsWith('0x')) {
+    h = hex.substring(2)
+  }
+  const e = JSON.parse(Buffer.from(h, 'hex').toString())
+  return decrypt({ encryptedData: e, privateKey })
 }
 
 export interface EthEncryptedData {

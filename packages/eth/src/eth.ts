@@ -23,7 +23,7 @@ export async function requestAccounts (): Promise<string[]> {
 export async function encrypt (cipherText: string, address: string) {
   const publicKey = await getEncryptionKey(address)
   const ev = util.encrypt({ publicKey, data: cipherText, version: 'x25519-xsalsa20-poly1305' })
-  return `${ev.version}.${ev.nonce}.${ev.ephemPublicKey}.${ev.ciphertext}`
+  return util.stringifiableToHex(ev)
 }
 
 export async function decrypt (cipherText: string, account: string): Promise<string> {

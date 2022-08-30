@@ -120,3 +120,7 @@ function checkSafeUint53 (value: number): void {
     throw new Error(`Value is not integer: ${value}`)
   }
 }
+
+export function isNullish (value: any) {
+  return value === null || value === undefined
+}
