@@ -28,12 +28,13 @@ export class Subscription<T> {
   private listeners: Listener<T>[]
   private req: Request
   private client: Client
-  private since?: number
+  private since?: string
   private aborter?: () => void
   private stopped = true
   private options: SubscriptionOptions
   private errors = 0
   private data?: T
+  private timer?: number
 
   constructor (req: Request, client: Client, options?: Partial<SubscriptionOptions>) {
     this.req = req
@@ -58,8 +59,7 @@ export class Subscription<T> {
       this.aborter = req.abort
       const res = await req.send()
 
-      const timestamp = res.headers['x-spacetime-timestamp']
-      this.since = timestamp ? parseFloat(timestamp) : Date.now() * 1000
+      this.since = res.headers['x-spacetime-timestamp'] ?? `${Date.now() / 1000}`
 
       // TODO: this is not nice, we should handle proccessing resp in
       // parent doc or query
@@ -71,7 +71,9 @@ export class Subscription<T> {
         if (this.data) fn(this.data)
       })
     } catch (err: any) {
-      const statusCode = err.statusCode ?? err.status ?? err.code
+      // Get the status code from the error
+      const statusCode = err.statusCode ?? err.status ??
+          err.code ?? err.response?.status
 
       // Don't error for 304
       if (statusCode !== 304) {
@@ -88,14 +90,13 @@ export class Subscription<T> {
           e = wrapError(err)
         }
 
-        if (e instanceof SpacetimeError) {
-          this.listeners.forEach(({ errFn }) => {
-            if (errFn) errFn(e)
-          })
-        }
+        // Send error to listeners
+        this.listeners.forEach(({ errFn }) => {
+          if (errFn) errFn(e)
+        })
 
         // Also log to console
-        console.error(err)
+        // console.error(err)
 
         this.errors += 1
 
@@ -105,10 +106,9 @@ export class Subscription<T> {
           1000 * this.errors,
           this.options.maxErrorTimeout,
         )
-        setTimeout(() => {
-          if (this.stopped) return
+        this.timer = setTimeout(() => {
           this.tick()
-        }, errTimeout)
+        }, errTimeout) as unknown as number
 
         return
       }
@@ -118,12 +118,9 @@ export class Subscription<T> {
 
     // If no since has been stored, then we need to wait longer
     // because
-    if (!this.stopped) {
-      setTimeout(() => {
-        if (this.stopped) return
-        this.tick()
-      }, this.options.timeout)
-    }
+    this.timer = setTimeout(() => {
+      this.tick()
+    }, this.options.timeout) as unknown as number
   }
 
   subscribe = (fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => {
@@ -160,6 +157,7 @@ export class Subscription<T> {
   // before allowing start again
   stop = async () => {
     this.stopped = true
+    if (this.timer) clearTimeout(this.timer)
     this.since = undefined
     if (this.aborter) this.aborter()
   }

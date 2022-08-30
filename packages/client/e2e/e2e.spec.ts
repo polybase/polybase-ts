@@ -10,18 +10,7 @@ jest.setTimeout(7000)
 const BASE_API_URL = process.env.E2E_API_URL ?? 'http://localhost:8080'
 const API_URL = `${BASE_API_URL}/v0/data`
 const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })
-
-const id = `test-${Date.now()}`
-
-let s: Spacetime
-
-beforeEach(() => {
-  s = new Spacetime({
-    baseURL: API_URL,
-  })
-})
-
-test('create collection', async () => {
+const createCollection = (s: Spacetime, id: string) => {
   const meta: CollectionMeta = {
     id,
     schema: {
@@ -37,29 +26,54 @@ test('create collection', async () => {
     }],
   }
 
-  const res = await s.createCollection(meta)
-  expect(res).toBeInstanceOf(Collection)
-  expect(res.id).toBe(id)
+  return s.createCollection(meta)
+}
+
+const prefix = `test-${Date.now()}`
+
+let s: Spacetime
+
+beforeEach(() => {
+  s = new Spacetime({
+    baseURL: API_URL,
+  })
 })
 
-test('add data to collection', async () => {
-  const c = await s.collection(id)
+test('create collection', async () => {
+  const id = `${prefix}-create-collection`
+  const c = await createCollection(s, id)
+  expect(c).toBeInstanceOf(Collection)
+  expect(c.id).toBe(id)
+})
+
+test('set data on collection', async () => {
+  const id = `${prefix}-add-data`
+  const c = await createCollection(s, id)
+
+  await c.doc('id1').set({
+    name: 'Calum',
+  })
 
   const res = await c.doc('id1').set({
-    name: 'Calum',
+    name: 'Calum2',
   })
 
   expect(res).toEqual({
     data: {
       id: 'id1',
-      name: 'Calum',
+      name: 'Calum2',
     },
     block: expect.stringMatching(/^./),
   })
 })
 
 test('get data from collection', async () => {
-  const c = await s.collection(id)
+  const id = `${prefix}-get-data`
+  const c = await createCollection(s, id)
+
+  await c.doc('id1').set({
+    name: 'Calum',
+  })
   const res = await c.doc('id1').get()
 
   expect(res).toEqual({
@@ -72,7 +86,13 @@ test('get data from collection', async () => {
 })
 
 test('list data from collection', async () => {
-  const c = await s.collection(id)
+  const id = `${prefix}-list-data`
+  const c = await createCollection(s, id)
+
+  await c.doc('id1').set({
+    name: 'Calum',
+  })
+
   await c.doc('id2').set({
     name: 'Sally',
   })
@@ -94,7 +114,17 @@ test('list data from collection', async () => {
 })
 
 test('list data with where clause', async () => {
-  const c = await s.collection(id)
+  const id = `${prefix}-list-where-data`
+  const c = await createCollection(s, id)
+
+  await c.doc('id1').set({
+    name: 'Calum',
+  })
+
+  await c.doc('id2').set({
+    name: 'Sally',
+  })
+
   await c.doc('id3').set({
     name: 'Sally',
   })
@@ -116,11 +146,18 @@ test('list data with where clause', async () => {
 })
 
 test('list data with snapshot', async () => {
-  const c = await s.collection(id)
+  const id = `${prefix}-list-with-snapshot`
+  const c = await createCollection(s, id)
+
+  await c.doc('id1').set({
+    name: 'Calum',
+  })
+
   const spy = jest.fn()
   const q = c.where('name', '==', 'Calum')
 
   const unsub = q.onSnapshot(spy)
+
   await wait(2000)
 
   expect(spy).toBeCalledTimes(1)
@@ -131,50 +168,15 @@ test('list data with snapshot', async () => {
     },
   }])
 
-  // await c.doc('id4').set({
-  //   name: 'Calum',
-  // })
-
-  // await wait(3000)
-
-  // expect(spy).toBeCalledTimes(2)
-  // expect(spy).toBeCalledWith([{
-  //   data: {
-  //     id: 'id1',
-  //     name: 'Calum',
-  //   },
-  // }, {
-  //   data: {
-  //     id: 'id4',
-  //     name: 'Calum',
-  //   },
-  // }])
+  await c.doc('id4').set({
+    name: 'Calum',
+  })
 
   unsub()
 })
 
-test('set data multiple times without signing', async () => {
-  const c = s.collection(id)
-
-  await c.doc('id4').set({
-    name: 'Peter',
-  })
-
-  await c.doc('id4').set({
-    name: 'Pepper',
-  })
-
-  const res = await c.doc('id4').set({
-    name: 'Polly',
-  })
-
-  expect(res.data).toEqual({
-    id: 'id4',
-    name: 'Polly',
-  })
-})
-
 test('signing', async () => {
+  const id = `${prefix}-signing`
   const wallet = Wallet.generate()
   const pk = `0x${wallet.getPublicKey().toString('hex')}`
 
@@ -191,7 +193,8 @@ test('signing', async () => {
       }
     },
   })
-  const c = await s.collection(id)
+
+  const c = await createCollection(s, id)
 
   await c.doc('id1').set({ name: 'Calum2' }, [pk])
 

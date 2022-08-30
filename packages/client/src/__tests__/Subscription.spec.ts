@@ -23,7 +23,7 @@ test('sub is instance of Subscription', () => {
   expect(c).toBeInstanceOf(Subscription)
 })
 
-test('add subscriber', async () => {
+test('start/stop subscriber', async () => {
   const spy = jest.fn()
   const rec = {
     id: '123',
@@ -66,4 +66,73 @@ test('add subscriber', async () => {
   // Has stopped
   await clock.tickAsync(200)
   expect(spy).toHaveBeenCalledTimes(2)
+})
+
+test('subscriber does not error on 304', async () => {
+  const spyOk = jest.fn()
+  const spyErr = jest.fn()
+
+  sender.mockRejectedValue({
+    response: {
+      status: 304,
+    },
+  })
+
+  const c = new Subscription({
+    url: '/col/id',
+    method: 'GET',
+    params: {},
+  }, client)
+
+  const unsub = c.subscribe(spyOk, spyErr)
+
+  await clock.tickAsync(0)
+
+  expect(spyOk).toBeCalledTimes(0)
+  expect(spyErr).toBeCalledTimes(0)
+  expect(sender).toBeCalledTimes(1)
+
+  unsub()
+})
+
+test('subscriber errors on error', async () => {
+  const spyOk = jest.fn()
+  const spyErr = jest.fn()
+
+  sender.mockRejectedValue({
+    response: {
+      status: 400,
+    },
+  })
+
+  const c = new Subscription({
+    url: '/col/id',
+    method: 'GET',
+    params: {},
+  }, client)
+
+  const unsub = c.subscribe(spyOk, spyErr)
+
+  await clock.tickAsync(0)
+
+  expect(spyOk).toBeCalledTimes(0)
+  expect(spyErr).toBeCalledTimes(1)
+  expect(sender).toBeCalledTimes(1)
+
+  unsub()
+})
+
+test('subscriber closes on unsub', () => {
+  const c = new Subscription({
+    url: '/col/id',
+    method: 'GET',
+    params: {},
+  }, client)
+
+  c.stop = jest.fn(c.stop)
+
+  const unsub = c.subscribe(jest.fn())
+  unsub()
+
+  expect(c.stop).toHaveBeenCalledTimes(1)
 })

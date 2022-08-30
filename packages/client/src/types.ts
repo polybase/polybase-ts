@@ -42,6 +42,7 @@ export interface Request {
 export interface RequestParams {
   limit?: number
   since?: string
+  waitFor?: string
   where?: Record<string, BasicValue>
 }
 
