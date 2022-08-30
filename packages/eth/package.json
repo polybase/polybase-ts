@@ -1,7 +1,7 @@
 {
   "name": "@spacetimexyz/eth",
   "description": "Ethereum helper utility for Spacetime",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
