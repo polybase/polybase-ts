@@ -1,0 +1,66 @@
+{
+  "name": "@spacetimexyz/eth",
+  "description": "Ethereum helper utility for Spacetime",
+  "version": "0.1.13",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "license": "MIT",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "clean": "rimraf dist/* &",
+    "start": "watch 'yarn build' ./src",
+    "build": "yarn clean &&  tsc",
+    "prepare": "yarn build",
+    "release": "npx np",
+    "test": "jest ./src",
+    "test:e2e": "jest ./e2e",
+    "fix": "yarn eslint \"./src/**/*.{js,jsx}\" --fix"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/e2e"
+    ],
+    "testMatch": [
+      "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
+    ],
+    "testEnvironment": "node"
+  },
+  "devDependencies": {
+    "@sinonjs/fake-timers": "^9.1.2",
+    "@spacetimexyz/util": "^0.1.13",
+    "@types/jest": "^28.1.7",
+    "@types/lodash.merge": "^4.6.7",
+    "@types/sinonjs__fake-timers": "^8.1.2",
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
+    "@typescript-eslint/parser": "^5.25.0",
+    "axios-mock-adapter": "^1.21.2",
+    "eslint": "^8.22.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.8.7",
+    "eslint-plugin-n": "^15.2.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "ethereumjs-util": "^7.1.5",
+    "ethereumjs-wallet": "^1.0.2",
+    "ethers": "^5.7.0",
+    "jest": "^28.1.3",
+    "keccak256": "^1.0.6",
+    "np": "^7.6.2",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^28.0.8",
+    "typescript": "^4.6.4",
+    "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "ajv": "^8.11.0",
+    "axios": "^0.27.2",
+    "lodash.merge": "^4.6.2",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "util": "^0.12.4"
+  }
+}
