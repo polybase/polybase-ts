@@ -29,7 +29,7 @@ export class Collection<T = any> {
     try {
       if (this.meta) return this.meta
       const res = await this.client.request({
-        url: `/$collections/${this.id}`,
+        url: `/$collections/${encodeURIComponent(this.id)}`,
         method: 'GET',
       }).send()
       this.meta = res.data?.data as CollectionMeta
@@ -56,7 +56,7 @@ export class Collection<T = any> {
 
   get = async (): Promise<CollectionDocument<T>[]> => {
     const res = await this.client.request({
-      url: `/${this.id}`,
+      url: `/${encodeURIComponent(this.id)}`,
       method: 'GET',
     }).send()
 

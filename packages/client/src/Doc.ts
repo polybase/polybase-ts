@@ -34,7 +34,7 @@ export class Doc<T> {
     }
 
     const res = await this.client.request({
-      url: `/${this.collection.id}/${this.id}`,
+      url: `/${encodeURIComponent(this.collection.id)}/${encodeURIComponent(this.id)}`,
       method: 'PUT',
       data: {
         data: {
@@ -61,7 +61,7 @@ export class Doc<T> {
   }
 
   request = (): Request => ({
-    url: `/${this.collection.id}/${this.id}`,
+    url: `/${encodeURIComponent(this.collection.id)}/${encodeURIComponent(this.id)}`,
     method: 'GET',
   })
 }
