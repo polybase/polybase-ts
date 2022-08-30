@@ -42,5 +42,8 @@
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.8",
     "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "@spacetimexyz/util": "^0.1.15"
   }
 }

@@ -48,5 +48,7 @@
   "peerDependencies": {
     "react": ">=16.8"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@spacetimexyz/client": "^0.1.14"
+  }
 }
