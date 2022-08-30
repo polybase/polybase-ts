@@ -5,11 +5,13 @@ import { Client } from '../Client'
 const clock = FakeTimers.install()
 
 let sender: jest.Mock
+let signer: jest.Mock
 let client: Client
 
 beforeEach(() => {
   sender = jest.fn()
-  client = new Client(sender)
+  signer = jest.fn()
+  client = new Client(sender, signer)
 })
 
 test('sub is instance of Subscription', () => {

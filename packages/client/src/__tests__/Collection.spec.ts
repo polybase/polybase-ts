@@ -4,11 +4,13 @@ import { Query } from '../Query'
 import { Client } from '../Client'
 
 let sender: jest.Mock
+let signer: jest.Mock
 let client: Client
 
 beforeEach(() => {
   sender = jest.fn()
-  client = new Client(sender)
+  signer = jest.fn()
+  client = new Client(sender, signer)
 })
 
 test('collection is instance of Collection', () => {

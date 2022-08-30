@@ -4,14 +4,16 @@ import { Client } from '../Client'
 import { defaultRequest } from './util'
 
 let sender: jest.Mock
+let signer: jest.Mock
 let register: jest.Mock
 let client: Client
 let collection: Collection
 
 beforeEach(() => {
   sender = jest.fn()
+  signer = jest.fn()
   register = jest.fn()
-  client = new Client(sender)
+  client = new Client(sender, signer)
   collection = new Collection('col1', client)
 })
 

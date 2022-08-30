@@ -3,13 +3,15 @@ import { Client } from '../Client'
 import { defaultRequest } from './util'
 
 let sender: jest.Mock
+let signer: jest.Mock
 let register: jest.Mock
 let client: Client
 
 beforeEach(() => {
   sender = jest.fn()
+  signer = jest.fn()
   register = jest.fn()
-  client = new Client(sender)
+  client = new Client(sender, signer)
 })
 
 test('query is instance of Query', () => {
