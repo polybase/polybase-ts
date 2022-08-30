@@ -177,7 +177,8 @@ test('signing', async () => {
   const res = await c.doc('id1').set({ name: 'Calum4' }, [pk])
 
   await expect(res.data).toEqual({
+    $pk: pk,
     id: 'id1',
-    name: 'Calum3',
+    name: 'Calum4',
   })
 })
