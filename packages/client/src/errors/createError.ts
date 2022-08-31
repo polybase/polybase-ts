@@ -17,8 +17,8 @@ export interface ErrorResponseData {
 }
 
 export function createErrorFromAxiosError (err: AxiosError) {
-  const data = err.response?.data as ErrorResponseData
-  const e = createError(data.reason, {
+  const data = err.response?.data as ErrorResponseData|undefined
+  const e = createError(data?.reason ?? 'unknown-error', {
     message: data?.message,
     code: data?.code as keyof typeof ERROR_CODES,
     statusCode: err.response?.status,
