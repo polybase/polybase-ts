@@ -54,14 +54,18 @@ test('set data on collection', async () => {
     name: 'Calum',
   })
 
-  const res = await c.doc('id1').set({
+  await c.doc('id1').set({
     name: 'Calum2',
+  })
+
+  const res = await c.doc('id1').set({
+    name: 'Calum',
   })
 
   expect(res).toEqual({
     data: {
       id: 'id1',
-      name: 'Calum2',
+      name: 'Calum',
     },
     block: expect.stringMatching(/^./),
   })
