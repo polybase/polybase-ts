@@ -29,7 +29,7 @@ test('start/stop subscriber', async () => {
   const rec = {
     id: '123',
   }
-  const timestamp = '2011-10-05T14:48:00.000Z'
+  const timestamp = '1661981492.0362'
 
   sender.mockResolvedValue({
     status: 200,
@@ -173,4 +173,44 @@ test('subscriber adds/removes multiple subs', async () => {
   await clock.tickAsync(200)
 
   expect(c.tick).toBeCalledTimes(0)
+})
+
+test('data is cached through reset', async () => {
+  const c = new Subscription({
+    url: '/col/id',
+    method: 'GET',
+    params: {},
+  }, client)
+
+  const rec = {
+    id: '123',
+  }
+  const timestamp = '1661981492.0362'
+
+  sender.mockResolvedValue({
+    status: 200,
+    data: {
+      data: rec,
+    },
+    headers: {
+      'x-spacetime-timestamp': timestamp,
+    },
+  })
+
+  const sub1 = jest.fn()
+  const sub2 = jest.fn()
+
+  const unsub1 = c.subscribe(sub1)
+
+  await clock.tickAsync(200)
+
+  unsub1()
+
+  await clock.tickAsync(200)
+
+  const unsub2 = c.subscribe(sub2)
+  expect(sub2).toBeCalledTimes(1)
+  expect(sub2).toBeCalledWith({ data: rec })
+
+  unsub2()
 })

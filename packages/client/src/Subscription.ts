@@ -47,7 +47,7 @@ export class Subscription<T> {
   tick = async (id?: number) => {
     if (this._stopped || id !== this.id) return
 
-    const params = this.req.params ?? {}
+    const params = this.req.params ? { ...this.req.params } : {}
     if (this.since) {
       params.since = `${this.since}`
     }
