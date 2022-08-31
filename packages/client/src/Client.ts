@@ -94,5 +94,6 @@ export function parseParams (params?: RequestParams): Record<string, BasicValue|
   return {
     ...params,
     where: params?.where ? JSON.stringify(params?.where) : undefined,
+    sort: params?.sort ? JSON.stringify(params?.sort) : undefined,
   }
 }

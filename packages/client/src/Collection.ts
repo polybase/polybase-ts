@@ -3,7 +3,7 @@ import { Doc } from './Doc'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
-import { BasicValue, CollectionMeta, CollectionDocument } from './types'
+import { BasicValue, CollectionMeta, CollectionDocument, QueryWhereOperator } from './types'
 
 export class Collection<T> {
   id: string
@@ -67,8 +67,12 @@ export class Collection<T> {
     return new Doc<T>(id, this, this.client, this.onDocSnapshotRegister)
   }
 
-  where = (field: string, op: '==', value: BasicValue): Query<T> => {
+  where = (field: string, op: QueryWhereOperator, value: BasicValue): Query<T> => {
     return this.createQuery().where(field, op, value)
+  }
+
+  sort = (field: string, direction?: 'asc'|'desc'): Query<T> => {
+    return this.createQuery().sort(field, direction)
   }
 
   limit = (limit: number): Query<T> => {

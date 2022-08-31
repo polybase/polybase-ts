@@ -1,6 +1,3 @@
-// import { generateKeyPair, createSign, createVerify } from 'crypto'
-// import { keccak256 } from 'keccak256'
-// import { hashPersonalMessage, ecsign, toRpcSig } from 'ethereumjs-util'
 import { utils } from 'ethers'
 import Wallet from 'ethereumjs-wallet'
 import { Spacetime, CollectionMeta, Collection } from '../src'
@@ -117,7 +114,7 @@ test('list data from collection', async () => {
   }])
 })
 
-test('list data with where clause', async () => {
+test('list data with == where clause', async () => {
   const id = `${prefix}-list-where-data`
   const c = await createCollection(s, id)
 
@@ -144,6 +141,74 @@ test('list data with where clause', async () => {
   }, {
     data: {
       id: 'id3',
+      name: 'Sally',
+    },
+  }])
+})
+
+test('list data with > where clause', async () => {
+  const id = `${prefix}-list-where-data`
+  const c = await createCollection(s, id)
+
+  await c.doc('id1').set({
+    name: 'Calum',
+  })
+
+  await c.doc('id2').set({
+    name: 'Sally',
+  })
+
+  await c.doc('id3').set({
+    name: 'Sally',
+  })
+
+  const res = await c.where('name', '>', 'John').get()
+
+  expect(res).toEqual([{
+    data: {
+      id: 'id2',
+      name: 'Sally',
+    },
+    // block: expect.stringMatching(/^./),
+  }, {
+    data: {
+      id: 'id3',
+      name: 'Sally',
+    },
+  }])
+})
+
+test('list data with sort clause', async () => {
+  const id = `${prefix}-list-where-data`
+  const c = await createCollection(s, id)
+
+  await c.doc('id1').set({
+    name: 'Calum',
+  })
+
+  await c.doc('id2').set({
+    name: 'Sally',
+  })
+
+  await c.doc('id3').set({
+    name: 'John',
+  })
+
+  const res = await c.sort('name').get()
+
+  expect(res).toEqual([{
+    data: {
+      id: 'id1',
+      name: 'Calum',
+    },
+  }, {
+    data: {
+      id: 'id3',
+      name: 'John',
+    },
+  }, {
+    data: {
+      id: 'id2',
       name: 'Sally',
     },
   }])

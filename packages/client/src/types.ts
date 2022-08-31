@@ -43,8 +43,13 @@ export interface RequestParams {
   limit?: number
   since?: string
   waitFor?: string
-  where?: Record<string, BasicValue>
+  where?: Record<string, QueryWhereValue>
+  sort?: [string, 'asc'|'desc'][]
 }
+
+export type QueryWhereValue = BasicValue|Record<QueryWhereKey, BasicValue>
+export type QueryWhereKey = '$lt'|'$gt'|'$gte'|'$lte'|'$eq'
+export type QueryWhereOperator = '=='|'>'|'<'|'>='|'<='
 
 export type Sender = (config: AxiosRequestConfig) => Promise<SenderResponse>
 export interface SenderResponse {
