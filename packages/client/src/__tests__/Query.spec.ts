@@ -51,3 +51,9 @@ test('registers snapshot', () => {
 
   expect(register).toHaveBeenCalledWith(q, listener, undefined)
 })
+
+test('query key is correct', () => {
+  const q = new Query<any>('col1', client, register)
+  const key = q.key()
+  expect(key).toBe('query:col1?{}')
+})

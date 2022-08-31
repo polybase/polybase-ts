@@ -1,6 +1,7 @@
 import FakeTimers from '@sinonjs/fake-timers'
 import { Subscription } from '../Subscription'
 import { Client } from '../Client'
+import { wait } from './util'
 
 const clock = FakeTimers.install()
 
@@ -135,4 +136,41 @@ test('subscriber closes on unsub', () => {
   unsub()
 
   expect(c.stop).toHaveBeenCalledTimes(1)
+})
+
+test('subscriber adds/removes multiple subs', async () => {
+  const c = new Subscription({
+    url: '/col/id',
+    method: 'GET',
+    params: {},
+  }, client)
+
+  sender.mockImplementation(async () => {
+    await wait(100)
+    return {
+      response: {
+        status: 200,
+      },
+    }
+  })
+
+  const sub1 = jest.fn()
+  const sub2 = jest.fn()
+
+  const unsub1 = c.subscribe(sub1)
+  const unsub2 = c.subscribe(sub2)
+
+  expect(c.listeners.length).toBe(2)
+  expect(c.stopped).toBe(false)
+
+  unsub1()
+  unsub2()
+
+  expect(c.stopped).toBe(true)
+
+  c.tick = jest.fn(c.tick)
+
+  await clock.tickAsync(200)
+
+  expect(c.tick).toBeCalledTimes(0)
 })

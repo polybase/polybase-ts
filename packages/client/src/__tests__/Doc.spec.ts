@@ -110,3 +110,9 @@ test('registers snapshot', () => {
 
   expect(register).toHaveBeenCalledWith(d, listener, undefined)
 })
+
+test('doc key is correct', () => {
+  const d = new Doc('id1', collection, client, register)
+  const key = d.key()
+  expect(key).toBe('doc:col1/id1')
+})

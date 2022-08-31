@@ -10,7 +10,7 @@ export function useDocumentOnce<T=any> (doc?: Doc<T>|null): UseDocumentReturnVal
     if (!doc) return
     setResult({ ...res, loading: true })
     doc.get().then((data) => {
-      setResult({ error: null, data,  loading: false })
+      setResult({ error: null, data, loading: false })
     }).catch((e) => {
       setResult({ ...res, error: e, loading: false })
     })

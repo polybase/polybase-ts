@@ -25,26 +25,27 @@ export interface Listener<T> {
 }
 
 export class Subscription<T> {
-  private listeners: Listener<T>[]
+  private _listeners: Listener<T>[]
   private req: Request
   private client: Client
   private since?: string
   private aborter?: () => void
-  private stopped = true
+  private _stopped = true
   private options: SubscriptionOptions
   private errors = 0
   private data?: T
   private timer?: number
+  private id = 0
 
   constructor (req: Request, client: Client, options?: Partial<SubscriptionOptions>) {
     this.req = req
     this.client = client
-    this.listeners = []
+    this._listeners = []
     this.options = merge({}, defaultOptions, options)
   }
 
-  tick = async () => {
-    if (this.stopped) return
+  tick = async (id?: number) => {
+    if (this._stopped || id !== this.id) return
 
     const params = this.req.params ?? {}
     if (this.since) {
@@ -67,7 +68,7 @@ export class Subscription<T> {
         ? res.data?.data
         : res.data
 
-      this.listeners.forEach(({ fn }) => {
+      this._listeners.forEach(({ fn }) => {
         if (this.data) fn(this.data)
       })
     } catch (err: any) {
@@ -91,7 +92,7 @@ export class Subscription<T> {
         }
 
         // Send error to listeners
-        this.listeners.forEach(({ errFn }) => {
+        this._listeners.forEach(({ errFn }) => {
           if (errFn) errFn(e)
         })
 
@@ -107,7 +108,7 @@ export class Subscription<T> {
           this.options.maxErrorTimeout,
         )
         this.timer = setTimeout(() => {
-          this.tick()
+          this.tick(id)
         }, errTimeout) as unknown as number
 
         return
@@ -119,46 +120,55 @@ export class Subscription<T> {
     // If no since has been stored, then we need to wait longer
     // because
     this.timer = setTimeout(() => {
-      this.tick()
+      this.tick(id)
     }, this.options.timeout) as unknown as number
   }
 
   subscribe = (fn: SubscriptionFn<T>, errFn?: SubscriptionErrorFn) => {
     const l = { fn, errFn }
-    this.listeners.push(l)
+    this._listeners.push(l)
     if (this.data) {
       fn(this.data)
     }
     this.start()
     return () => {
-      const index = this.listeners.indexOf(l)
+      const index = this._listeners.indexOf(l)
 
       // Already removed, shouldn't happen
       if (index === -1) return
 
       // Remove the listener
-      this.listeners.splice(index, 1)
+      this._listeners.splice(index, 1)
 
       // Stop if no more listeners
-      if (this.listeners.length === 0) {
+      if (this._listeners.length === 0) {
         this.stop()
       }
     }
   }
 
-  start = async () => {
-    if (this.stopped) {
-      this.stopped = false
-      this.tick()
+  start = () => {
+    if (this._stopped) {
+      this._stopped = false
+      this.id += 1
+      this.tick(this.id)
     }
   }
 
   // TODO: prevent race conditions by waiting for abort
   // before allowing start again
-  stop = async () => {
-    this.stopped = true
+  stop = () => {
+    this._stopped = true
     if (this.timer) clearTimeout(this.timer)
     this.since = undefined
     if (this.aborter) this.aborter()
+  }
+
+  get listeners () {
+    return this._listeners
+  }
+
+  get stopped () {
+    return this._stopped
   }
 }

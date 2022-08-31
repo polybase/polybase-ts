@@ -5,3 +5,5 @@ export const defaultRequest = {
     'X-Spacetime-Client': 'Spacetime',
   },
 }
+
+export const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })

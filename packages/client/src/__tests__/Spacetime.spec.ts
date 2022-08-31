@@ -61,3 +61,12 @@ test('creates collection and returns it', async () => {
 
   expect(n).toBeInstanceOf(Collection)
 })
+
+test('caches a collection', () => {
+  const s = new Spacetime({ sender, baseURL })
+
+  const c1 = s.collection('hello')
+  const c2 = s.collection('hello')
+
+  expect(c1).toBe(c2)
+})

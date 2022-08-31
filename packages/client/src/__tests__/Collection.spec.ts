@@ -118,3 +118,9 @@ test('get collection', async () => {
   const got = await c.get()
   expect(got).toEqual(want)
 })
+
+test('collection key is correct', () => {
+  const c = new Collection('col', client)
+  const key = c.key()
+  expect(key).toBe('collection:col')
+})
