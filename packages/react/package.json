@@ -1,7 +1,7 @@
 {
   "name": "@spacetimexyz/react",
   "description": "React wrapper for @spacetimexyz/client",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
@@ -49,6 +49,6 @@
     "react": ">=16.8"
   },
   "dependencies": {
-    "@spacetimexyz/client": "^0.1.16"
+    "@spacetimexyz/client": "^0.1.17"
   }
 }
