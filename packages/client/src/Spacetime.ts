@@ -34,14 +34,14 @@ export class Spacetime {
     )
   }
 
-  collection (id: string) {
+  collection<T=any> (id: string) {
     if (this.collections[id]) return this.collections[id]
-    const c = new Collection(id, this.client)
+    const c = new Collection<T>(id, this.client)
     this.collections[id] = c
     return c
   }
 
-  createCollection = async (data: CollectionMeta) => {
+  createCollection = async <T=any>(data: CollectionMeta) => {
     const id = data.id
     await this.client.request({
       url: `/$collections/${encodeURIComponent(id)}`,
@@ -50,6 +50,6 @@ export class Spacetime {
         data,
       },
     }).send()
-    return this.collection(data.id)
+    return this.collection<T>(data.id)
   }
 }
