@@ -1,9 +1,9 @@
-import { ethPersonalSign, ethRequestAccounts } from './eth'
 import { Signer, SignerResponse } from './types'
+import * as eth from '@spacetimexyz/eth'
 
 export const defaultSigner: Signer = async (data: string): Promise<SignerResponse> => {
-  const accounts = await ethRequestAccounts()
-  const sig = await ethPersonalSign(data, accounts[0])
+  const accounts = await eth.requestAccounts()
+  const sig = await eth.sign(data, accounts[0])
   return { sig, h: 'eth-personal-sign' }
 }
 
