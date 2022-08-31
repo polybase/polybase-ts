@@ -26,7 +26,7 @@ export class Doc<T> {
     return res.data
   }
 
-  set = async (data: T, publicKeys?: string[]): Promise<CollectionDocument<T>> => {
+  set = async (data: Partial<T>, publicKeys?: string[]): Promise<CollectionDocument<T>> => {
     // TODO: check validatoon results
     const isValid = await this.collection.validate(data)
     if (!isValid) {
