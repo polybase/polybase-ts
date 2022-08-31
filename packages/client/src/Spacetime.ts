@@ -22,7 +22,7 @@ const defaultConfig = {
 export class Spacetime {
   private config: SpacetimeConfig
   private client: Client
-  private collections: Record<string, Collection> = {}
+  private collections: Record<string, Collection<any>> = {}
 
   constructor (config?: Partial<SpacetimeConfig>) {
     this.config = merge({}, defaultConfig, config)
@@ -34,14 +34,14 @@ export class Spacetime {
     )
   }
 
-  collection<T=any> (id: string) {
+  collection<T=any> (id: string): Collection<T> {
     if (this.collections[id]) return this.collections[id]
     const c = new Collection<T>(id, this.client)
     this.collections[id] = c
     return c
   }
 
-  createCollection = async <T=any>(data: CollectionMeta) => {
+  createCollection = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
     const id = data.id
     await this.client.request({
       url: `/$collections/${encodeURIComponent(id)}`,

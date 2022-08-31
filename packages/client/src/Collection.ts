@@ -5,7 +5,7 @@ import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscriptio
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionDocument } from './types'
 
-export class Collection<T = any> {
+export class Collection<T> {
   id: string
   private querySubs: Record<string, Subscription<CollectionDocument<T>[]>> = {}
   private docSubs: Record<string, Subscription<CollectionDocument<T>>> = {}
@@ -49,7 +49,7 @@ export class Collection<T = any> {
     return v
   }
 
-  validate = async (data: T) => {
+  validate = async (data: Partial<T>) => {
     const validator = await this.getValidator()
     return validator(data)
   }

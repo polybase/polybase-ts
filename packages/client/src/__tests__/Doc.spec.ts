@@ -7,7 +7,7 @@ let sender: jest.Mock
 let signer: jest.Mock
 let register: jest.Mock
 let client: Client
-let collection: Collection
+let collection: Collection<any>
 
 beforeEach(() => {
   sender = jest.fn()

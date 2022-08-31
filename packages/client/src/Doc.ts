@@ -7,18 +7,18 @@ export type DocSnapshotRegister<T> = (d: Doc<T>, fn: SubscriptionFn<CollectionDo
 
 export class Doc<T> {
   private id: string
-  private collection: Collection
+  private collection: Collection<T>
   private client: Client
   private onSnapshotRegister: DocSnapshotRegister<T>
 
-  constructor (id: string, collection: Collection, client: Client, onSnapshotRegister: DocSnapshotRegister<T>) {
+  constructor (id: string, collection: Collection<T>, client: Client, onSnapshotRegister: DocSnapshotRegister<T>) {
     this.id = id
     this.collection = collection
     this.client = client
     this.onSnapshotRegister = onSnapshotRegister
   }
 
-  delete = async () => {
+  delete = async (): Promise<CollectionDocument<T>> => {
     const res = await this.client.request({
       ...this.request(),
       method: 'DELETE',
@@ -47,7 +47,7 @@ export class Doc<T> {
     return res.data
   }
 
-  get = async () => {
+  get = async (): Promise<CollectionDocument<T>> => {
     const res = await this.client.request(this.request()).send()
     return res.data
   }
