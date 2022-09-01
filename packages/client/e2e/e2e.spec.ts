@@ -64,7 +64,9 @@ test('set data on collection', async () => {
       id: 'id1',
       name: 'Calum',
     },
-    block: expect.stringMatching(/^./),
+    block: {
+      hash: expect.stringMatching(/^./),
+    },
   })
 })
 
@@ -82,7 +84,9 @@ test('get data from collection', async () => {
       id: 'id1',
       name: 'Calum',
     },
-    // block: expect.stringMatching(/^./),
+    block: {
+      hash: expect.stringMatching(/^./),
+    },
   })
 })
 
@@ -105,11 +109,16 @@ test('list data from collection', async () => {
       id: 'id1',
       name: 'Calum',
     },
-    // block: expect.stringMatching(/^./),
+    block: {
+      hash: expect.stringMatching(/^./),
+    },
   }, {
     data: {
       id: 'id2',
       name: 'Sally',
+    },
+    block: {
+      hash: expect.stringMatching(/^./),
     },
   }])
 })
@@ -137,11 +146,16 @@ test('list data with == where clause', async () => {
       id: 'id2',
       name: 'Sally',
     },
-    // block: expect.stringMatching(/^./),
+    block: {
+      hash: expect.stringMatching(/^./),
+    },
   }, {
     data: {
       id: 'id3',
       name: 'Sally',
+    },
+    block: {
+      hash: expect.stringMatching(/^./),
     },
   }])
 })
@@ -169,11 +183,16 @@ test('list data with > where clause', async () => {
       id: 'id2',
       name: 'Sally',
     },
-    // block: expect.stringMatching(/^./),
+    block: {
+      hash: expect.stringMatching(/^./),
+    },
   }, {
     data: {
       id: 'id3',
       name: 'Sally',
+    },
+    block: {
+      hash: expect.stringMatching(/^./),
     },
   }])
 })
@@ -201,15 +220,24 @@ test('list data with sort clause', async () => {
       id: 'id1',
       name: 'Calum',
     },
+    block: {
+      hash: expect.stringMatching(/^./),
+    },
   }, {
     data: {
       id: 'id3',
       name: 'John',
     },
+    block: {
+      hash: expect.stringMatching(/^./),
+    },
   }, {
     data: {
       id: 'id2',
       name: 'Sally',
+    },
+    block: {
+      hash: expect.stringMatching(/^./),
     },
   }])
 })
@@ -234,6 +262,9 @@ test('list data with snapshot', async () => {
     data: {
       id: 'id1',
       name: 'Calum',
+    },
+    block: {
+      hash: expect.stringMatching(/^./),
     },
   }])
 
