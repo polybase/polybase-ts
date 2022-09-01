@@ -1,5 +1,5 @@
-import { utils } from 'ethers'
 import Wallet from 'ethereumjs-wallet'
+import { ethPersonalSign } from '@spacetimexyz/eth'
 import { Spacetime, CollectionMeta, Collection } from '../src'
 
 jest.setTimeout(7000)
@@ -283,10 +283,7 @@ test('signing', async () => {
   s = new Spacetime({
     baseURL: API_URL,
     signer: async (d: string) => {
-      const signingKey = new utils.SigningKey(wallet.getPrivateKey())
-      const digest = utils.hashMessage(d)
-      const signature = signingKey.signDigest(digest)
-      const sig = utils.joinSignature(signature)
+      const sig = ethPersonalSign(wallet.getPrivateKey(), d)
       return {
         sig,
         h: 'eth-personal-sign',

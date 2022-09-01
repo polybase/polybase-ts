@@ -1,6 +1,6 @@
 import * as nacl from 'tweetnacl'
 import * as naclUtil from 'tweetnacl-util'
-import { stringifiableToHex, isNullish } from './util'
+import { isNullish, stringifiableToHex } from './util'
 
 export function encryptToHex (publicKey: string, data: unknown) {
   const e = encrypt({ publicKey, data, version: 'x25519-xsalsa20-poly1305' })

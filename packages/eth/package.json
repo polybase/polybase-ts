@@ -44,6 +44,8 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
+    "@ethersproject/keccak256": "^5.7.0",
+    "@ethersproject/strings": "^5.7.0",
     "@spacetimexyz/util": "^0.1.15"
   }
 }
