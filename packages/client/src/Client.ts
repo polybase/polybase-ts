@@ -10,17 +10,17 @@ export interface ClientConfig {
 
 export class Client {
   private sender: Sender
-  signer: Signer
+  signer?: Signer
   private config?: ClientConfig
 
-  constructor (sender: Sender, signer: Signer, config?: ClientConfig) {
+  constructor (sender: Sender, signer?: Signer, config?: ClientConfig) {
     this.sender = sender
     this.signer = signer
     this.config = config
   }
 
   request = (req: Request): ClientRequest => {
-    return new ClientRequest(this.sender, this.signer, {
+    return new ClientRequest(this.sender, {
       url: req.url,
       method: req.method,
       params: parseParams(req.params),
@@ -29,7 +29,7 @@ export class Client {
       headers: {
         'X-Spacetime-Client': this.config?.clientId ?? 'Spacetime',
       },
-    })
+    }, this.signer)
   }
 }
 
@@ -37,9 +37,9 @@ export class ClientRequest {
   private aborter: AbortController
   private req: AxiosRequestConfig
   private sender: Sender
-  private signer: Signer
+  private signer?: Signer
 
-  constructor (sender: Sender, signer: Signer, req: AxiosRequestConfig) {
+  constructor (sender: Sender, req: AxiosRequestConfig, signer?: Signer) {
     this.aborter = new AbortController()
     this.req = req
     this.sender = sender
@@ -68,7 +68,7 @@ export class ClientRequest {
         if (e.code === 'ERR_CANCELED') {
           throw createError('request-cancelled')
         }
-        if (e.response?.status === 401 && !withAuth) {
+        if (e.response?.status === 401 && !withAuth && this.signer) {
           return this.send(true)
         }
         throw createErrorFromAxiosError(e)
@@ -77,7 +77,8 @@ export class ClientRequest {
     }
   }
 
-  getSignature = async () => {
+  private getSignature = async () => {
+    if (!this.signer) return ''
     const t = Math.round(Date.now() * 1000)
     const sig = await this.signer(`${t}.${JSON.stringify(this.req.data)}`)
     return [

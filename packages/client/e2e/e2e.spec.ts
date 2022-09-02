@@ -2,7 +2,7 @@ import Wallet from 'ethereumjs-wallet'
 import { ethPersonalSign } from '@spacetimexyz/eth'
 import { Spacetime, CollectionMeta, Collection } from '../src'
 
-jest.setTimeout(7000)
+jest.setTimeout(10000)
 
 const BASE_API_URL = process.env.E2E_API_URL ?? 'http://localhost:8080'
 const API_URL = `${BASE_API_URL}/v0/data`
