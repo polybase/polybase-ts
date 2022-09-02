@@ -52,4 +52,8 @@ export class Spacetime {
     }).send()
     return this.collection<T>(data.id)
   }
+
+  signer = (fn: Signer) => {
+    this.client.signer = fn
+  }
 }

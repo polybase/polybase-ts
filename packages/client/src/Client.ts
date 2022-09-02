@@ -10,7 +10,7 @@ export interface ClientConfig {
 
 export class Client {
   private sender: Sender
-  private signer: Signer
+  signer: Signer
   private config?: ClientConfig
 
   constructor (sender: Sender, signer: Signer, config?: ClientConfig) {
