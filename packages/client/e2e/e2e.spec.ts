@@ -303,12 +303,12 @@ test('signing', async () => {
     name: 'Calum4',
   })
 
-  // const res2 = await c.doc('id1').get()
-  // expect(res2.data).toEqual({
-  //   $pk: pk,
-  //   id: 'id1',
-  //   name: 'Calum4',
-  // })
+  const res2 = await c.doc('id1').get()
+  expect(res2.data).toEqual({
+    $pk: pk,
+    id: 'id1',
+    name: 'Calum4',
+  })
 
   // await c.doc('id1').delete()
   // await expect(c.doc('id1').get()).rejects.toThrow()
