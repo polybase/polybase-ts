@@ -80,7 +80,7 @@ export class ClientRequest {
   private getSignature = async () => {
     if (!this.signer) return ''
     const t = Math.round(Date.now() * 1000)
-    const sig = await this.signer(`${t}.${JSON.stringify(this.req.data)}`)
+    const sig = await this.signer(`${t}.${this.req.data ? JSON.stringify(this.req.data) : ''}`)
     return [
       'v=0',
       `t=${t}`,
