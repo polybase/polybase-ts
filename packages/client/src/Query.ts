@@ -33,22 +33,28 @@ export class Query<T> {
   }
 
   sort = (field: string, direction?: 'asc'|'desc') => {
-    if (!this.params.sort) this.params.sort = []
-    this.params.sort.push([field, direction ?? 'asc'])
-    return this
+    const q = this.clone()
+
+    if (!q.params.sort) q.params.sort = []
+    q.params.sort.push([field, direction ?? 'asc'])
+    return q
   }
 
   limit = (limit: number) => {
-    this.params.limit = limit
-    return this
+    const q = this.clone()
+
+    q.params.limit = limit
+    return q
   }
 
   where = (field: string, op: QueryWhereOperator, value: string|number|boolean) => {
-    if (!this.params.where) this.params.where = {}
-    this.params.where[field] = op === '=='
+    const q = this.clone()
+
+    if (!q.params.where) q.params.where = {}
+    q.params.where[field] = op === '=='
       ? value
       : { [QueryWhereOperatorMap[op]]: value } as Record<QueryWhereKey, BasicValue>
-    return this
+    return q
   }
 
   get = async (): Promise<CollectionDocument<T>[]> => {
@@ -73,5 +79,15 @@ export class Query<T> {
       method: 'GET',
       params: this.params,
     }
+  }
+
+  private clone = (): Query<T> => {
+    const q = new Query<T>(this.id, this.client, this.onSnapshotRegister)
+    q.params = {
+      ...this.params,
+      sort: this.params.sort ? [...this.params.sort] : undefined,
+      where: this.params.where ? { ...this.params.where } : undefined,
+    }
+    return q
   }
 }
