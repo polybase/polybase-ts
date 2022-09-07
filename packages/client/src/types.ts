@@ -8,6 +8,14 @@ export interface CollectionDocument<T> {
   publicKeys: string[]
 }
 
+export interface CollectionList<T> {
+  items: CollectionDocument<T>[]
+  cursor: {
+    after: string
+    before: string
+  }
+}
+
 export interface CollectionMeta {
   id: string
   schema: CollectionMetaSchema
@@ -41,6 +49,8 @@ export interface Request {
 
 export interface RequestParams {
   limit?: number
+  after?: string
+  before?: string
   since?: string
   waitFor?: string
   where?: Record<string, QueryWhereValue>

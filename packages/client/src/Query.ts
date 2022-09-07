@@ -7,6 +7,7 @@ import {
   BasicValue,
   QueryWhereOperator,
   QueryWhereKey,
+  CollectionList,
 } from './types'
 
 export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionDocument<T>[]>, errFn?: SubscriptionErrorFn) => (() => void)
@@ -43,6 +44,16 @@ export class Query<T> {
     return this
   }
 
+  after = (after: string) => {
+    this.params.after = after
+    return this
+  }
+
+  before = (before: string) => {
+    this.params.before = before
+    return this
+  }
+
   where = (field: string, op: QueryWhereOperator, value: string|number|boolean) => {
     if (!this.params.where) this.params.where = {}
     this.params.where[field] = op === '=='
@@ -51,9 +62,12 @@ export class Query<T> {
     return this
   }
 
-  get = async (): Promise<CollectionDocument<T>[]> => {
+  get = async (): Promise<CollectionList<T>> => {
     const res = await this.client.request(this.request()).send()
-    return res.data?.data
+    return {
+      items: res.data?.data,
+      cursor: res.data?.cursor,
+    }
   }
 
   // TODO: validate query has required indexes
