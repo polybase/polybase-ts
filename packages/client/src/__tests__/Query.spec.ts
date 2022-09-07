@@ -57,3 +57,16 @@ test('query key is correct', () => {
   const key = q.key()
   expect(key).toBe('query:col1?{}')
 })
+
+test('sort/where/limit... methods return a new instance', () => {
+  const q = new Query<any>('col1', client, register)
+
+  const q2 = q.sort('name')
+  expect(q).not.toBe(q2)
+
+  const q3 = q2.where('name', '==', 'Hannah')
+  expect(q2).not.toBe(q3)
+
+  const q4 = q3.limit(100)
+  expect(q3).not.toBe(q4)
+})
