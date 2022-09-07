@@ -45,9 +45,10 @@ test('query is sent to client', async () => {
 
 test('registers snapshot', () => {
   const listener = jest.fn()
-  const q = new Query<any>('col1', client, register)
+  let q = new Query<any>('col1', client, register)
 
-  q.limit(100).where('name', '==', 'Hannah').onSnapshot(listener)
+  q = q.limit(100).where('name', '==', 'Hannah')
+  q.onSnapshot(listener)
 
   expect(register).toHaveBeenCalledWith(q, listener, undefined)
 })
