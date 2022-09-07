@@ -392,17 +392,17 @@ test('signing', async () => {
     name: 'Calum4',
   })
 
-  // await c.doc('id1').delete()
-  // await expect(c.doc('id1').get()).rejects.toThrow()
+  await c.doc('id1').delete()
+  await expect(c.doc('id1').get()).rejects.toThrow()
 })
 
-// test('delete', async () => {
-//   const id = `${prefix}-delete`
+test('delete', async () => {
+  const id = `${prefix}-delete`
 
-//   const c = await createCollection(s, id)
+  const c = await createCollection(s, id)
 
-//   await c.doc('id1').set({ name: 'Calum2' }, [])
-//   await c.doc('id1').delete()
+  await c.doc('id1').set({ name: 'Calum2' }, [])
+  await c.doc('id1').delete()
 
-//   await expect(c.doc('id').get()).rejects.toThrow()
-// })
+  await expect(c.doc('id').get()).rejects.toThrow()
+})
