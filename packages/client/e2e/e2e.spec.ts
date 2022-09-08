@@ -104,23 +104,29 @@ test('list data from collection', async () => {
 
   const res = await c.get()
 
-  expect(res).toEqual([{
-    data: {
-      id: 'id1',
-      name: 'Calum',
+  expect(res).toEqual({
+    cursor: {
+      after: expect.stringMatching(/^./),
+      before: expect.stringMatching(/^./),
     },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }, {
-    data: {
-      id: 'id2',
-      name: 'Sally',
-    },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }])
+    data: [{
+      data: {
+        id: 'id1',
+        name: 'Calum',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }, {
+      data: {
+        id: 'id2',
+        name: 'Sally',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }],
+  })
 })
 
 test('list data with == where clause', async () => {
@@ -146,7 +152,7 @@ test('list data with == where clause', async () => {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
     },
-    items: [{
+    data: [{
       data: {
         id: 'id2',
         name: 'Sally',
@@ -189,7 +195,7 @@ test('list data with > where clause', async () => {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
     },
-    items: [{
+    data: [{
       data: {
         id: 'id2',
         name: 'Sally',
@@ -232,7 +238,7 @@ test('list data with sort clause', async () => {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
     },
-    items: [{
+    data: [{
       data: {
         id: 'id1',
         name: 'Calum',
@@ -276,15 +282,21 @@ test('list data with snapshot', async () => {
   await wait(2000)
 
   expect(spy).toBeCalledTimes(1)
-  expect(spy).toBeCalledWith([{
-    data: {
-      id: 'id1',
-      name: 'Calum',
+  expect(spy).toBeCalledWith({
+    cursor: {
+      after: expect.stringMatching(/^./),
+      before: expect.stringMatching(/^./),
     },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }])
+    data: [{
+      data: {
+        id: 'id1',
+        name: 'Calum',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }],
+  })
 
   await c.doc('id4').set({
     name: 'Calum',
@@ -311,7 +323,7 @@ test('list data with cursor', async () => {
       before: expect.stringMatching(/^./),
       after: expect.stringMatching(/^./),
     },
-    items: [{
+    data: [{
       data: {
         id: 'id1',
         name: 'Calum',
@@ -328,7 +340,7 @@ test('list data with cursor', async () => {
       before: expect.stringMatching(/^./),
       after: expect.stringMatching(/^./),
     },
-    items: [{
+    data: [{
       data: {
         id: 'id2',
         name: 'Sally',
@@ -345,7 +357,7 @@ test('list data with cursor', async () => {
       before: expect.stringMatching(/^./),
       after: expect.stringMatching(/^./),
     },
-    items: [{
+    data: [{
       data: {
         id: 'id1',
         name: 'Calum',
