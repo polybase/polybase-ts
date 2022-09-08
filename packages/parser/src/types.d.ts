@@ -22,6 +22,17 @@ export interface FieldNode extends BaseNode {
   required: true
 }
 
+export interface IndexNode extends BaseNode {
+  type: 'index'
+  fields: IndexFieldNode[]
+}
+
+export interface IndexFieldNode extends BaseNode {
+  type: 'index.fields'
+  field: NameNode
+  direction?: 'asc'|'desc'
+}
+
 export interface ArrayNode extends BaseNode {
   type: 'array'
   value: Node[]
