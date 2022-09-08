@@ -3,11 +3,11 @@ import { Doc } from './Doc'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
-import { BasicValue, CollectionMeta, CollectionDocument, QueryWhereOperator } from './types'
+import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator } from './types'
 
 export class Collection<T> {
   id: string
-  private querySubs: Record<string, Subscription<CollectionDocument<T>[]>> = {}
+  private querySubs: Record<string, Subscription<CollectionList<T>>> = {}
   private docSubs: Record<string, Subscription<CollectionDocument<T>>> = {}
   private meta?: CollectionMeta
   private validator?: ValidateFunction<T>
@@ -54,13 +54,13 @@ export class Collection<T> {
     return validator(data)
   }
 
-  get = async (): Promise<CollectionDocument<T>[]> => {
+  get = async (): Promise<CollectionList<T>> => {
     const res = await this.client.request({
       url: `/${encodeURIComponent(this.id)}`,
       method: 'GET',
     }).send()
 
-    return res.data?.data
+    return res.data
   }
 
   doc = (id: string): Doc<T> => {
@@ -79,7 +79,7 @@ export class Collection<T> {
     return this.createQuery().limit(limit)
   }
 
-  onSnapshot = (fn: SubscriptionFn<CollectionDocument<T>[]>) => {
+  onSnapshot = (fn: SubscriptionFn<CollectionList<T>>) => {
     return this.createQuery().onSnapshot(fn)
   }
 
@@ -99,10 +99,10 @@ export class Collection<T> {
     return new Query<T>(this.id, this.client, this.onQuerySnapshotRegister)
   }
 
-  private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<CollectionDocument<T>[]>, errFn?: SubscriptionErrorFn) => {
+  private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {
     const k = q.key()
     if (!this.querySubs[k]) {
-      this.querySubs[k] = new Subscription<CollectionDocument<T>[]>(q.request(), this.client)
+      this.querySubs[k] = new Subscription<CollectionList<T>>(q.request(), this.client)
     }
     return this.querySubs[k].subscribe(fn, errFn)
   }

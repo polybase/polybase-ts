@@ -9,7 +9,7 @@ export interface CollectionDocument<T> {
 }
 
 export interface CollectionList<T> {
-  items: CollectionDocument<T>[]
+  data: CollectionDocument<T>[]
   cursor: {
     after: string
     before: string

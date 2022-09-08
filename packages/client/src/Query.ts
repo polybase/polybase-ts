@@ -3,14 +3,13 @@ import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import {
   Request,
   RequestParams,
-  CollectionDocument,
   BasicValue,
   QueryWhereOperator,
   QueryWhereKey,
   CollectionList,
 } from './types'
 
-export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionDocument<T>[]>, errFn?: SubscriptionErrorFn) => (() => void)
+export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export const QueryWhereOperatorMap: Record<QueryWhereOperator, QueryWhereKey> = {
   '>': '$gt',
@@ -71,7 +70,7 @@ export class Query<T> {
   get = async (): Promise<CollectionList<T>> => {
     const res = await this.client.request(this.request()).send()
     return {
-      items: res.data?.data,
+      data: res.data?.data,
       cursor: res.data?.cursor,
     }
   }
@@ -83,7 +82,7 @@ export class Query<T> {
     return `query:${this.id}?${JSON.stringify(this.params)}`
   }
 
-  onSnapshot = (fn: SubscriptionFn<CollectionDocument<T>[]>, errFn?: SubscriptionErrorFn) => {
+  onSnapshot = (fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {
     return this.onSnapshotRegister(this, fn, errFn)
   }
 

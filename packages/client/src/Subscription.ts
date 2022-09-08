@@ -64,9 +64,7 @@ export class Subscription<T> {
 
       // TODO: this is not nice, we should handle proccessing resp in
       // parent doc or query
-      this.data = Array.isArray(res.data?.data)
-        ? res.data?.data
-        : res.data
+      this.data = res.data
 
       this._listeners.forEach(({ fn }) => {
         if (this.data) fn(this.data)
