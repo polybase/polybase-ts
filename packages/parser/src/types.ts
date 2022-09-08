@@ -66,7 +66,6 @@ export interface FunctionNode extends BaseNode {
   body: StatementNode[]
 }
 
-
 export interface FunctionCallNode extends BaseNode {
   type: 'call'
   args: Node[]
@@ -78,12 +77,10 @@ export interface ReturnNode extends BaseNode {
   expression: Node
 }
 
-
 export interface NameNode extends BaseNode {
   type: 'name'
   value: string
 }
-
 
 export interface PrimitiveNode extends BaseNode {
   type: 'number'|'string'|'boolean'

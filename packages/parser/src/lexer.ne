@@ -1,3 +1,5 @@
+@preprocessor typescript
+
 @{%
 const moo = require("moo")
 
@@ -18,7 +20,7 @@ const lexer = moo.compile({
   colon: ':',
   name: /[a-zA-Z0-9_$]*[a-zA-Z_$]+[a-zA-Z0-9_$]*/,
   number: /(?:[1-9][0-9]+|[0-9])(?:\.[0-9]+)?/,
-  string: { match: /"(?:\\["\\]|[^\n"\\])*"|'(?:\\['\\]|[^\n'\\])*'/, value: s => s.slice(1, -1).replace(/\\"/g, '"') },
+  string: { match: /"(?:\\["\\]|[^\n"\\])*"|'(?:\\['\\]|[^\n'\\])*'/, value: (s: string) => s.slice(1, -1).replace(/\\"/g, '"') },
   dot: '.',
   gte: '>=',
   lte: '<=',
@@ -99,8 +101,8 @@ If -> "if" __ Exp __ %lcurly __ Block __ Elses {% ([_1, _2, exp, _4, _5, _6, blo
 Elses -> %rcurly {% () => []  %}
   | "else" %lcurly __ Block __ %rcurly {% ([_1, _2, _3, block]) => ({ type: "else", expression: null, block }) %}
   | "else" __ "if" __ Exp __ %lcurly __ Block __ %rcurly {% ([_1, _2, _3, _4, exp, _6, block]) => ({ type: "elseif", expression: exp, block }) %}
-	| Elses __ "else" __ %lcurly __ Block __ %rcurly {% ([list, _2, _3, _4, _5, _6, block]) => [].concat(list, { type: "else", expression: null, block  }) %}
-  | Elses __ "else" __ "if" __ Exp __ %lcurly __ Block __ %rcurly {% ([list, _2, _3, _4, _5, _6, exp, _8, _9, _10, block]) => [].concat(list, { type: "elseif", expression: exp, block  }) %}
+	| Elses __ "else" __ %lcurly __ Block __ %rcurly {% ([list, _2, _3, _4, _5, _6, block]) => [].concat(list, { type: "else", expression: null, block  } as any) %}
+  | Elses __ "else" __ "if" __ Exp __ %lcurly __ Block __ %rcurly {% ([list, _2, _3, _4, _5, _6, exp, _8, _9, _10, block]) => [].concat(list, { type: "elseif", expression: exp, block  } as any) %}
 
 
 ## Assignment

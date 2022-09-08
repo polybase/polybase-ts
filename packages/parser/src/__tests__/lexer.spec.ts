@@ -1,11 +1,12 @@
 import nearley from 'nearley'
-import grammar from '../dist/lexer'
-import '../dist/parse'
+import grammar from '../lexer'
+import '../parse'
+
+let parse: (str: string) => any
 
 describe('root', () => {
-  let parse
   beforeEach(() => {
-    parse = (str) => {
+    parse = (str: string) => {
       const res = new nearley.Parser(nearley.Grammar.fromCompiled(grammar)).feed(str).results
       expect(res).toHaveLength(1)
       return res[0]
@@ -45,7 +46,7 @@ describe('root', () => {
           hello string
         }
       `)
-  
+
       expect(res).toMatchObject([{
         type: 'collection',
         name: {
@@ -54,16 +55,16 @@ describe('root', () => {
         fields: [{
           type: 'field',
           name: {
-            value: 'hello'
+            value: 'hello',
           },
           kind: {
-            value: 'string'
-          }
-        }]
+            value: 'string',
+          },
+        }],
       }])
       expect(res).toMatchSnapshot()
     })
-  
+
     test('multiple field types', () => {
       const res = parse(`
         collection HelloWorld {
@@ -72,7 +73,7 @@ describe('root', () => {
           flag: boolean!
         }
       `)
-  
+
       expect(res).toMatchObject([{
         type: 'collection',
         name: {
@@ -81,30 +82,30 @@ describe('root', () => {
         fields: [{
           type: 'field',
           name: {
-            value: 'hello'
+            value: 'hello',
           },
           kind: {
-            value: 'string'
-          }
+            value: 'string',
+          },
         }, {
           type: 'field',
           required: true,
           name: {
-            value: 'world'
+            value: 'world',
           },
           kind: {
-            value: 'number'
-          }
+            value: 'number',
+          },
         }, {
           type: 'field',
           required: true,
           name: {
-            value: 'flag'
+            value: 'flag',
           },
           kind: {
-            value: 'boolean'
-          }
-        }]
+            value: 'boolean',
+          },
+        }],
       }])
       expect(res).toMatchSnapshot()
     })
@@ -119,7 +120,7 @@ describe('root', () => {
           world string
         }
       `)
-  
+
       expect(res).toMatchObject([{
         type: 'collection',
         name: {
@@ -128,12 +129,12 @@ describe('root', () => {
         fields: [{
           type: 'field',
           name: {
-            value: 'hello'
+            value: 'hello',
           },
           kind: {
-            value: 'string'
-          }
-        }]
+            value: 'string',
+          },
+        }],
       }, {
         type: 'collection',
         name: {
@@ -142,12 +143,12 @@ describe('root', () => {
         fields: [{
           type: 'field',
           name: {
-            value: 'world'
+            value: 'world',
           },
           kind: {
-            value: 'string'
-          }
-        }]
+            value: 'string',
+          },
+        }],
       }])
       expect(res).toMatchSnapshot()
     })
@@ -162,7 +163,7 @@ describe('root', () => {
           }
         }
       `)
-  
+
       expect(res).toMatchObject([{
         type: 'collection',
         name: {
@@ -171,11 +172,11 @@ describe('root', () => {
         fields: [{
           type: 'field',
           name: {
-            value: 'hello'
+            value: 'hello',
           },
           kind: {
-            value: 'string'
-          }
+            value: 'string',
+          },
         }, {
           type: 'function',
           name: {
@@ -187,9 +188,9 @@ describe('root', () => {
             expression: {
               type: 'name',
               value: 'a',
-            }
-          }]
-        }]
+            },
+          }],
+        }],
       }])
     })
   })
@@ -201,7 +202,7 @@ describe('root', () => {
           return a
         }
       `)
-  
+
       expect(res).toMatchObject([{
         type: 'function',
         name: {
@@ -213,8 +214,8 @@ describe('root', () => {
           expression: {
             type: 'name',
             value: 'a',
-          }
-        }]
+          },
+        }],
       }])
       expect(res).toMatchSnapshot()
     })
@@ -226,7 +227,7 @@ describe('root', () => {
           return a
         }
       `)
-  
+
       expect(res).toMatchObject([{
         type: 'function',
         name: {
@@ -234,21 +235,21 @@ describe('root', () => {
         },
         params: [],
         body: [{
-          type: 'const', 
+          type: 'const',
           name: {
             type: 'name',
             value: 'a',
-          }, 
+          },
           expression: {
             value: '1',
-          }
+          },
         }, {
           type: 'return',
           expression: {
             type: 'name',
             value: 'a',
-          }
-        }]
+          },
+        }],
       }])
       expect(res).toMatchSnapshot()
     })
@@ -256,7 +257,6 @@ describe('root', () => {
 })
 
 describe('statements', () => {
-  let parse
   beforeEach(() => {
     parse = (str) => {
       const res = new nearley.Parser(nearley.Grammar.fromCompiled(grammar)).feed(`
@@ -283,12 +283,12 @@ describe('statements', () => {
           value: 'a',
         },
         op: {
-          type: 'gt'
+          type: 'gt',
         },
         right: {
           type: 'number',
-          value: '1'
-        }
+          value: '1',
+        },
       },
       elses: [],
       block: [{
@@ -296,12 +296,12 @@ describe('statements', () => {
         expression: {
           type: 'name',
           value: 'a',
-        }
-      }]
+        },
+      }],
     }])
     expect(res).toMatchSnapshot()
   })
-  
+
   test('if / else', () => {
     const res = parse(`
       if a > 1 {
@@ -320,9 +320,9 @@ describe('statements', () => {
           expression: {
             type: 'name',
             value: 'b',
-          }
-        }]
-      }]
+          },
+        }],
+      }],
     }])
     expect(res).toMatchSnapshot()
   })
@@ -348,20 +348,20 @@ describe('statements', () => {
             value: 'a',
           },
           op: {
-            type: 'lt'
+            type: 'lt',
           },
           right: {
             type: 'number',
-            value: '1'
-          }
+            value: '1',
+          },
         },
         block: [{
           type: 'return',
           expression: {
             type: 'name',
             value: 'b',
-          }
-        }]
+          },
+        }],
       }, {
         type: 'else',
         expression: null,
@@ -370,9 +370,9 @@ describe('statements', () => {
           expression: {
             type: 'name',
             value: 'c',
-          }
-        }]
-      }]
+          },
+        }],
+      }],
     }])
     expect(res).toMatchSnapshot()
   })
@@ -389,7 +389,7 @@ describe('statements', () => {
       },
       expression: {
         type: 'number',
-        value: '1'
+        value: '1',
       },
     }])
     expect(res).toMatchSnapshot()
@@ -407,7 +407,7 @@ describe('statements', () => {
       },
       expression: {
         type: 'number',
-        value: '1'
+        value: '1',
       },
     }])
     expect(res).toMatchSnapshot()
@@ -425,15 +425,15 @@ describe('statements', () => {
         prefix: {
           type: 'name',
           value: 'a',
-        }
+        },
       },
       expression: {
         type: 'number',
         value: '1',
       },
       op: {
-        type: 'assign'
-      }
+        type: 'assign',
+      },
     }])
     expect(res).toMatchSnapshot()
   })
@@ -450,15 +450,15 @@ describe('statements', () => {
         prefix: {
           type: 'name',
           value: 'a',
-        }
+        },
       },
       expression: {
         type: 'number',
         value: '1',
       },
       op: {
-        type: 'assignplus'
-      }
+        type: 'assignplus',
+      },
     }])
     expect(res).toMatchSnapshot()
   })
@@ -475,24 +475,23 @@ describe('statements', () => {
         prefix: {
           type: 'name',
           value: 'a',
-        }
+        },
       },
       expression: {
         type: 'number',
         value: '1',
       },
       op: {
-        type: 'assignminus'
-      }
+        type: 'assignminus',
+      },
     }])
     expect(res).toMatchSnapshot()
   })
 })
 
 describe('exp', () => {
-  let parse
   beforeEach(() => {
-    parse = (str) => {
+    parse = (str: string) => {
       const res = new nearley.Parser(nearley.Grammar.fromCompiled(grammar)).feed(`
        function TestExp () {
           return ${str}
@@ -513,7 +512,7 @@ describe('exp', () => {
 
     test('parses number with decimals', () => {
       const res = parse('10.234234')
-      
+
       expect(res.type).toBe('number')
       expect(res.value).toBe('10.234234')
       expect(res).toMatchSnapshot()
@@ -521,7 +520,7 @@ describe('exp', () => {
 
     test('parses number 0 with decimals', () => {
       const res = parse('0.234234')
-      
+
       expect(res.type).toBe('number')
       expect(res.value).toBe('0.234234')
       expect(res).toMatchSnapshot()
@@ -536,7 +535,7 @@ describe('exp', () => {
 
     test('parses single quote text string', () => {
       const res = parse('\'hello\'')
-      
+
       expect(res.type).toBe('string')
       expect(res.value).toBe('hello')
       expect(res).toMatchSnapshot()
@@ -544,7 +543,7 @@ describe('exp', () => {
 
     test('parses true boolean', () => {
       const res = parse('true')
-      
+
       expect(res.type).toBe('boolean')
       expect(res.value).toBe('true')
       expect(res).toMatchSnapshot()
@@ -552,7 +551,7 @@ describe('exp', () => {
 
     test('parses false boolean', () => {
       const res = parse('false')
-      
+
       expect(res.type).toBe('boolean')
       expect(res.value).toBe('false')
       expect(res).toMatchSnapshot()
@@ -560,7 +559,7 @@ describe('exp', () => {
 
     test('parses name', () => {
       const res = parse('name')
-      
+
       expect(res.type).toBe('name')
       expect(res.value).toBe('name')
       expect(res).toMatchSnapshot()
@@ -568,7 +567,7 @@ describe('exp', () => {
 
     test('parses multi-depth name', () => {
       const res = parse('name.abc.xyz')
-      
+
       expect(res.type).toBe('name')
       expect(res.value).toBe('xyz')
       expect(res.prefix.value).toBe('abc')
@@ -578,7 +577,7 @@ describe('exp', () => {
 
     test('parses name with number', () => {
       const res = parse('5abc')
-      
+
       expect(res.type).toBe('name')
       expect(res.value).toBe('5abc')
       expect(res).toMatchSnapshot()
@@ -586,7 +585,7 @@ describe('exp', () => {
 
     test('parses name with square brackets number', () => {
       const res = parse('abc[0]')
-      
+
       expect(res.type).toBe('number')
       expect(res.value).toBe('0')
       // expect(res.bracket).toBe(true)
@@ -597,7 +596,7 @@ describe('exp', () => {
 
     test('parses name with square brackets string', () => {
       const res = parse('abc[name]')
-      
+
       expect(res.type).toBe('name')
       expect(res.value).toBe('name')
       expect(res.prefix.type).toBe('name')
@@ -607,7 +606,7 @@ describe('exp', () => {
 
     test('parses name with square brackets sum', () => {
       const res = parse('abc[1 + 1]')
-      
+
       expect(res.type).toBe('sum')
       expect(res.left.type).toBe('number')
       expect(res.right.type).toBe('number')
@@ -616,7 +615,7 @@ describe('exp', () => {
 
     test('parses name with square brackets as part of prefix', () => {
       const res = parse('abc[1].xyz')
-      
+
       expect(res.type).toBe('name')
       expect(res.value).toBe('xyz')
       expect(res.prefix.bracket).toBe(true)
@@ -631,7 +630,7 @@ describe('exp', () => {
   describe('operators', () => {
     test('compare name OR number using ||', () => {
       const res = parse('a || 10')
-      
+
       expect(res).toMatchObject({
         left: { value: 'a', type: 'name' },
         op: { type: 'or', value: '||' },
@@ -642,7 +641,7 @@ describe('exp', () => {
 
     test('compare name OR number using or', () => {
       const res = parse('a or 10')
-      
+
       expect(res).toMatchObject({
         left: { value: 'a', type: 'name' },
         op: { type: 'or', value: 'or' },
@@ -655,7 +654,7 @@ describe('exp', () => {
   describe('comparison', () => {
     test('Compare variable with number', () => {
       const res = parse('a == 10')
-      
+
       expect(res).toMatchObject({
         left: { value: 'a', type: 'name' },
         op: { type: 'eq', value: '==' },
@@ -668,7 +667,7 @@ describe('exp', () => {
   describe('concat', () => {
     test('Concat two names', () => {
       const res = parse('a & b')
-      
+
       expect(res).toMatchObject({
         type: 'concat',
         left: { value: 'a', type: 'name' },
@@ -681,7 +680,7 @@ describe('exp', () => {
   describe('sum', () => {
     test('Sum two names', () => {
       const res = parse('a + b')
-      
+
       expect(res).toMatchObject({
         type: 'sum',
         op: { type: 'plus' },
@@ -693,7 +692,7 @@ describe('exp', () => {
 
     test('Subtract two names', () => {
       const res = parse('a - b')
-      
+
       expect(res).toMatchObject({
         type: 'sum',
         op: { type: 'minus' },
@@ -705,7 +704,7 @@ describe('exp', () => {
 
     test('Subtract two names together', () => {
       const res = parse('a-b')
-      
+
       expect(res).toMatchObject({
         type: 'sum',
         op: { type: 'minus' },
@@ -717,7 +716,7 @@ describe('exp', () => {
 
     test('Subtract two numbers together', () => {
       const res = parse('1-2')
-      
+
       expect(res).toMatchObject({
         type: 'sum',
         op: { type: 'minus' },
@@ -729,7 +728,7 @@ describe('exp', () => {
 
     test('Subtract two numbers', () => {
       const res = parse('10 - 20')
-      
+
       expect(res).toMatchObject({
         type: 'sum',
         op: { type: 'minus' },
@@ -743,7 +742,7 @@ describe('exp', () => {
   describe('product', () => {
     test('Product two names', () => {
       const res = parse('a * b')
-      
+
       expect(res).toMatchObject({
         type: 'product',
         op: { type: 'times' },
@@ -757,7 +756,7 @@ describe('exp', () => {
   describe('unary', () => {
     test('Unary name', () => {
       const res = parse('!b')
-      
+
       expect(res).toMatchObject({
         type: 'not',
         value: { value: 'b', type: 'name' },
@@ -769,7 +768,7 @@ describe('exp', () => {
   describe('function calls', () => {
     test('function call with no params', () => {
       const res = parse('b()')
-      
+
       expect(res).toMatchObject({
         type: 'call',
         prefix: { value: 'b', type: 'name' },
@@ -780,7 +779,7 @@ describe('exp', () => {
 
     test('function call with 1 named param', () => {
       const res = parse('b(a)')
-      
+
       expect(res).toMatchObject({
         type: 'call',
         prefix: { value: 'b', type: 'name' },
@@ -794,7 +793,7 @@ describe('exp', () => {
 
     test('function call with 2 named param', () => {
       const res = parse('b(a, c)')
-      
+
       expect(res).toMatchObject({
         type: 'call',
         prefix: { value: 'b', type: 'name' },
@@ -811,7 +810,7 @@ describe('exp', () => {
 
     test('function call with multi-depth prop', () => {
       const res = parse('a.b(c)')
-      
+
       expect(res).toMatchObject({
         type: 'call',
         prefix: {
@@ -832,7 +831,7 @@ describe('exp', () => {
 
     test('function call with multiple depth calls', () => {
       const res = parse('a().b(c)')
-      
+
       expect(res).toMatchObject({
         type: 'call',
         args: [{
@@ -853,9 +852,9 @@ describe('exp', () => {
       expect(res).toMatchSnapshot()
     })
 
-    test('function call with multiple depth calls', () => {
+    test('function call with prop return', () => {
       const res = parse('a().b')
-      
+
       expect(res).toMatchObject({
         type: 'name',
         value: 'b',
@@ -873,7 +872,7 @@ describe('exp', () => {
   describe('array', () => {
     test('empty array', () => {
       const res = parse('[]')
-      
+
       expect(res).toMatchObject({
         type: 'array',
         value: [],
@@ -882,7 +881,7 @@ describe('exp', () => {
 
     test('number array', () => {
       const res = parse('[10]')
-      
+
       expect(res).toMatchObject({
         type: 'array',
         value: [{
@@ -894,7 +893,7 @@ describe('exp', () => {
 
     test('Multi-number array', () => {
       const res = parse('[10, 11]')
-      
+
       expect(res).toMatchObject({
         type: 'array',
         value: [{
@@ -911,7 +910,7 @@ describe('exp', () => {
   describe('object', () => {
     test('empty object', () => {
       const res = parse('{}')
-      
+
       expect(res).toMatchObject({
         type: 'object',
         value: [],
@@ -920,7 +919,7 @@ describe('exp', () => {
 
     test('single key-value object', () => {
       const res = parse('{ a: 10 }')
-      
+
       expect(res).toMatchObject({
         type: 'object',
         value: [{
@@ -938,7 +937,7 @@ describe('exp', () => {
 
     test('quoted key name object', () => {
       const res = parse('{ "hello": 10 }')
-      
+
       expect(res).toMatchObject({
         type: 'object',
         value: [{
@@ -956,7 +955,7 @@ describe('exp', () => {
 
     test('quoted key name starting with number object', () => {
       const res = parse('{ "2019-20-10": 10 }')
-      
+
       expect(res).toMatchObject({
         type: 'object',
         value: [{
@@ -974,7 +973,7 @@ describe('exp', () => {
 
     test('single key object', () => {
       const res = parse('{ a }')
-      
+
       expect(res).toMatchObject({
         type: 'object',
         value: [{
@@ -992,9 +991,8 @@ describe('exp', () => {
   })
 })
 
-  // These produce 2 results, but result is equal... 
+// These produce 2 results, but result is equal...
 describe('parenthesis', () => {
-  let parse
   beforeEach(() => {
     parse = (str) => {
       const res = new nearley.Parser(nearley.Grammar.fromCompiled(grammar)).feed(`

@@ -1,7 +1,7 @@
-import 'nearley'
+import { Token } from 'nearley'
 
 declare module 'nearly' {
-  interface Parser {
+  export interface Parser {
     reportError(token: Token, message: string): string
   }
 }

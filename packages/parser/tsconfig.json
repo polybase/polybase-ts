@@ -1,33 +1,16 @@
 {
-	"compilerOptions": {
-		// Target latest version of ECMAScript.
-		"target": "esnext",
-		// Search under node_modules for non-relative imports.
-		"moduleResolution": "node",
-		// Process & infer types from .js files.
-		"allowJs": true,
-		"resolveJsonModule": true,
-		// "checkJs": true,
-		// Don't emit; allow Babel to transform files.
-		"noEmit": true,
-		// Enable strictest settings like strictNullChecks & noImplicitAny.
-		"strict": true,
-		// Disallow features that require cross-file information for emit.
-		"isolatedModules": true,
-		// Import non-ES modules as default imports.
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"jsx": "react",
-		"baseUrl": "src",
-		"paths": {
-			"#/*": [ "*" ]
-		}
-	},
-	"include": [
-		"src"
-	],
-	"exclude": [
-		"node_modules",
-		"**/*.spec.ts"
-	]
+  "compilerOptions": {
+    "target": "es5",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "commonjs",                                /* Specify what module code is generated. */
+    "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
+    "declarationMap": true,                           /* Create sourcemaps for d.ts files. */
+    "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
+    "outDir": "./dist",                                   /* Specify an output folder for all emitted files. */
+    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility. */
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+    "strict": true,                                      /* Enable all strict type-checking options. */
+    "skipLibCheck": true,     
+  },
+  "exclude": ["test", "**/__tests__/*"],
+  "include": ["src/**/*"]
 }

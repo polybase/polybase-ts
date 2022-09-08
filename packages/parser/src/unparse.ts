@@ -21,7 +21,7 @@ export default function unparse (node: Node|Node[]|null): string {
     case 'boolean':
       return node.text
     case 'return':
-        return `return ${unparse(node.expression)}`
+      return `return ${unparse(node.expression)}`
     case 'array':
       return unparseArray(node)
     case 'object':
@@ -76,7 +76,6 @@ export function unparseFunction (node: FunctionNode) {
   return `function ${name.text} (${argItems.join(', ')}) {\n${body.map((n) => unparse(n)).join('\n')}\n}`
 }
 
-
 export function unparseFunctionCall (node: FunctionCallNode) {
   const { prefix, args = [] } = node
   const argItems = args.map(n => unparse(n))
@@ -88,4 +87,3 @@ export function unparseName (node: NameNode) {
   if (!node.prefix) return node.text
   return `${unparse(node.prefix)}${'.'}${node.text}`
 }
-
