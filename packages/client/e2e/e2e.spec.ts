@@ -141,23 +141,29 @@ test('list data with == where clause', async () => {
 
   const res = await c.where('name', '==', 'Sally').get()
 
-  expect(res).toEqual([{
-    data: {
-      id: 'id2',
-      name: 'Sally',
+  expect(res).toEqual({
+    cursor: {
+      after: expect.stringMatching(/^./),
+      before: expect.stringMatching(/^./),
     },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }, {
-    data: {
-      id: 'id3',
-      name: 'Sally',
-    },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }])
+    items: [{
+      data: {
+        id: 'id2',
+        name: 'Sally',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }, {
+      data: {
+        id: 'id3',
+        name: 'Sally',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }],
+  })
 })
 
 test('list data with > where clause', async () => {
@@ -178,23 +184,29 @@ test('list data with > where clause', async () => {
 
   const res = await c.where('name', '>', 'John').get()
 
-  expect(res).toEqual([{
-    data: {
-      id: 'id2',
-      name: 'Sally',
+  expect(res).toEqual({
+    cursor: {
+      after: expect.stringMatching(/^./),
+      before: expect.stringMatching(/^./),
     },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }, {
-    data: {
-      id: 'id3',
-      name: 'Sally',
-    },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }])
+    items: [{
+      data: {
+        id: 'id2',
+        name: 'Sally',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }, {
+      data: {
+        id: 'id3',
+        name: 'Sally',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }],
+  })
 })
 
 test('list data with sort clause', async () => {
@@ -215,31 +227,37 @@ test('list data with sort clause', async () => {
 
   const res = await c.sort('name').get()
 
-  expect(res).toEqual([{
-    data: {
-      id: 'id1',
-      name: 'Calum',
+  expect(res).toEqual({
+    cursor: {
+      after: expect.stringMatching(/^./),
+      before: expect.stringMatching(/^./),
     },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }, {
-    data: {
-      id: 'id3',
-      name: 'John',
-    },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }, {
-    data: {
-      id: 'id2',
-      name: 'Sally',
-    },
-    block: {
-      hash: expect.stringMatching(/^./),
-    },
-  }])
+    items: [{
+      data: {
+        id: 'id1',
+        name: 'Calum',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }, {
+      data: {
+        id: 'id3',
+        name: 'John',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }, {
+      data: {
+        id: 'id2',
+        name: 'Sally',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }],
+  })
 })
 
 test('list data with snapshot', async () => {
@@ -273,6 +291,70 @@ test('list data with snapshot', async () => {
   })
 
   unsub()
+})
+
+test('list data with cursor', async () => {
+  const id = `${prefix}-list-with-cursor`
+  const c = await createCollection(s, id)
+
+  await c.doc('id1').set({
+    name: 'Calum',
+  })
+
+  await c.doc('id2').set({
+    name: 'Sally',
+  })
+
+  const first = await c.limit(1).get()
+  expect(first).toEqual({
+    cursor: {
+      before: expect.stringMatching(/^./),
+      after: expect.stringMatching(/^./),
+    },
+    items: [{
+      data: {
+        id: 'id1',
+        name: 'Calum',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }],
+  })
+
+  const second = await c.limit(1).after(first.cursor.after).get()
+  expect(second).toEqual({
+    cursor: {
+      before: expect.stringMatching(/^./),
+      after: expect.stringMatching(/^./),
+    },
+    items: [{
+      data: {
+        id: 'id2',
+        name: 'Sally',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }],
+  })
+
+  const firstWithBefore = await c.limit(1).before(second.cursor.before).get()
+  expect(firstWithBefore).toEqual({
+    cursor: {
+      before: expect.stringMatching(/^./),
+      after: expect.stringMatching(/^./),
+    },
+    items: [{
+      data: {
+        id: 'id1',
+        name: 'Calum',
+      },
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+    }],
+  })
 })
 
 test('signing', async () => {
@@ -310,17 +392,17 @@ test('signing', async () => {
     name: 'Calum4',
   })
 
-  // await c.doc('id1').delete()
-  // await expect(c.doc('id1').get()).rejects.toThrow()
+  await c.doc('id1').delete()
+  await expect(c.doc('id1').get()).rejects.toThrow()
 })
 
-// test('delete', async () => {
-//   const id = `${prefix}-delete`
+test('delete', async () => {
+  const id = `${prefix}-delete`
 
-//   const c = await createCollection(s, id)
+  const c = await createCollection(s, id)
 
-//   await c.doc('id1').set({ name: 'Calum2' }, [])
-//   await c.doc('id1').delete()
+  await c.doc('id1').set({ name: 'Calum2' }, [])
+  await c.doc('id1').delete()
 
-//   await expect(c.doc('id').get()).rejects.toThrow()
-// })
+  await expect(c.doc('id').get()).rejects.toThrow()
+})

@@ -1,0 +1,13 @@
+name: Test
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - run: yarn
+      - name: Run client unit tests
+        run: cd packages/client && yarn test

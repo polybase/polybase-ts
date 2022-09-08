@@ -7,6 +7,7 @@ import {
   BasicValue,
   QueryWhereOperator,
   QueryWhereKey,
+  CollectionList,
 } from './types'
 
 export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionDocument<T>[]>, errFn?: SubscriptionErrorFn) => (() => void)
@@ -33,27 +34,46 @@ export class Query<T> {
   }
 
   sort = (field: string, direction?: 'asc'|'desc') => {
-    if (!this.params.sort) this.params.sort = []
-    this.params.sort.push([field, direction ?? 'asc'])
-    return this
+    const q = this.clone()
+
+    if (!q.params.sort) q.params.sort = []
+    q.params.sort.push([field, direction ?? 'asc'])
+    return q
   }
 
   limit = (limit: number) => {
-    this.params.limit = limit
+    const q = this.clone()
+
+    q.params.limit = limit
+    return q
+  }
+
+  after = (after: string) => {
+    this.params.after = after
+    return this
+  }
+
+  before = (before: string) => {
+    this.params.before = before
     return this
   }
 
   where = (field: string, op: QueryWhereOperator, value: string|number|boolean) => {
-    if (!this.params.where) this.params.where = {}
-    this.params.where[field] = op === '=='
+    const q = this.clone()
+
+    if (!q.params.where) q.params.where = {}
+    q.params.where[field] = op === '=='
       ? value
       : { [QueryWhereOperatorMap[op]]: value } as Record<QueryWhereKey, BasicValue>
-    return this
+    return q
   }
 
-  get = async (): Promise<CollectionDocument<T>[]> => {
+  get = async (): Promise<CollectionList<T>> => {
     const res = await this.client.request(this.request()).send()
-    return res.data?.data
+    return {
+      items: res.data?.data,
+      cursor: res.data?.cursor,
+    }
   }
 
   // TODO: validate query has required indexes
@@ -73,5 +93,15 @@ export class Query<T> {
       method: 'GET',
       params: this.params,
     }
+  }
+
+  private clone = (): Query<T> => {
+    const q = new Query<T>(this.id, this.client, this.onSnapshotRegister)
+    q.params = {
+      ...this.params,
+      sort: this.params.sort ? [...this.params.sort] : undefined,
+      where: this.params.where ? { ...this.params.where } : undefined,
+    }
+    return q
   }
 }

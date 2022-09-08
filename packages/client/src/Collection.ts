@@ -83,6 +83,14 @@ export class Collection<T> {
     return this.createQuery().onSnapshot(fn)
   }
 
+  after = (cursor: string): Query<T> => {
+    return this.createQuery().after(cursor)
+  }
+
+  before = (cursor: string): Query<T> => {
+    return this.createQuery().before(cursor)
+  }
+
   key = () => {
     return `collection:${this.id}`
   }

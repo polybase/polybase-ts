@@ -45,9 +45,10 @@ test('query is sent to client', async () => {
 
 test('registers snapshot', () => {
   const listener = jest.fn()
-  const q = new Query<any>('col1', client, register)
+  let q = new Query<any>('col1', client, register)
 
-  q.limit(100).where('name', '==', 'Hannah').onSnapshot(listener)
+  q = q.limit(100).where('name', '==', 'Hannah')
+  q.onSnapshot(listener)
 
   expect(register).toHaveBeenCalledWith(q, listener, undefined)
 })
@@ -56,4 +57,17 @@ test('query key is correct', () => {
   const q = new Query<any>('col1', client, register)
   const key = q.key()
   expect(key).toBe('query:col1?{}')
+})
+
+test('sort/where/limit... methods return a new instance', () => {
+  const q = new Query<any>('col1', client, register)
+
+  const q2 = q.sort('name')
+  expect(q).not.toBe(q2)
+
+  const q3 = q2.where('name', '==', 'Hannah')
+  expect(q2).not.toBe(q3)
+
+  const q4 = q3.limit(100)
+  expect(q3).not.toBe(q4)
 })
