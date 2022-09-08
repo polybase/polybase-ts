@@ -15,6 +15,13 @@ export interface BaseNode {
   prefix?: Node|null
 }
 
+export interface FieldNode extends BaseNode {
+  type: 'field'
+  name: NameNode
+  kind: NameNode
+  required: true
+}
+
 export interface ArrayNode extends BaseNode {
   type: 'array'
   value: Node[]

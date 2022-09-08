@@ -65,8 +65,10 @@ CollectionBlockList -> CollectionBlock
   | CollectionBlockList _ %semi _ CollectionBlock {% ([list, _2, _3, _4, exp]) => [].concat(list, exp) %}
 CollectionBlock -> CollectionKeyValuePair  {% id %} 
   | Function  {% id %} 
-CollectionKeyValuePair -> %name _ %colon _ %name {% ([name, _2, _3, _4, type]) => ({ type: "field", name, type }) %}
-  | %name __ %name {% ([name, _2, type]) => ({ type: "field", name, type }) %}
+CollectionKeyValuePair -> %name _ %colon _ %name {% ([name, _2, _3, _4, kind]) => ({ type: "field", name, kind }) %}
+  | %name _ %colon _ %name  %bang {% ([name, _2, _3, _4, kind]) => ({ type: "field", name, kind, required: true }) %}
+  | %name __ %name {% ([name, _2, kind]) => ({ type: "field", name, kind }) %}
+  | %name __ %name %bang {% ([name, _2, kind]) => ({ type: "field", name, kind, required: true }) %}
 
 
 # Function

@@ -56,7 +56,7 @@ describe('root', () => {
           name: {
             value: 'hello'
           },
-          type: {
+          kind: {
             value: 'string'
           }
         }]
@@ -68,8 +68,8 @@ describe('root', () => {
       const res = parse(`
         collection HelloWorld {
           hello string;
-          world number
-          flag: boolean
+          world number!
+          flag: boolean!
         }
       `)
   
@@ -83,23 +83,25 @@ describe('root', () => {
           name: {
             value: 'hello'
           },
-          type: {
+          kind: {
             value: 'string'
           }
         }, {
           type: 'field',
+          required: true,
           name: {
             value: 'world'
           },
-          type: {
+          kind: {
             value: 'number'
           }
         }, {
           type: 'field',
+          required: true,
           name: {
             value: 'flag'
           },
-          type: {
+          kind: {
             value: 'boolean'
           }
         }]
@@ -128,7 +130,7 @@ describe('root', () => {
           name: {
             value: 'hello'
           },
-          type: {
+          kind: {
             value: 'string'
           }
         }]
@@ -142,7 +144,7 @@ describe('root', () => {
           name: {
             value: 'world'
           },
-          type: {
+          kind: {
             value: 'string'
           }
         }]
@@ -171,7 +173,7 @@ describe('root', () => {
           name: {
             value: 'hello'
           },
-          type: {
+          kind: {
             value: 'string'
           }
         }, {

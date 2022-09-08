@@ -1236,6 +1236,16 @@ Array [
   Object {
     "fields": Array [
       Object {
+        "kind": Object {
+          "col": 17,
+          "line": 3,
+          "lineBreaks": 0,
+          "offset": 44,
+          "text": "string",
+          "toString": [Function],
+          "type": "name",
+          "value": "string",
+        },
         "name": Object {
           "col": 11,
           "line": 3,
@@ -1246,16 +1256,7 @@ Array [
           "type": "name",
           "value": "hello",
         },
-        "type": Object {
-          "col": 17,
-          "line": 3,
-          "lineBreaks": 0,
-          "offset": 44,
-          "text": "string",
-          "toString": [Function],
-          "type": "name",
-          "value": "string",
-        },
+        "type": "field",
       },
     ],
     "name": Object {
@@ -1273,6 +1274,16 @@ Array [
   Object {
     "fields": Array [
       Object {
+        "kind": Object {
+          "col": 17,
+          "line": 7,
+          "lineBreaks": 0,
+          "offset": 105,
+          "text": "string",
+          "toString": [Function],
+          "type": "name",
+          "value": "string",
+        },
         "name": Object {
           "col": 11,
           "line": 7,
@@ -1283,16 +1294,7 @@ Array [
           "type": "name",
           "value": "world",
         },
-        "type": Object {
-          "col": 17,
-          "line": 7,
-          "lineBreaks": 0,
-          "offset": 105,
-          "text": "string",
-          "toString": [Function],
-          "type": "name",
-          "value": "string",
-        },
+        "type": "field",
       },
     ],
     "name": Object {
@@ -1315,6 +1317,16 @@ Array [
   Object {
     "fields": Array [
       Object {
+        "kind": Object {
+          "col": 17,
+          "line": 3,
+          "lineBreaks": 0,
+          "offset": 49,
+          "text": "string",
+          "toString": [Function],
+          "type": "name",
+          "value": "string",
+        },
         "name": Object {
           "col": 11,
           "line": 3,
@@ -1325,18 +1337,19 @@ Array [
           "type": "name",
           "value": "hello",
         },
-        "type": Object {
-          "col": 17,
-          "line": 3,
-          "lineBreaks": 0,
-          "offset": 49,
-          "text": "string",
-          "toString": [Function],
-          "type": "name",
-          "value": "string",
-        },
+        "type": "field",
       },
       Object {
+        "kind": Object {
+          "col": 17,
+          "line": 4,
+          "lineBreaks": 0,
+          "offset": 73,
+          "text": "number",
+          "toString": [Function],
+          "type": "name",
+          "value": "number",
+        },
         "name": Object {
           "col": 11,
           "line": 4,
@@ -1347,38 +1360,32 @@ Array [
           "type": "name",
           "value": "world",
         },
-        "type": Object {
-          "col": 17,
-          "line": 4,
-          "lineBreaks": 0,
-          "offset": 73,
-          "text": "number",
-          "toString": [Function],
-          "type": "name",
-          "value": "number",
-        },
+        "required": true,
+        "type": "field",
       },
       Object {
-        "name": Object {
-          "col": 11,
-          "line": 5,
-          "lineBreaks": 0,
-          "offset": 90,
-          "text": "flag",
-          "toString": [Function],
-          "type": "name",
-          "value": "flag",
-        },
-        "type": Object {
+        "kind": Object {
           "col": 17,
           "line": 5,
           "lineBreaks": 0,
-          "offset": 96,
+          "offset": 97,
           "text": "boolean",
           "toString": [Function],
           "type": "name",
           "value": "boolean",
         },
+        "name": Object {
+          "col": 11,
+          "line": 5,
+          "lineBreaks": 0,
+          "offset": 91,
+          "text": "flag",
+          "toString": [Function],
+          "type": "name",
+          "value": "flag",
+        },
+        "required": true,
+        "type": "field",
       },
     ],
     "name": Object {
@@ -1401,6 +1408,16 @@ Array [
   Object {
     "fields": Array [
       Object {
+        "kind": Object {
+          "col": 17,
+          "line": 3,
+          "lineBreaks": 0,
+          "offset": 49,
+          "text": "string",
+          "toString": [Function],
+          "type": "name",
+          "value": "string",
+        },
         "name": Object {
           "col": 11,
           "line": 3,
@@ -1411,16 +1428,7 @@ Array [
           "type": "name",
           "value": "hello",
         },
-        "type": Object {
-          "col": 17,
-          "line": 3,
-          "lineBreaks": 0,
-          "offset": 49,
-          "text": "string",
-          "toString": [Function],
-          "type": "name",
-          "value": "string",
-        },
+        "type": "field",
       },
     ],
     "name": Object {
@@ -1443,6 +1451,16 @@ Array [
   Object {
     "fields": Array [
       Object {
+        "kind": Object {
+          "col": 15,
+          "line": 3,
+          "lineBreaks": 0,
+          "offset": 42,
+          "text": "string",
+          "toString": [Function],
+          "type": "name",
+          "value": "string",
+        },
         "name": Object {
           "col": 9,
           "line": 3,
@@ -1453,18 +1471,19 @@ Array [
           "type": "name",
           "value": "name",
         },
-        "type": Object {
-          "col": 15,
-          "line": 3,
-          "lineBreaks": 0,
-          "offset": 42,
-          "text": "string",
-          "toString": [Function],
-          "type": "name",
-          "value": "string",
-        },
+        "type": "field",
       },
       Object {
+        "kind": Object {
+          "col": 14,
+          "line": 4,
+          "lineBreaks": 0,
+          "offset": 62,
+          "text": "number",
+          "toString": [Function],
+          "type": "name",
+          "value": "number",
+        },
         "name": Object {
           "col": 9,
           "line": 4,
@@ -1475,18 +1494,19 @@ Array [
           "type": "name",
           "value": "age",
         },
-        "type": Object {
-          "col": 14,
-          "line": 4,
+        "type": "field",
+      },
+      Object {
+        "kind": Object {
+          "col": 18,
+          "line": 5,
           "lineBreaks": 0,
-          "offset": 62,
+          "offset": 86,
           "text": "number",
           "toString": [Function],
           "type": "name",
           "value": "number",
         },
-      },
-      Object {
         "name": Object {
           "col": 9,
           "line": 5,
@@ -1497,18 +1517,19 @@ Array [
           "type": "name",
           "value": "balance",
         },
-        "type": Object {
-          "col": 18,
-          "line": 5,
-          "lineBreaks": 0,
-          "offset": 86,
-          "text": "number",
-          "toString": [Function],
-          "type": "name",
-          "value": "number",
-        },
+        "type": "field",
       },
       Object {
+        "kind": Object {
+          "col": 20,
+          "line": 6,
+          "lineBreaks": 0,
+          "offset": 112,
+          "text": "string",
+          "toString": [Function],
+          "type": "name",
+          "value": "string",
+        },
         "name": Object {
           "col": 9,
           "line": 6,
@@ -1519,16 +1540,7 @@ Array [
           "type": "name",
           "value": "publicKey",
         },
-        "type": Object {
-          "col": 20,
-          "line": 6,
-          "lineBreaks": 0,
-          "offset": 112,
-          "text": "string",
-          "toString": [Function],
-          "type": "name",
-          "value": "string",
-        },
+        "type": "field",
       },
       Object {
         "body": Array [
