@@ -1,0 +1,27 @@
+{
+	"compilerOptions": {
+		"moduleResolution": "node",
+		"allowJs": true,
+		"resolveJsonModule": true,
+		"strict": true,
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"jsx": "react",
+		"baseUrl": "src",
+		"outDir": "dist",
+		"rootDir": "src",
+		"paths": {
+			"#/*": [ "*" ]
+		}
+	},
+	"include": [
+		"src"
+	],
+	"exclude": [
+		"node_modules",
+		"**/*.spec.ts",
+		"**/*.js"
+	]
+}

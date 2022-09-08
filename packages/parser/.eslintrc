@@ -1,0 +1,81 @@
+{
+  "parser":  "@typescript-eslint/parser",
+  "extends": [
+    "standard", 
+    "standard-react",
+    "react-app",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended"
+  ],
+  "plugins": ["promise"],
+  "env": {
+    "browser": true,
+    "es6": true,
+    "jest": true
+  },
+  "globals": {
+    "__DEV__":  true,
+    "__TEST__": true,
+    "__PROD__": true,
+    "__COVERAGE__": false,
+    "ENV": false,
+    "expect": false,
+    "test": false,
+    "describe": false,
+    "cy": false,
+    "Cypress": false,
+    "gtag": false
+  },
+  "rules": {
+    "react/prop-types": [2, { "skipUndeclared": true }],
+    "react/jsx-handler-names": "off",
+    "jsx-quotes": [2, "prefer-single"],
+    "comma-dangle": [2, "always-multiline"],
+    "object-curly-spacing": [2, "always"],
+    "react/display-name": 0,
+    "semi": ["error", "never"],
+    "no-underscore-dangle": 0,
+    "space-before-function-paren": ["error", "always"],
+    "arrow-body-style": 0,
+    "no-use-before-define": 0,
+    "arrow-parens": 0,
+    "import/no-extraneous-dependencies": [ "error",
+      { 
+        "devDependencies": [
+          "**/*.test.ts", 
+          "**/*.spec.ts", 
+          "**/*.spec.ts", 
+          "**/*.spec.tsx", 
+          "**/test/**/*.ts", 
+          "**/__stories__/**/*.ts", 
+          "**/*.sb.*",
+          "config/*.ts", 
+          "scripts/*.ts"
+        ] 
+      }
+    ],
+    "import/prefer-default-export": 0,
+    "@typescript-eslint/no-use-before-define": 0,
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/interface-name-prefix" : 0,
+    "@typescript-eslint/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
+    "@typescript-eslint/no-non-null-assertion": 0,
+    "@typescript-eslint/no-empty-function": 0,
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/member-delimiter-style": ["error", {
+      "multiline": {
+        "delimiter": "none",
+        "requireLast": false
+      },
+      "singleline": {
+        "delimiter": "comma",
+        "requireLast": false
+      }
+     }]
+  },
+  "settings": {
+    "import/resolver": {
+      "babel-module": {}
+    }
+  }
+}
