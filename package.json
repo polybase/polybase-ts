@@ -6,6 +6,9 @@
   "author": "Cal <calum.moore@gmail.com>",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "build": "yarn lerna run build"
+  },
   "workspaces": [
     "packages/*"
   ],
