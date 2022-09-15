@@ -64,14 +64,11 @@ test('delete request is sent to client', async () => {
 
 test('set request is sent to client', async () => {
   const meta = {
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-        },
-      },
-    },
+    code: `
+      collection Col {
+        name: string;
+      }
+    `,
   }
 
   const data = [{

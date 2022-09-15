@@ -35,9 +35,9 @@ test('.limit() creates query instance', () => {
 
 test('get metadata - success', async () => {
   const meta = {
-    schema: {
-      type: 'object',
-    },
+    code: `
+      collection Col {}
+    `,
   }
 
   sender.mockResolvedValue({
@@ -54,14 +54,11 @@ test('get metadata - success', async () => {
 
 test('validate valid doc', async () => {
   const meta = {
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-        },
-      },
-    },
+    code: `
+      collection Col {
+        name: string;
+      }
+    `
   }
 
   sender.mockResolvedValue({
@@ -78,15 +75,11 @@ test('validate valid doc', async () => {
 
 test('validate invalid doc', async () => {
   const meta = {
-    schema: {
-      additionalProperties: false,
-      type: 'object',
-      properties: {
-        age: {
-          type: 'number',
-        },
-      },
-    },
+    code: `
+      collection Col {
+        age: number;
+      }  
+    `,
   }
 
   sender.mockResolvedValue({

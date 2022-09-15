@@ -1,16 +1,16 @@
-import Ajv, { ValidateFunction } from 'ajv'
 import { Doc } from './Doc'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator } from './types'
+import { parse, validateSet } from '@spacetimexyz/parser'
 
 export class Collection<T> {
   id: string
   private querySubs: Record<string, Subscription<CollectionList<T>>> = {}
   private docSubs: Record<string, Subscription<CollectionDocument<T>>> = {}
   private meta?: CollectionMeta
-  private validator?: ValidateFunction<T>
+  private validator?: (data: Partial<T>) => boolean
   private client: Client
 
   // TODO: this will be fetched
@@ -40,13 +40,21 @@ export class Collection<T> {
     }
   }
 
-  private getValidator = async (): Promise<ValidateFunction<T>> => {
+  private getValidator = async (): Promise<(data: Partial<T>) => boolean> => {
     if (this.validator) return this.validator
+
     const meta = await this.getMeta()
-    const ajv = new Ajv()
-    const v = ajv.compile<T>(meta.schema)
-    this.validator = v
-    return v
+    const ast = parse(meta.code)
+    this.validator = (data: Partial<T>) => {
+      try {
+        validateSet(ast.nodes[0].Collection, data)
+        return true
+      } catch {
+        return false
+      }
+    };
+    
+    return this.validator
   }
 
   validate = async (data: Partial<T>) => {
