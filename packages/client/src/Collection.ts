@@ -3,8 +3,7 @@ import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator } from './types'
-// @ts-ignore
-import { parse, validateSet } from '@spacetimexyz/parser/node'
+import { parse, validateSet } from '@spacetimexyz/parser'
 
 export class Collection<T> {
   id: string
