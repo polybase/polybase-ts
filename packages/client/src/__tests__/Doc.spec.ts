@@ -66,6 +66,7 @@ test('set request is sent to client', async () => {
   const meta = {
     code: `
       collection Col {
+        id: string!;
         name: string;
       }
     `,
@@ -94,7 +95,10 @@ test('set request is sent to client', async () => {
     url: '/col1/id1',
     method: 'PUT',
     data: {
-      data: set,
+      data: {
+        id: 'id1',
+        ...set,
+      },
     },
   })
 })

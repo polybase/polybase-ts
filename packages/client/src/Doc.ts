@@ -30,7 +30,7 @@ export class Doc<T> {
     data = {
       id: this.id,
       ...data,
-      ...(publicKeys ? { $pk: publicKeys?.join(',') } : {}),
+      ...(publicKeys ? { $pk: publicKeys.join(',') } : {}),
     }
 
     // TODO: check validatoon results
