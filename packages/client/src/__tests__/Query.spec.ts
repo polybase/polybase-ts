@@ -31,8 +31,8 @@ test('query is sent to client', async () => {
   const q = new Query('col1', client, register)
   await q.limit(100).where('name', '==', 'Hannah').get()
 
-  expect(sender).toBeCalledTimes(1)
-  expect(sender).toBeCalledWith({
+  expect(sender).toHaveBeenCalledTimes(1)
+  expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     url: '/col1',
     method: 'GET',

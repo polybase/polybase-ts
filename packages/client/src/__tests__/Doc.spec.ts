@@ -34,8 +34,8 @@ test('get request is sent to client', async () => {
   const d = new Doc('id1', collection, client, register)
   await d.get()
 
-  expect(sender).toBeCalledTimes(1)
-  expect(sender).toBeCalledWith({
+  expect(sender).toHaveBeenCalledTimes(1)
+  expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     url: '/col1/id1',
     method: 'GET',
@@ -54,8 +54,8 @@ test('delete request is sent to client', async () => {
   const d = new Doc('id1', collection, client, register)
   await d.delete()
 
-  expect(sender).toBeCalledTimes(1)
-  expect(sender).toBeCalledWith({
+  expect(sender).toHaveBeenCalledTimes(1)
+  expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     url: '/col1/id1',
     method: 'DELETE',
@@ -88,8 +88,8 @@ test('set request is sent to client', async () => {
   const set = { name: 'Jenna' }
   await d.set(set)
 
-  expect(sender).toBeCalledTimes(2)
-  expect(sender).toBeCalledWith({
+  expect(sender).toHaveBeenCalledTimes(2)
+  expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     url: '/col1/id1',
     method: 'PUT',

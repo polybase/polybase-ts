@@ -44,7 +44,7 @@ test('creates collection and returns it', async () => {
   }
   const n = await s.createCollection(meta)
 
-  expect(sender).toBeCalledWith({
+  expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     baseURL,
     url: '/$collections/new',

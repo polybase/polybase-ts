@@ -58,7 +58,7 @@ test('validate valid doc', async () => {
       collection Col {
         name: string;
       }
-    `
+    `,
   }
 
   sender.mockResolvedValue({
