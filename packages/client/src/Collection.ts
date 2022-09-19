@@ -3,14 +3,15 @@ import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator } from './types'
-import { parse, validateSet } from '@spacetimexyz/parser'
+// @ts-ignore
+import { parse, validateSet } from '@spacetimexyz/parser/node'
 
 export class Collection<T> {
   id: string
   private querySubs: Record<string, Subscription<CollectionList<T>>> = {}
   private docSubs: Record<string, Subscription<CollectionDocument<T>>> = {}
   private meta?: CollectionMeta
-  private validator?: (data: Partial<T>) => boolean
+  private validator?: (data: Partial<T>) => Promise<boolean>
   private client: Client
 
   // TODO: this will be fetched
@@ -40,26 +41,26 @@ export class Collection<T> {
     }
   }
 
-  private getValidator = async (): Promise<(data: Partial<T>) => boolean> => {
+  private getValidator = async (): Promise<(data: Partial<T>) => Promise<boolean>> => {
     if (this.validator) return this.validator
 
     const meta = await this.getMeta()
-    const ast = parse(meta.code)
-    this.validator = (data: Partial<T>) => {
+    const ast = await parse(meta.code)
+    this.validator = async (data: Partial<T>) => {
       try {
-        validateSet(ast.nodes[0].Collection, data)
+        await validateSet(ast.nodes[0].Collection, data)
         return true
       } catch {
         return false
       }
-    };
-    
+    }
+
     return this.validator
   }
 
   validate = async (data: Partial<T>) => {
     const validator = await this.getValidator()
-    return validator(data)
+    return await validator(data)
   }
 
   get = async (): Promise<CollectionList<T>> => {
