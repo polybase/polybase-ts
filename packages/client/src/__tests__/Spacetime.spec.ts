@@ -60,6 +60,61 @@ test('creates collection and returns it', async () => {
   expect(n).toBeInstanceOf(Collection)
 })
 
+test('creates collections from schema in namespace', async () => {
+  const s = new Spacetime({ sender, baseURL })
+  const namespace = 'test'
+  const schema = `
+    collection Col {
+      id: string!;
+      name: string;
+    }
+
+    collection Col2 {
+      id: string!;
+    }
+  `
+  const n = await s.applySchema(schema, namespace)
+
+  expect(sender).toHaveBeenCalledWith({
+    ...defaultRequest,
+    baseURL,
+    url: '/$collections/test%2FCol',
+    method: 'POST',
+    data: {
+      data: {
+        id: 'test/Col',
+        code: schema,
+      },
+    },
+    headers: {
+      'X-Spacetime-Client': 'spacetime@ts/client:v0',
+    },
+  })
+
+  expect(sender).toHaveBeenCalledWith({
+    ...defaultRequest,
+    baseURL,
+    url: '/$collections/test%2FCol2',
+    method: 'POST',
+    data: {
+      data: {
+        id: 'test/Col2',
+        code: schema,
+      },
+    },
+    headers: {
+      'X-Spacetime-Client': 'spacetime@ts/client:v0',
+    },
+  })
+
+  for (const item of n) {
+    expect(item).toBeInstanceOf(Collection)
+  }
+
+  expect(n.map((c) => c.id)).toContainEqual('test/Col')
+  expect(n.map((c) => c.id)).toContainEqual('test/Col2')
+})
+
 test('caches a collection', () => {
   const s = new Spacetime({ sender, baseURL })
 

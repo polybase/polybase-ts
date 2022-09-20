@@ -1,27 +1,24 @@
 import Wallet from 'ethereumjs-wallet'
 import { ethPersonalSign } from '@spacetimexyz/eth'
-import { Spacetime, CollectionMeta, Collection } from '../src'
+import { Spacetime, Collection } from '../src'
 
 jest.setTimeout(10000)
 
 const BASE_API_URL = process.env.E2E_API_URL ?? 'http://localhost:8080'
 const API_URL = `${BASE_API_URL}/v0/data`
 const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })
-const createCollection = (s: Spacetime, id: string) => {
-  const meta: CollectionMeta = {
-    id,
-    code: `
-      collection Col {
-        id: string!;
-        name: string;
-        $pk: string;
+const createCollection = async (s: Spacetime, namespace: string) => {
+  const collections = await s.applySchema(`
+    collection Col {
+      id: string!;
+      name: string;
+      $pk: string;
 
-        @index(name);
-      }
-    `,
-  }
+      @index(name);
+    }
+  `, namespace)
 
-  return s.createCollection(meta)
+  return collections[0]
 }
 
 const prefix = `test-${Date.now()}`
@@ -35,15 +32,15 @@ beforeEach(() => {
 })
 
 test('create collection', async () => {
-  const id = `${prefix}-create-collection`
-  const c = await createCollection(s, id)
+  const namespace = `${prefix}-create-collection`
+  const c = await createCollection(s, namespace)
   expect(c).toBeInstanceOf(Collection)
-  expect(c.id).toBe(id)
+  expect(c.id).toBe(namespace + '/Col')
 })
 
 test('set data on collection', async () => {
-  const id = `${prefix}-add-data`
-  const c = await createCollection(s, id)
+  const namespace = `${prefix}-add-data`
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({
     name: 'Calum',
@@ -69,8 +66,8 @@ test('set data on collection', async () => {
 })
 
 test('get data from collection', async () => {
-  const id = `${prefix}-get-data`
-  const c = await createCollection(s, id)
+  const namespace = `${prefix}-get-data`
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({
     name: 'Calum',
@@ -89,8 +86,8 @@ test('get data from collection', async () => {
 })
 
 test('list data from collection', async () => {
-  const id = `${prefix}-list-data`
-  const c = await createCollection(s, id)
+  const namespace = `${prefix}-list-data`
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({
     name: 'Calum',
@@ -128,8 +125,8 @@ test('list data from collection', async () => {
 })
 
 test('list data with == where clause', async () => {
-  const id = `${prefix}-list-where-data`
-  const c = await createCollection(s, id)
+  const namespace = `${prefix}-list-where-data`
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({
     name: 'Calum',
@@ -171,8 +168,8 @@ test('list data with == where clause', async () => {
 })
 
 test('list data with > where clause', async () => {
-  const id = `${prefix}-list-where-data`
-  const c = await createCollection(s, id)
+  const namespace = `${prefix}-list-where-data`
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({
     name: 'Calum',
@@ -214,8 +211,8 @@ test('list data with > where clause', async () => {
 })
 
 test('list data with sort clause', async () => {
-  const id = `${prefix}-list-where-data`
-  const c = await createCollection(s, id)
+  const namespace = `${prefix}-list-where-data`
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({
     name: 'Calum',
@@ -265,8 +262,8 @@ test('list data with sort clause', async () => {
 })
 
 test('list data with snapshot', async () => {
-  const id = `${prefix}-list-with-snapshot`
-  const c = await createCollection(s, id)
+  const namespace = `${prefix}-list-with-snapshot`
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({
     name: 'Calum',
@@ -304,8 +301,8 @@ test('list data with snapshot', async () => {
 })
 
 test('list data with cursor', async () => {
-  const id = `${prefix}-list-with-cursor`
-  const c = await createCollection(s, id)
+  const namespace = `${prefix}-list-with-cursor`
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({
     name: 'Calum',
@@ -368,7 +365,7 @@ test('list data with cursor', async () => {
 })
 
 test('signing', async () => {
-  const id = `${prefix}-signing`
+  const namespace = `${prefix}-signing`
   const wallet = Wallet.generate()
   const pk = `0x${wallet.getPublicKey().toString('hex')}`
 
@@ -383,7 +380,7 @@ test('signing', async () => {
     },
   })
 
-  const c = await createCollection(s, id)
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({ name: 'Calum2' }, [pk])
 
@@ -407,9 +404,9 @@ test('signing', async () => {
 })
 
 test('delete', async () => {
-  const id = `${prefix}-delete`
+  const namespace = `${prefix}-delete`
 
-  const c = await createCollection(s, id)
+  const c = await createCollection(s, namespace)
 
   await c.doc('id1').set({ name: 'Calum2' }, [])
   await c.doc('id1').delete()
