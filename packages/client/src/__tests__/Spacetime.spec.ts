@@ -1,7 +1,5 @@
-// import FakeTimers from '@sinonjs/fake-timers'
 import { Spacetime } from '../Spacetime'
 import { Collection } from '../Collection'
-import { CollectionMeta } from '../types'
 import { defaultRequest } from './util'
 
 // const clock = FakeTimers.install()
@@ -23,41 +21,22 @@ test('collection() returns collection', () => {
   expect(s.collection('a')).toBeInstanceOf(Collection)
 })
 
+test('collection() returns collection using default namespace', () => {
+  const s = new Spacetime({ sender, defaultNamespace: 'hello-world' })
+  expect(s.collection('a/path').id).toBe('hello-world/a/path')
+})
+
+test('collection() returns collection using absolute path', () => {
+  const s = new Spacetime({ sender, defaultNamespace: 'hello-world' })
+  expect(s.collection('/a/path').id).toBe('a/path')
+})
+
 test('collection is reused', () => {
   const s = new Spacetime({
     sender,
   })
   const a = s.collection('a')
   expect(s.collection('a')).toBe(a)
-})
-
-test('creates collection and returns it', async () => {
-  const s = new Spacetime({ sender, baseURL })
-  const meta: CollectionMeta = {
-    id: 'new',
-    code: `
-      collection Col {
-        id: string!;
-        name: string;
-      }
-    `,
-  }
-  const n = await s.createCollection(meta)
-
-  expect(sender).toHaveBeenCalledWith({
-    ...defaultRequest,
-    baseURL,
-    url: '/$collections/new',
-    method: 'POST',
-    data: {
-      data: meta,
-    },
-    headers: {
-      'X-Spacetime-Client': 'spacetime@ts/client:v0',
-    },
-  })
-
-  expect(n).toBeInstanceOf(Collection)
 })
 
 test('creates collections from schema in namespace', async () => {
