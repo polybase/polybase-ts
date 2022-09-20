@@ -35,12 +35,17 @@ export class Spacetime {
     )
   }
 
-  collection<T=any> (id: string): Collection<T> {
-    if (this.collections[id]) return this.collections[id]
-    const path = this.config.defaultNamespace ? `${this.config.defaultNamespace}/${id}` : id
-    const c = new Collection<T>(path, this.client)
-    this.collections[path] = c
+  collection<T=any> (path: string): Collection<T> {
+    const rp = this.getResolvedPath(path)
+    if (this.collections[rp]) return this.collections[rp]
+    const c = new Collection<T>(rp, this.client)
+    this.collections[rp] = c
     return c
+  }
+
+  private getResolvedPath = (path: string) => {
+    if (path.startsWith('/')) return path.substring(1)
+    return this.config.defaultNamespace ? `${this.config.defaultNamespace}/${path}` : path
   }
 
   private createCollection = async <T>(data: CollectionMeta): Promise<Collection<T>> => {

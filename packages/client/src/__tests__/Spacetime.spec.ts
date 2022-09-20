@@ -23,7 +23,12 @@ test('collection() returns collection', () => {
 
 test('collection() returns collection using default namespace', () => {
   const s = new Spacetime({ sender, defaultNamespace: 'hello-world' })
-  expect(s.collection('a').id).toBe('hello-world/a')
+  expect(s.collection('a/path').id).toBe('hello-world/a/path')
+})
+
+test('collection() returns collection using absolute path', () => {
+  const s = new Spacetime({ sender, defaultNamespace: 'hello-world' })
+  expect(s.collection('/a/path').id).toBe('a/path')
 })
 
 test('collection is reused', () => {
