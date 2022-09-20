@@ -21,6 +21,11 @@ test('collection() returns collection', () => {
   expect(s.collection('a')).toBeInstanceOf(Collection)
 })
 
+test('collection() returns collection using default namespace', () => {
+  const s = new Spacetime({ sender, defaultNamespace: 'hello-world' })
+  expect(s.collection('a').id).toBe('hello-world/a')
+})
+
 test('collection is reused', () => {
   const s = new Spacetime({
     sender,
