@@ -31,35 +31,6 @@ test('collection is reused', () => {
   expect(s.collection('a')).toBe(a)
 })
 
-test('creates collection and returns it', async () => {
-  const s = new Spacetime({ sender, baseURL })
-  const meta: CollectionMeta = {
-    id: 'new',
-    code: `
-      collection Col {
-        id: string!;
-        name: string;
-      }
-    `,
-  }
-  const n = await s.createCollection(meta)
-
-  expect(sender).toHaveBeenCalledWith({
-    ...defaultRequest,
-    baseURL,
-    url: '/$collections/new',
-    method: 'POST',
-    data: {
-      data: meta,
-    },
-    headers: {
-      'X-Spacetime-Client': 'spacetime@ts/client:v0',
-    },
-  })
-
-  expect(n).toBeInstanceOf(Collection)
-})
-
 test('creates collections from schema in namespace', async () => {
   const s = new Spacetime({ sender, baseURL })
   const namespace = 'test'
