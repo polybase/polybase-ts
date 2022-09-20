@@ -1,7 +1,5 @@
-// import FakeTimers from '@sinonjs/fake-timers'
 import { Spacetime } from '../Spacetime'
 import { Collection } from '../Collection'
-import { CollectionMeta } from '../types'
 import { defaultRequest } from './util'
 
 // const clock = FakeTimers.install()
