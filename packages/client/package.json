@@ -1,7 +1,7 @@
 {
   "name": "@spacetimexyz/client",
   "description": "Client (browser/node) for Spacetime",
-  "version": "0.1.27",
+  "version": "0.2.0",
   "types": "./node/index.d.ts",
   "license": "MIT",
   "files": [
