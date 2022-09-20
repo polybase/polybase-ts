@@ -3,11 +3,13 @@ import axios from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'
 import { Collection } from './Collection'
+import { createError } from './errors'
 import { CollectionMeta, Sender, Signer } from './types'
 
 export interface SpacetimeConfig {
   baseURL: string
   clientId: string
+  defaultNamespace?: string
   sender: Sender
   signer?: Signer
 }
@@ -35,12 +37,13 @@ export class Spacetime {
 
   collection<T=any> (id: string): Collection<T> {
     if (this.collections[id]) return this.collections[id]
-    const c = new Collection<T>(id, this.client)
-    this.collections[id] = c
+    const path = this.config.defaultNamespace ? `${this.config.defaultNamespace}/${id}` : id
+    const c = new Collection<T>(path, this.client)
+    this.collections[path] = c
     return c
   }
 
-  createCollection = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
+  private createCollection = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
     const id = data.id
     await this.client.request({
       url: `/$collections/${encodeURIComponent(id)}`,
@@ -52,15 +55,20 @@ export class Spacetime {
     return this.collection<T>(data.id)
   }
 
-  applySchema = async (schema: string, namespace: string): Promise<Collection<any>[]> => {
+  applySchema = async (schema: string, namespace?: string): Promise<Collection<any>[]> => {
     const collections = []
     const ast = await parse(schema)
+
+    const ns = (namespace ?? this.config.defaultNamespace)
+    if (!ns) {
+      throw createError('missing-namespace')
+    }
 
     for (const node of ast.nodes) {
       if (!node.Collection) continue
 
       collections.push(this.createCollection({
-        id: namespace + '/' + node.Collection.name,
+        id: ns + '/' + node.Collection.name,
         code: schema,
       }))
     }
