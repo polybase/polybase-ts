@@ -1,3 +1,4 @@
+import { parse } from '@spacetimexyz/parser'
 import axios from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'
@@ -49,6 +50,22 @@ export class Spacetime {
       },
     }).send()
     return this.collection<T>(data.id)
+  }
+
+  applySchema = async (schema: string, namespace: string): Promise<Collection<any>[]> => {
+    const collections = []
+    const ast = await parse(schema)
+
+    for (const node of ast.nodes) {
+      if (!node.Collection) continue
+
+      collections.push(this.createCollection({
+        id: namespace + '/' + node.Collection.name,
+        code: schema,
+      }))
+    }
+
+    return await Promise.all(collections)
   }
 
   signer = (fn: Signer) => {
