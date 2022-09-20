@@ -35,18 +35,16 @@ test('creates collection and returns it', async () => {
   const s = new Spacetime({ sender, baseURL })
   const meta: CollectionMeta = {
     id: 'new',
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-        },
-      },
-    },
+    code: `
+      collection Col {
+        id: string!;
+        name: string;
+      }
+    `,
   }
   const n = await s.createCollection(meta)
 
-  expect(sender).toBeCalledWith({
+  expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     baseURL,
     url: '/$collections/new',

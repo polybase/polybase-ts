@@ -89,9 +89,9 @@ test('subscriber does not error on 304', async () => {
 
   await clock.tickAsync(0)
 
-  expect(spyOk).toBeCalledTimes(0)
-  expect(spyErr).toBeCalledTimes(0)
-  expect(sender).toBeCalledTimes(1)
+  expect(spyOk).toHaveBeenCalledTimes(0)
+  expect(spyErr).toHaveBeenCalledTimes(0)
+  expect(sender).toHaveBeenCalledTimes(1)
 
   unsub()
 })
@@ -116,9 +116,9 @@ test('subscriber errors on error', async () => {
 
   await clock.tickAsync(0)
 
-  expect(spyOk).toBeCalledTimes(0)
-  expect(spyErr).toBeCalledTimes(1)
-  expect(sender).toBeCalledTimes(1)
+  expect(spyOk).toHaveBeenCalledTimes(0)
+  expect(spyErr).toHaveBeenCalledTimes(1)
+  expect(sender).toHaveBeenCalledTimes(1)
 
   unsub()
 })
@@ -172,7 +172,7 @@ test('subscriber adds/removes multiple subs', async () => {
 
   await clock.tickAsync(200)
 
-  expect(c.tick).toBeCalledTimes(0)
+  expect(c.tick).toHaveBeenCalledTimes(0)
 })
 
 test('data is cached through reset', async () => {
@@ -209,8 +209,8 @@ test('data is cached through reset', async () => {
   await clock.tickAsync(200)
 
   const unsub2 = c.subscribe(sub2)
-  expect(sub2).toBeCalledTimes(1)
-  expect(sub2).toBeCalledWith({ data: rec })
+  expect(sub2).toHaveBeenCalledTimes(1)
+  expect(sub2).toHaveBeenCalledWith({ data: rec })
 
   unsub2()
 })

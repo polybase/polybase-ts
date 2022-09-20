@@ -10,17 +10,15 @@ const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, ti
 const createCollection = (s: Spacetime, id: string) => {
   const meta: CollectionMeta = {
     id,
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-        },
-      },
-    },
-    indexes: [{
-      fields: [{ field: 'name' }],
-    }],
+    code: `
+      collection Col {
+        id: string!;
+        name: string;
+        $pk: string;
+
+        @index(name);
+      }
+    `,
   }
 
   return s.createCollection(meta)
