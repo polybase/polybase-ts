@@ -167,7 +167,7 @@ test('.call() sends a call request', async () => {
 
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/call/col/setAge',
+    url: '/collections/col/functions/setAge/call',
     method: 'POST',
     data: {
       args: [

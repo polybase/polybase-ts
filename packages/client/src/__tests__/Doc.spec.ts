@@ -37,7 +37,7 @@ test('get request is sent to client', async () => {
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/data/col1/id1',
+    url: '/collections/col1/records/id1',
     method: 'GET',
   })
 })
@@ -57,7 +57,7 @@ test('delete request is sent to client', async () => {
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/data/col1/id1',
+    url: '/collections/col1/records/id1',
     method: 'DELETE',
   })
 })
@@ -92,7 +92,7 @@ test('set request is sent to client', async () => {
   expect(sender).toHaveBeenCalledTimes(2)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/data/col1/id1',
+    url: '/collections/col1/records/id1',
     method: 'PUT',
     data: {
       data: {

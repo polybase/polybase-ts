@@ -29,7 +29,7 @@ export class Collection<T> {
     try {
       if (this.meta) return this.meta
       const res = await this.client.request({
-        url: `/data/$collections/${encodeURIComponent(this.id)}`,
+        url: `/collections/$collections/records/${encodeURIComponent(this.id)}`,
         method: 'GET',
       }).send()
       this.meta = res.data?.data as CollectionMeta
@@ -70,7 +70,7 @@ export class Collection<T> {
 
   get = async (): Promise<CollectionList<T>> => {
     const res = await this.client.request({
-      url: `/data/${encodeURIComponent(this.id)}`,
+      url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'GET',
     }).send()
 
@@ -118,7 +118,7 @@ export class Collection<T> {
     const changedArgs = eval(`${js.code}; const auth = ${JSON.stringify(auth)}; const args = ${JSON.stringify(resolvedArgs)}; f(auth, args); args`)
 
     await this.client.request({
-      url: `/call/${encodeURIComponent(this.id)}/${encodeURIComponent(functionName)}`,
+      url: `/collections/${encodeURIComponent(this.id)}/functions/${encodeURIComponent(functionName)}/call`,
       method: 'POST',
       data: {
         args: args.map(arg => {
