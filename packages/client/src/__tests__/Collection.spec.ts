@@ -2,6 +2,7 @@ import { Collection } from '../Collection'
 import { Doc } from '../Doc'
 import { Query } from '../Query'
 import { Client } from '../Client'
+import { defaultRequest } from './util'
 
 let sender: jest.Mock
 let signer: jest.Mock
@@ -36,7 +37,7 @@ test('.limit() creates query instance', () => {
 test('get metadata - success', async () => {
   const meta = {
     code: `
-      collection Col {}
+      collection col {}
     `,
   }
 
@@ -55,7 +56,7 @@ test('get metadata - success', async () => {
 test('validate valid doc', async () => {
   const meta = {
     code: `
-      collection Col {
+      collection col {
         name: string;
       }
     `,
@@ -76,7 +77,7 @@ test('validate valid doc', async () => {
 test('validate invalid doc', async () => {
   const meta = {
     code: `
-      collection Col {
+      collection col {
         age: number;
       }  
     `,
@@ -118,4 +119,69 @@ test('collection key is correct', () => {
   const c = new Collection('col', client)
   const key = c.key()
   expect(key).toBe('collection:col')
+})
+
+test('.call() sends a call request', async () => {
+  const meta = {
+    code: `
+      collection col {
+        age: number;
+
+        function setAge(a: record, age: number) {
+          a.age = age;
+        }
+      }
+    `,
+  }
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: {
+        id: 'id1',
+        age: 30,
+      },
+    },
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: {
+        block: {
+          hash: '0x0',
+        },
+      },
+    },
+  })
+
+  const c = new Collection('col', client)
+  const result = await c.call('setAge', [c.doc('id1'), 20])
+
+  expect(sender).toHaveBeenCalledWith({
+    ...defaultRequest,
+    url: '/call/col/setAge',
+    method: 'POST',
+    data: {
+      args: [
+        {
+          id: 'id1',
+        },
+        20,
+      ],
+      result: '[{"id":"id1","age":20},20]',
+    },
+  })
+
+  expect(result).toEqual([{
+    id: 'id1',
+    age: 20,
+  }])
 })

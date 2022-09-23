@@ -88,7 +88,7 @@ export class Query<T> {
 
   request = (): Request => {
     return {
-      url: `/${encodeURIComponent(this.id)}`,
+      url: `/data/${encodeURIComponent(this.id)}`,
       method: 'GET',
       params: this.params,
     }

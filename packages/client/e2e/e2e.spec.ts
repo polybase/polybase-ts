@@ -5,7 +5,7 @@ import { Spacetime, Collection } from '../src'
 jest.setTimeout(10000)
 
 const BASE_API_URL = process.env.E2E_API_URL ?? 'http://localhost:8080'
-const API_URL = `${BASE_API_URL}/v0/data`
+const API_URL = `${BASE_API_URL}/v0`
 const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })
 const createCollection = async (s: Spacetime, namespace: string) => {
   const collections = await s.applySchema(`
@@ -15,6 +15,16 @@ const createCollection = async (s: Spacetime, namespace: string) => {
       $pk: string;
 
       @index(name);
+
+      function setName(a: record, name: string) {
+        a.name = name;
+      }
+
+      function setNameWithAuth(a: record, name: string) {
+        if (a.$pk != auth.publicKey) throw error('you do not own this record');
+
+        a.name = name;
+      }
     }
   `, namespace)
 
@@ -276,8 +286,8 @@ test('list data with snapshot', async () => {
 
   await wait(2000)
 
-  expect(spy).toBeCalledTimes(1)
-  expect(spy).toBeCalledWith({
+  expect(spy).toHaveBeenCalledTimes(1)
+  expect(spy).toHaveBeenCalledWith({
     cursor: {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
@@ -399,6 +409,20 @@ test('signing', async () => {
     name: 'Calum4',
   })
 
+  const callRes = await c.call('setNameWithAuth', [c.doc('id1'), 'Calum5'], pk)
+  expect(callRes).toEqual([{
+    $pk: pk,
+    id: 'id1',
+    name: 'Calum5',
+  }])
+
+  const res3 = await c.doc('id1').get()
+  expect(res3.data).toEqual({
+    $pk: pk,
+    id: 'id1',
+    name: 'Calum5',
+  })
+
   await c.doc('id1').delete()
   await expect(c.doc('id1').get()).rejects.toThrow()
 })
@@ -412,4 +436,24 @@ test('delete', async () => {
   await c.doc('id1').delete()
 
   await expect(c.doc('id').get()).rejects.toThrow()
+})
+
+test('call', async () => {
+  const namespace = `${prefix}-call`
+
+  const c = await createCollection(s, namespace)
+
+  await c.doc('id1').set({ name: 'Calum2' })
+
+  const callRes = await c.call('setName', [c.doc('id1'), 'Calum3'])
+  expect(callRes).toEqual([{
+    id: 'id1',
+    name: 'Calum3',
+  }])
+
+  const res = await c.doc('id1').get()
+  expect(res.data).toEqual({
+    id: 'id1',
+    name: 'Calum3',
+  })
 })

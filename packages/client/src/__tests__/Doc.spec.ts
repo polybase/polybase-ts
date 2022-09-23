@@ -37,7 +37,7 @@ test('get request is sent to client', async () => {
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/col1/id1',
+    url: '/data/col1/id1',
     method: 'GET',
   })
 })
@@ -57,7 +57,7 @@ test('delete request is sent to client', async () => {
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/col1/id1',
+    url: '/data/col1/id1',
     method: 'DELETE',
   })
 })
@@ -65,7 +65,7 @@ test('delete request is sent to client', async () => {
 test('set request is sent to client', async () => {
   const meta = {
     code: `
-      collection Col {
+      collection col1 {
         id: string!;
         name: string;
       }
@@ -92,7 +92,7 @@ test('set request is sent to client', async () => {
   expect(sender).toHaveBeenCalledTimes(2)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/col1/id1',
+    url: '/data/col1/id1',
     method: 'PUT',
     data: {
       data: {
