@@ -21,7 +21,7 @@ const createCollection = async (s: Spacetime, namespace: string) => {
       }
 
       function setNameWithAuth(a: record, name: string) {
-        if (a.$pk != auth.publicKey) throw error('you do not own this record');
+        if (a.$pk != $auth.publicKey) throw error('you do not own this record');
 
         a.name = name;
       }
