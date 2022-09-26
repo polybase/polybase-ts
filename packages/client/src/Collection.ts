@@ -3,7 +3,7 @@ import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator } from './types'
-import { generateJSFunction, parse, Program, validateSet } from '@spacetimexyz/parser'
+import { parse, Program, validateSet } from '@spacetimexyz/parser'
 
 export class Collection<T> {
   id: string
@@ -77,7 +77,7 @@ export class Collection<T> {
     return res.data
   }
 
-  call = async (functionName: string, args: (string | number | Doc<any>)[] = [], pk?: string): Promise<CollectionDocument<any>[]> => {
+  call = async (functionName: string, args: (string | number | Doc<any>)[] = [], pk?: string): Promise<void> => {
     const meta = await this.getMeta()
     const ast = await parse(meta.code)
     const funcAST = this.collectionAST(ast).items.find((f: any) => f?.Function?.name === functionName)?.Function
@@ -99,24 +99,6 @@ export class Collection<T> {
       }
     }
 
-    let resolvedArgs = []
-    for (const arg of args) {
-      if (arg instanceof Doc) {
-        resolvedArgs.push(arg.get().then(d => d.data))
-      } else {
-        resolvedArgs.push(arg)
-      }
-    }
-    resolvedArgs = await Promise.all(resolvedArgs)
-
-    const auth = {
-      publicKey: pk,
-    }
-
-    const js = await generateJSFunction(funcAST)
-    // eslint-disable-next-line no-eval
-    const changedArgs = eval(`${js.code}; const auth = ${JSON.stringify(auth)}; const args = ${JSON.stringify(resolvedArgs)}; f(auth, args); args`)
-
     await this.client.request({
       url: `/collections/${encodeURIComponent(this.id)}/functions/${encodeURIComponent(functionName)}/call`,
       method: 'POST',
@@ -128,11 +110,8 @@ export class Collection<T> {
 
           return arg
         }),
-        result: JSON.stringify(changedArgs),
       },
     }).send(pk ? true : undefined)
-
-    return changedArgs.filter((arg: any) => typeof arg === 'object')
   }
 
   doc = (id: string): Doc<T> => {

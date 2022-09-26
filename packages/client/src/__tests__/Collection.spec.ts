@@ -176,12 +176,8 @@ test('.call() sends a call request', async () => {
         },
         20,
       ],
-      result: '[{"id":"id1","age":20},20]',
     },
   })
 
-  expect(result).toEqual([{
-    id: 'id1',
-    age: 20,
-  }])
+  expect(result).toEqual(undefined)
 })

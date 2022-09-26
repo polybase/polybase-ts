@@ -409,12 +409,7 @@ test('signing', async () => {
     name: 'Calum4',
   })
 
-  const callRes = await c.call('setNameWithAuth', [c.doc('id1'), 'Calum5'], pk)
-  expect(callRes).toEqual([{
-    $pk: pk,
-    id: 'id1',
-    name: 'Calum5',
-  }])
+  await c.call('setNameWithAuth', [c.doc('id1'), 'Calum5'], pk)
 
   const res3 = await c.doc('id1').get()
   expect(res3.data).toEqual({
@@ -445,11 +440,7 @@ test('call', async () => {
 
   await c.doc('id1').set({ name: 'Calum2' })
 
-  const callRes = await c.call('setName', [c.doc('id1'), 'Calum3'])
-  expect(callRes).toEqual([{
-    id: 'id1',
-    name: 'Calum3',
-  }])
+  await c.call('setName', [c.doc('id1'), 'Calum3'])
 
   const res = await c.doc('id1').get()
   expect(res.data).toEqual({
