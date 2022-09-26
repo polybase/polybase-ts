@@ -6,7 +6,7 @@ import { Request, CollectionDocument } from './types'
 export type DocSnapshotRegister<T> = (d: Doc<T>, fn: SubscriptionFn<CollectionDocument<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export class Doc<T> {
-  private id: string
+  id: string
   private collection: Collection<T>
   private client: Client
   private onSnapshotRegister: DocSnapshotRegister<T>
@@ -40,7 +40,7 @@ export class Doc<T> {
     }
 
     const res = await this.client.request({
-      url: `/${encodeURIComponent(this.collection.id)}/${encodeURIComponent(this.id)}`,
+      url: `/collections/${encodeURIComponent(this.collection.id)}/records/${encodeURIComponent(this.id)}`,
       method: 'PUT',
       data: {
         data,
@@ -64,7 +64,7 @@ export class Doc<T> {
   }
 
   request = (): Request => ({
-    url: `/${encodeURIComponent(this.collection.id)}/${encodeURIComponent(this.id)}`,
+    url: `/collections/${encodeURIComponent(this.collection.id)}/records/${encodeURIComponent(this.id)}`,
     method: 'GET',
   })
 }

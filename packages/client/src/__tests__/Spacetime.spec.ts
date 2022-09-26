@@ -57,7 +57,7 @@ test('creates collections from schema in namespace', async () => {
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     baseURL,
-    url: '/$collections/test%2FCol',
+    url: '/collections/$collections/records/test%2FCol',
     method: 'POST',
     data: {
       data: {
@@ -73,7 +73,7 @@ test('creates collections from schema in namespace', async () => {
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     baseURL,
-    url: '/$collections/test%2FCol2',
+    url: '/collections/$collections/records/test%2FCol2',
     method: 'POST',
     data: {
       data: {

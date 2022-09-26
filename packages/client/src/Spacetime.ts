@@ -15,7 +15,7 @@ export interface SpacetimeConfig {
 }
 
 const defaultConfig = {
-  baseURL: 'https://testnet.spacetime.xyz/v0/data',
+  baseURL: 'https://testnet.spacetime.xyz/v0',
   clientId: 'spacetime@ts/client:v0',
   sender: axios,
 }
@@ -51,7 +51,7 @@ export class Spacetime {
   private createCollection = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
     const id = data.id
     await this.client.request({
-      url: `/$collections/${encodeURIComponent(id)}`,
+      url: `/collections/$collections/records/${encodeURIComponent(id)}`,
       method: 'POST',
       data: {
         data,
