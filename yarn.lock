@@ -1981,10 +1981,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@spacetimexyz/parser@0.1.4-beta2":
-  version "0.1.4-beta2"
-  resolved "https://registry.yarnpkg.com/@spacetimexyz/parser/-/parser-0.1.4-beta2.tgz#6591f160e71afe7d56a56448be90d455f8e14a84"
-  integrity sha512-81HD2Nah5+giWn0RNxRG5B5GYGMoiNhNZyjhP/23N8xPXAO7kZOAgrgAmiCpFstsVYyZpf66bRHiGoB50drpyw==
+"@spacetimexyz/lang@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@spacetimexyz/lang/-/lang-0.1.4.tgz#4ef6865afdf2932fa43ce094e5dece3790cdd68d"
+  integrity sha512-muGtU+CaXkgzTVG0QQHHVLfnBO0BV+UjtYNbkNLWBtnedD8mq5cfzx/84VyUyepn2/L7fgWWzuwkb1Itystyng==
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"

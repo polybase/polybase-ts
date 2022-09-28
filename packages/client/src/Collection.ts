@@ -3,7 +3,7 @@ import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator } from './types'
-import { parse, Program, validateSet } from '@spacetimexyz/parser'
+import { parse, Program, validateSet } from '@spacetimexyz/lang'
 
 export class Collection<T> {
   id: string

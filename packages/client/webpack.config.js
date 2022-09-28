@@ -10,7 +10,7 @@ const config = (target) => ({
   externals: [
     nodeExternals(),
     {
-      '@spacetimexyz/parser': '@spacetimexyz/parser/' + target,
+      '@spacetimexyz/lang': '@spacetimexyz/lang/' + target,
     },
   ],
   module: {
