@@ -1,4 +1,4 @@
-import { parse } from '@spacetimexyz/parser'
+import { parse } from '@spacetimexyz/lang'
 import axios from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'

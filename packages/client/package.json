@@ -27,7 +27,7 @@
       "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
     ],
     "moduleNameMapper": {
-      "^@spacetimexyz/parser$": "@spacetimexyz/parser/node"
+      "^@spacetimexyz/lang$": "@spacetimexyz/lang/node"
     },
     "testEnvironment": "node"
   },
@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "@spacetimexyz/eth": "^0.1.27",
-    "@spacetimexyz/parser": "0.1.4-beta2",
+    "@spacetimexyz/lang": "^0.1.4",
     "axios": "^0.27.2",
     "lodash.merge": "^4.6.2"
   }
