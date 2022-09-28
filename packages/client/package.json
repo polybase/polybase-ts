@@ -2,7 +2,8 @@
   "name": "@spacetimexyz/client",
   "description": "Client (browser/node) for Spacetime",
   "version": "0.2.0",
-  "types": "./node/index.d.ts",
+  "types": "./web/index.d.ts",
+  "main": "./web/index.js",
   "license": "MIT",
   "files": [
     "node/*",
