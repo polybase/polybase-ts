@@ -7,12 +7,13 @@ jest.setTimeout(10000)
 const BASE_API_URL = process.env.E2E_API_URL ?? 'http://localhost:8080'
 const API_URL = `${BASE_API_URL}/v0`
 const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })
-const createCollection = async (s: Spacetime, namespace: string) => {
+const createCollection = async (s: Spacetime, namespace: string, extraFields?: string) => {
   const collections = await s.applySchema(`
     collection Col {
       id: string!;
       name: string;
       $pk: string;
+      ${extraFields ?? ''}
 
       @index(name);
 
@@ -390,7 +391,7 @@ test('signing', async () => {
     },
   })
 
-  const c = await createCollection(s, namespace)
+  const c = await createCollection(s, namespace, 'publicKey: string @creator;')
 
   await c.doc('id1').set({ name: 'Calum2' }, [pk])
 
@@ -398,6 +399,7 @@ test('signing', async () => {
 
   expect(res.data).toEqual({
     $pk: pk,
+    publicKey: pk,
     id: 'id1',
     name: 'Calum4',
   })
@@ -405,6 +407,7 @@ test('signing', async () => {
   const res2 = await c.doc('id1').get()
   expect(res2.data).toEqual({
     $pk: pk,
+    publicKey: pk,
     id: 'id1',
     name: 'Calum4',
   })
@@ -414,6 +417,7 @@ test('signing', async () => {
   const res3 = await c.doc('id1').get()
   expect(res3.data).toEqual({
     $pk: pk,
+    publicKey: pk,
     id: 'id1',
     name: 'Calum5',
   })
