@@ -2,21 +2,20 @@
   "name": "@spacetimexyz/client",
   "description": "Client (browser/node) for Spacetime",
   "version": "0.2.2",
-  "types": "./web/index.d.ts",
-  "main": "./web/index.js",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
   "license": "MIT",
   "files": [
-    "node/*",
-    "web/*"
+    "dist/*"
   ],
   "scripts": {
-    "clean": "rimraf node/* && rimraf web/*",
-    "build": "yarn clean && webpack build",
+    "clean": "rimraf dist/*",
+    "build": "yarn clean && tsc",
     "prepare": "yarn build",
     "release": "npx np",
     "test": "jest ./src",
     "test:e2e": "jest ./e2e --verbose",
-    "fix": "yarn eslint \"./src/**/*.{ts,tsx}\" webpack.config.js --fix"
+    "fix": "yarn eslint \"./src/**/*.{ts,tsx}\" --fix"
   },
   "jest": {
     "preset": "ts-jest",
@@ -27,9 +26,6 @@
     "testMatch": [
       "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
     ],
-    "moduleNameMapper": {
-      "^@spacetimexyz/lang$": "@spacetimexyz/lang/node"
-    },
     "testEnvironment": "node"
   },
   "devDependencies": {
@@ -55,14 +51,11 @@
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.8",
     "ts-loader": "^9.3.1",
-    "typescript": "^4.6.4",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0",
-    "webpack-node-externals": "^3.0.0"
+    "typescript": "^4.6.4"
   },
   "dependencies": {
     "@spacetimexyz/eth": "^0.1.27",
-    "@spacetimexyz/lang": "0.1.5",
+    "@spacetimexyz/lang": "0.2.0-beta1",
     "axios": "^0.27.2",
     "lodash.merge": "^4.6.2"
   }
