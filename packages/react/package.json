@@ -1,7 +1,7 @@
 {
   "name": "@spacetimexyz/react",
   "description": "React wrapper for @spacetimexyz/client",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
