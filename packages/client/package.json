@@ -1,7 +1,7 @@
 {
   "name": "@spacetimexyz/client",
   "description": "Client (browser/node) for Spacetime",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "license": "MIT",
@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@spacetimexyz/eth": "^0.1.27",
-    "@spacetimexyz/lang": "0.2.0",
+    "@spacetimexyz/lang": "0.2.1",
     "axios": "^0.27.2",
     "lodash.merge": "^4.6.2"
   }

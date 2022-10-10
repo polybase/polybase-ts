@@ -1968,10 +1968,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@spacetimexyz/lang@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@spacetimexyz/lang/-/lang-0.2.0.tgz#991fe3a46642138e65547fde1f8fa1838e5ae7e6"
-  integrity sha512-DwpWUKlow9BZ9wCGS0saZ+/aJJBbU1+j0aVFI3mHZDRJKeT7ZkHkorDEZxH4KydBJSx1Z+nFysnwnFFtVpNN3Q==
+"@spacetimexyz/lang@0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@spacetimexyz/lang/-/lang-0.2.1.tgz#373442a9453ffc91412c3b163c82f4ed7d7b21bd"
+  integrity sha512-WNEO8/BGWzsTnAqOxmD5e44WHgiV7j6CSyDGqcB6n6EcqvlY0YHfg8xklcos077zclNEF9+bifzPHjQlvJ9T3g==
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
