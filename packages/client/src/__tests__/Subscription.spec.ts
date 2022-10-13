@@ -37,7 +37,7 @@ test('start/stop subscriber', async () => {
       data: rec,
     },
     headers: {
-      'x-spacetime-timestamp': timestamp,
+      'x-polybase-timestamp': timestamp,
     },
   })
 
@@ -193,7 +193,7 @@ test('data is cached through reset', async () => {
       data: rec,
     },
     headers: {
-      'x-spacetime-timestamp': timestamp,
+      'x-polybase-timestamp': timestamp,
     },
   })
 

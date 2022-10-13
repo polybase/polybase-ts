@@ -1,3 +1,3 @@
 export * from './constants'
 export * from './createError'
-export * from './SpacetimeError'
+export * from './PolybaseError'

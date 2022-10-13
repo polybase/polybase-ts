@@ -1,3 +1,3 @@
-# @spacetimexyz/react
+# @polybase/react
 
-React wrapper for @spacetimexyz/client
+React wrapper for @polybase/client

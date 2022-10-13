@@ -1,4 +1,4 @@
-import { parse } from '@spacetimexyz/lang'
+import { parse } from '@polybase/polylang'
 import axios from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'
@@ -6,7 +6,7 @@ import { Collection } from './Collection'
 import { createError } from './errors'
 import { CollectionMeta, Sender, Signer } from './types'
 
-export interface SpacetimeConfig {
+export interface PolybaseConfig {
   baseURL: string
   clientId: string
   defaultNamespace?: string
@@ -15,17 +15,17 @@ export interface SpacetimeConfig {
 }
 
 const defaultConfig = {
-  baseURL: 'https://testnet.spacetime.xyz/v0',
-  clientId: 'spacetime@ts/client:v0',
+  baseURL: 'https://testnet.polybase.xyz/v0',
+  clientId: 'polybase@ts/client:v0',
   sender: axios,
 }
 
-export class Spacetime {
-  private config: SpacetimeConfig
+export class Polybase {
+  private config: PolybaseConfig
   private client: Client
   private collections: Record<string, Collection<any>> = {}
 
-  constructor (config?: Partial<SpacetimeConfig>) {
+  constructor (config?: Partial<PolybaseConfig>) {
     this.config = merge({}, defaultConfig, config)
     const { clientId, baseURL } = this.config
     this.client = new Client(

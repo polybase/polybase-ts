@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Doc, SpacetimeError, CollectionDocument } from '@spacetimexyz/client'
+import { Doc, PolybaseError, CollectionDocument } from '@polybase/client'
 
 export interface UseDocumentReturnValue<T> {
-  error: SpacetimeError|null
+  error: PolybaseError|null
   data: CollectionDocument<T>|null
   loading: boolean
 }

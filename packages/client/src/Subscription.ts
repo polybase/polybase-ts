@@ -1,11 +1,11 @@
 import { AxiosError } from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'
-import { wrapError, SpacetimeError } from './errors'
+import { wrapError, PolybaseError } from './errors'
 import { Request } from './types'
 
 export type SubscriptionFn<T> = ((data: T) => void)
-export type SubscriptionErrorFn = ((err: SpacetimeError) => void)
+export type SubscriptionErrorFn = ((err: PolybaseError) => void)
 
 export interface SubscriptionOptions {
   // Default timeout between long poll requests
@@ -60,7 +60,7 @@ export class Subscription<T> {
       this.aborter = req.abort
       const res = await req.send()
 
-      this.since = res.headers['x-spacetime-timestamp'] ?? `${Date.now() / 1000}`
+      this.since = res.headers['x-polybase-timestamp'] ?? `${Date.now() / 1000}`
 
       // TODO: this is not nice, we should handle proccessing resp in
       // parent doc or query
@@ -85,7 +85,7 @@ export class Subscription<T> {
         }
 
         let e = err
-        if (!(err instanceof SpacetimeError)) {
+        if (!(err instanceof PolybaseError)) {
           e = wrapError(err)
         }
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Collection, Query } from '@spacetimexyz/client'
+import { Collection, Query } from '@polybase/client'
 import { UseCollectionReturnValue } from './useCollection'
 
 export function useCollectionOnce<T=any> (collection?: Collection<T>|Query<T>|null): UseCollectionReturnValue<T> {

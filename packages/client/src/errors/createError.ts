@@ -1,9 +1,9 @@
 import { AxiosError } from 'axios'
 import { ERROR_CODES } from './constants'
-import { SpacetimeError, SpacetimeErrorExtra } from './SpacetimeError'
+import { PolybaseError, PolybaseErrorExtra } from './PolybaseError'
 
-export function createError (reason: string, extra?: SpacetimeErrorExtra) {
-  return new SpacetimeError(reason, extra)
+export function createError (reason: string, extra?: PolybaseErrorExtra) {
+  return new PolybaseError(reason, extra)
 }
 
 export function wrapError (err: any) {

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Collection, CollectionList, Query, SpacetimeError } from '@spacetimexyz/client'
+import { Collection, CollectionList, Query, PolybaseError } from '@polybase/client'
 
 export interface UseCollectionReturnValue<T> {
-  error: SpacetimeError|null
+  error: PolybaseError|null
   data: CollectionList<T>|null
   loading: boolean
 }

@@ -1,23 +1,23 @@
-# Spacetime Client (Browser/Node)
+# Polybase Client (Browser/Node)
 
-A client to connect to the Spacetime decentralized database.
+A client to connect to the Polybase decentralized database.
 
 
-## Install Spacetime
+## Install Polybase
 
 ```bash
-npm install @spacetimexyz/spacetime
+npm install @polybase/client
 ```
 ```bash
-yarn add @spacetimexyz/spacetime
+yarn add @polybase/client
 ```
 
 ## Initialize the SDK
 
 ```typescript
-import Spacetime from '@spacetimexyz/spacetime'
+import Polybase from '@polybase/client'
 
-const db = new Spacetime({
+const db = new Polybase({
   ...config
 })
 ```
@@ -47,7 +47,7 @@ const doc = await colRef.doc("london").set({
 
 # Tests
 
-To run E2E tests, ensure that [Spacetime](https://github.com/spacetimehq/spacetime) is running, and then run:
+To run E2E tests, ensure that [Polybase](https://github.com/polybase/polybase) is running, and then run:
 
 ```
 yarn test:e2e

@@ -1,13 +1,13 @@
 import Wallet from 'ethereumjs-wallet'
-import { ethPersonalSign } from '@spacetimexyz/eth'
-import { Spacetime, Collection } from '../src'
+import { ethPersonalSign } from '@polybase/eth'
+import { Polybase, Collection } from '../src'
 
 jest.setTimeout(10000)
 
 const BASE_API_URL = process.env.E2E_API_URL ?? 'http://localhost:8080'
 const API_URL = `${BASE_API_URL}/v0`
 const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })
-const createCollection = async (s: Spacetime, namespace: string, extraFields?: string) => {
+const createCollection = async (s: Polybase, namespace: string, extraFields?: string) => {
   const collections = await s.applySchema(`
     collection Col {
       id: string!;
@@ -34,10 +34,10 @@ const createCollection = async (s: Spacetime, namespace: string, extraFields?: s
 
 const prefix = `test-${Date.now()}`
 
-let s: Spacetime
+let s: Polybase
 
 beforeEach(() => {
-  s = new Spacetime({
+  s = new Polybase({
     baseURL: API_URL,
   })
 })
@@ -380,7 +380,7 @@ test('signing', async () => {
   const wallet = Wallet.generate()
   const pk = `0x${wallet.getPublicKey().toString('hex')}`
 
-  s = new Spacetime({
+  s = new Polybase({
     baseURL: API_URL,
     signer: async (d: string) => {
       const sig = ethPersonalSign(wallet.getPrivateKey(), d)

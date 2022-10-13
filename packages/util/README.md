@@ -1,3 +1,3 @@
-# @spacetimexyz/util
+# @polybase/util
 
-A utility library to help support common Spacetime functions.
+A utility library to help support common Polybase functions.

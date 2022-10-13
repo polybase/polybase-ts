@@ -1,6 +1,6 @@
 import { ERROR_CODES, ERROR_REASONS } from './constants'
 
-export interface SpacetimeErrorExtra {
+export interface PolybaseErrorExtra {
   /** Message that can be presented to the user */
   message?: string
 
@@ -17,7 +17,7 @@ export interface SpacetimeErrorExtra {
   originalError?: Error
 }
 
-export class SpacetimeError extends Error {
+export class PolybaseError extends Error {
   reason: keyof typeof ERROR_REASONS
 
   /** The status code or error group */
@@ -34,7 +34,7 @@ export class SpacetimeError extends Error {
 
   constructor (
     reason: keyof typeof ERROR_REASONS,
-    extra?: SpacetimeErrorExtra,
+    extra?: PolybaseErrorExtra,
   ) {
     super(`${reason} error`)
     this.reason = reason

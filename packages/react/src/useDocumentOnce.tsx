@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Doc } from '@spacetimexyz/client'
+import { Doc } from '@polybase/client'
 import { UseDocumentReturnValue } from './useDocument'
 
 export function useDocumentOnce<T=any> (doc?: Doc<T>|null): UseDocumentReturnValue<T> {

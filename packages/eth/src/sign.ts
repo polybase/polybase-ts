@@ -1,4 +1,4 @@
-import { sign, BytesLike } from '@spacetimexyz/util'
+import { sign, BytesLike } from '@polybase/util'
 import { hashEthereumSignedMessage } from './hash'
 
 export function ethPersonalSign (privateKey: BytesLike, d: BytesLike): string {

@@ -1,8 +1,8 @@
 {
-  "name": "spacetime-ts",
+  "name": "polybase-ts",
   "version": "0.0.0",
   "main": "index.js",
-  "repository": "git@github.com:spacetimehq/spacetime-ts.git",
+  "repository": "git@github.com:polybase/polybase-ts.git",
   "author": "Cal <calum.moore@gmail.com>",
   "license": "MIT",
   "private": true,
