@@ -30,7 +30,7 @@ export class Collection<T> {
     try {
       if (this.meta) return this.meta
       const res = await this.client.request({
-        url: `/contracts/$collections/${encodeURIComponent(this.id)}`,
+        url: `/contracts/$Contract/${encodeURIComponent(this.id)}`,
         method: 'GET',
       }).send()
       this.meta = res.data?.data as CollectionMeta
