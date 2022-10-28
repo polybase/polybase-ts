@@ -34,7 +34,7 @@ test('query is sent to client', async () => {
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/collections/col1/records',
+    url: '/contracts/col1',
     method: 'GET',
     params: {
       limit: 100,

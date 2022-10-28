@@ -10,21 +10,32 @@ const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, ti
 const createCollection = async (s: Polybase, namespace: string, extraFields?: string) => {
   const collections = await s.applySchema(`
     collection Col {
-      id: string!;
+      id: string;
       name: string;
-      $pk: string;
+      publicKey: string;
       ${extraFields ?? ''}
 
       @index(name);
 
-      function setName(a: record, name: string) {
-        a.name = name;
+      function constructor (id: string, name: string) {
+        this.id = id;
+        this.name = name;
+        this.publicKey = ctx.publicKey;
       }
 
-      function setNameWithAuth(a: record, name: string) {
-        if (a.$pk != $auth.publicKey) throw error('you do not own this record');
+      function setName (name: string) {
+        this.name = name;
+      }
 
-        a.name = name;
+      function setNameWithAuth (name: string) {
+        if (this.publicKey != ctx.publicKey) {
+          error('you do not own this record');
+        }
+        this.name = name;
+      }
+
+      function destroy () {
+        selfdestruct();
       }
     }
   `, namespace)
@@ -49,26 +60,18 @@ test('create collection', async () => {
   expect(c.id).toBe(namespace + '/Col')
 })
 
-test('set data on collection', async () => {
-  const namespace = `${prefix}-add-data`
+test('create data on collection', async () => {
+  const namespace = `${prefix}-create-data`
   const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({
-    name: 'Calum',
-  })
-
-  await c.doc('id1').set({
-    name: 'Calum2',
-  })
-
-  const res = await c.doc('id1').set({
-    name: 'Calum',
-  })
+  await c.create(['id1', 'Calum'])
+  const res = await c.doc('id1').get()
 
   expect(res).toEqual({
     data: {
       id: 'id1',
       name: 'Calum',
+      publicKey: '',
     },
     block: {
       hash: expect.stringMatching(/^./),
@@ -76,19 +79,19 @@ test('set data on collection', async () => {
   })
 })
 
-test('get data from collection', async () => {
-  const namespace = `${prefix}-get-data`
+test('call setName on collection', async () => {
+  const namespace = `${prefix}-update-data`
   const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({
-    name: 'Calum',
-  })
+  await c.create(['id1', 'Calum'])
+  await c.doc('id1').call('setName', ['Calum2'])
   const res = await c.doc('id1').get()
 
   expect(res).toEqual({
     data: {
       id: 'id1',
-      name: 'Calum',
+      name: 'Calum2',
+      publicKey: '',
     },
     block: {
       hash: expect.stringMatching(/^./),
@@ -100,13 +103,8 @@ test('list data from collection', async () => {
   const namespace = `${prefix}-list-data`
   const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({
-    name: 'Calum',
-  })
-
-  await c.doc('id2').set({
-    name: 'Sally',
-  })
+  await c.create(['id1', 'Calum'])
+  await c.create(['id2', 'Sally'])
 
   const res = await c.get()
 
@@ -119,6 +117,7 @@ test('list data from collection', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -127,6 +126,7 @@ test('list data from collection', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -136,20 +136,12 @@ test('list data from collection', async () => {
 })
 
 test('list data with == where clause', async () => {
-  const namespace = `${prefix}-list-where-data`
+  const namespace = `${prefix}-list-where-eq-data`
   const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({
-    name: 'Calum',
-  })
-
-  await c.doc('id2').set({
-    name: 'Sally',
-  })
-
-  await c.doc('id3').set({
-    name: 'Sally',
-  })
+  await c.create(['id1', 'Calum'])
+  await c.create(['id2', 'Sally'])
+  await c.create(['id3', 'Sally'])
 
   const res = await c.where('name', '==', 'Sally').get()
 
@@ -162,6 +154,7 @@ test('list data with == where clause', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -170,6 +163,7 @@ test('list data with == where clause', async () => {
       data: {
         id: 'id3',
         name: 'Sally',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -179,20 +173,12 @@ test('list data with == where clause', async () => {
 })
 
 test('list data with > where clause', async () => {
-  const namespace = `${prefix}-list-where-data`
+  const namespace = `${prefix}-list-where-gt-data`
   const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({
-    name: 'Calum',
-  })
-
-  await c.doc('id2').set({
-    name: 'Sally',
-  })
-
-  await c.doc('id3').set({
-    name: 'Sally',
-  })
+  await c.create(['id1', 'Calum'])
+  await c.create(['id2', 'Sally'])
+  await c.create(['id3', 'Sally'])
 
   const res = await c.where('name', '>', 'John').get()
 
@@ -205,6 +191,7 @@ test('list data with > where clause', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -213,6 +200,7 @@ test('list data with > where clause', async () => {
       data: {
         id: 'id3',
         name: 'Sally',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -222,20 +210,12 @@ test('list data with > where clause', async () => {
 })
 
 test('list data with sort clause', async () => {
-  const namespace = `${prefix}-list-where-data`
+  const namespace = `${prefix}-list-sorts-data`
   const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({
-    name: 'Calum',
-  })
-
-  await c.doc('id2').set({
-    name: 'Sally',
-  })
-
-  await c.doc('id3').set({
-    name: 'John',
-  })
+  await c.create(['id1', 'Calum'])
+  await c.create(['id2', 'Sally'])
+  await c.create(['id3', 'John'])
 
   const res = await c.sort('name').get()
 
@@ -248,6 +228,7 @@ test('list data with sort clause', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -256,6 +237,7 @@ test('list data with sort clause', async () => {
       data: {
         id: 'id3',
         name: 'John',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -264,6 +246,7 @@ test('list data with sort clause', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -276,9 +259,7 @@ test('list data with snapshot', async () => {
   const namespace = `${prefix}-list-with-snapshot`
   const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({
-    name: 'Calum',
-  })
+  await c.create(['id1', 'Calum'])
 
   const spy = jest.fn()
   const q = c.where('name', '==', 'Calum')
@@ -297,6 +278,7 @@ test('list data with snapshot', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -304,9 +286,7 @@ test('list data with snapshot', async () => {
     }],
   })
 
-  await c.doc('id4').set({
-    name: 'Calum',
-  })
+  await c.create(['id4', 'Calum'])
 
   unsub()
 })
@@ -315,13 +295,8 @@ test('list data with cursor', async () => {
   const namespace = `${prefix}-list-with-cursor`
   const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({
-    name: 'Calum',
-  })
-
-  await c.doc('id2').set({
-    name: 'Sally',
-  })
+  await c.create(['id1', 'Calum'])
+  await c.create(['id2', 'Sally'])
 
   const first = await c.limit(1).get()
   expect(first).toEqual({
@@ -333,6 +308,7 @@ test('list data with cursor', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -350,6 +326,7 @@ test('list data with cursor', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -367,6 +344,7 @@ test('list data with cursor', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        publicKey: '',
       },
       block: {
         hash: expect.stringMatching(/^./),
@@ -391,14 +369,13 @@ test('signing', async () => {
     },
   })
 
-  const c = await createCollection(s, namespace, 'publicKey: string @creator;')
+  const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({ name: 'Calum2' }, [pk])
+  await c.create(['id1', 'Calum2'], pk)
 
-  const res = await c.doc('id1').set({ name: 'Calum4' }, [pk])
+  const res = await c.doc('id1').call('setName', ['Calum4'], pk)
 
   expect(res.data).toEqual({
-    $pk: pk,
     publicKey: pk,
     id: 'id1',
     name: 'Calum4',
@@ -406,24 +383,19 @@ test('signing', async () => {
 
   const res2 = await c.doc('id1').get()
   expect(res2.data).toEqual({
-    $pk: pk,
     publicKey: pk,
     id: 'id1',
     name: 'Calum4',
   })
 
-  await c.call('setNameWithAuth', [c.doc('id1'), 'Calum5'], pk)
+  await c.doc('id1').call('setNameWithAuth', ['Calum5'], pk)
 
   const res3 = await c.doc('id1').get()
   expect(res3.data).toEqual({
-    $pk: pk,
     publicKey: pk,
     id: 'id1',
     name: 'Calum5',
   })
-
-  await c.doc('id1').delete()
-  await expect(c.doc('id1').get()).rejects.toThrow()
 })
 
 test('delete', async () => {
@@ -431,24 +403,8 @@ test('delete', async () => {
 
   const c = await createCollection(s, namespace)
 
-  await c.doc('id1').set({ name: 'Calum2' }, [])
-  await c.doc('id1').delete()
+  await c.create(['id1', 'Calum2'])
+  await c.doc('id1').call('destroy', [])
 
-  await expect(c.doc('id').get()).rejects.toThrow()
-})
-
-test('call', async () => {
-  const namespace = `${prefix}-call`
-
-  const c = await createCollection(s, namespace)
-
-  await c.doc('id1').set({ name: 'Calum2' })
-
-  await c.call('setName', [c.doc('id1'), 'Calum3'])
-
-  const res = await c.doc('id1').get()
-  expect(res.data).toEqual({
-    id: 'id1',
-    name: 'Calum3',
-  })
+  await expect(c.doc('id1').get()).rejects.toThrow()
 })

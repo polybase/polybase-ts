@@ -2,8 +2,9 @@ import { Doc } from './Doc'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
-import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator } from './types'
-import { parse, Program, validateSet } from '@polybase/polylang'
+import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator, CallArgs } from './types'
+import { parse, validateSet } from '@polybase/polylang'
+import { validateCallParameters, getCollectionAST } from './util'
 
 export class Collection<T> {
   id: string
@@ -29,7 +30,7 @@ export class Collection<T> {
     try {
       if (this.meta) return this.meta
       const res = await this.client.request({
-        url: `/collections/$collections/records/${encodeURIComponent(this.id)}`,
+        url: `/contracts/$collections/${encodeURIComponent(this.id)}`,
         method: 'GET',
       }).send()
       this.meta = res.data?.data as CollectionMeta
@@ -40,12 +41,6 @@ export class Collection<T> {
     }
   }
 
-  private shortName = () => this.id.split('/').pop()
-
-  private collectionAST = (ast: Program) => {
-    return ast.nodes.find(c => c.Collection?.name === this.shortName())?.Collection
-  }
-
   private getValidator = async (): Promise<(data: Partial<T>) => Promise<boolean>> => {
     if (this.validator) return this.validator
 
@@ -53,7 +48,7 @@ export class Collection<T> {
     const ast = await parse(meta.code)
     this.validator = async (data: Partial<T>) => {
       try {
-        await validateSet(this.collectionAST(ast), data)
+        await validateSet(getCollectionAST(this.id, ast), data)
         return true
       } catch {
         return false
@@ -68,50 +63,29 @@ export class Collection<T> {
     return await validator(data)
   }
 
-  get = async (): Promise<CollectionList<T>> => {
+  create = async (args: CallArgs, pk?: string): Promise<CollectionDocument<T>> => {
+    const meta = await this.getMeta()
+    const ast = await parse(meta.code)
+    validateCallParameters(this.id, 'constructor', ast, args)
+
     const res = await this.client.request({
-      url: `/collections/${encodeURIComponent(this.id)}/records`,
-      method: 'GET',
-    }).send()
+      url: `/contracts/${encodeURIComponent(this.id)}`,
+      method: 'POST',
+      data: {
+        args,
+      },
+    }).send(pk ? true : undefined)
 
     return res.data
   }
 
-  call = async (functionName: string, args: (string | number | Doc<any>)[] = [], pk?: string): Promise<void> => {
-    const meta = await this.getMeta()
-    const ast = await parse(meta.code)
-    const funcAST = this.collectionAST(ast).items.find((f: any) => f?.Function?.name === functionName)?.Function
-    if (!funcAST) throw new Error('Function not found')
+  get = async (): Promise<CollectionList<T>> => {
+    const res = await this.client.request({
+      url: `/contracts/${encodeURIComponent(this.id)}`,
+      method: 'GET',
+    }).send()
 
-    for (const param in funcAST.parameters) {
-      const ourArg = args[param as any]
-      const expectedType = funcAST.parameters[param as any].type_
-      switch (expectedType) {
-        case 'String':
-          if (typeof ourArg !== 'string') throw new Error(`Argument ${param} must be a string`)
-          break
-        case 'Number':
-          if (typeof ourArg !== 'number') throw new Error(`Argument ${param} must be a number`)
-          break
-        case 'Record':
-          if (!(ourArg instanceof Doc)) throw new Error(`Argument ${param} must be a record`)
-          break
-      }
-    }
-
-    await this.client.request({
-      url: `/collections/${encodeURIComponent(this.id)}/functions/${encodeURIComponent(functionName)}/call`,
-      method: 'POST',
-      data: {
-        args: args.map(arg => {
-          if (arg instanceof Doc) {
-            return { id: arg.id }
-          }
-
-          return arg
-        }),
-      },
-    }).send(pk ? true : undefined)
+    return res.data
   }
 
   doc = (id: string): Doc<T> => {

@@ -51,10 +51,10 @@ export class Polybase {
   private createCollection = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
     const id = data.id
     await this.client.request({
-      url: `/collections/$collections/records/${encodeURIComponent(id)}`,
+      url: '/contracts/$collections',
       method: 'POST',
       data: {
-        data,
+        args: [id, data.code],
       },
     }).send()
     return this.collection<T>(data.id)
