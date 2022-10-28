@@ -1,4 +1,4 @@
-import { Spacetime } from '../Spacetime'
+import { Polybase } from '../Polybase'
 import { Collection } from '../Collection'
 import { defaultRequest } from './util'
 
@@ -11,28 +11,28 @@ beforeEach(() => {
   sender = jest.fn()
 })
 
-test('spacetime is instance of Spacetime', () => {
-  const s = new Spacetime()
-  expect(s).toBeInstanceOf(Spacetime)
+test('polybase is instance of Polybase', () => {
+  const s = new Polybase()
+  expect(s).toBeInstanceOf(Polybase)
 })
 
 test('collection() returns collection', () => {
-  const s = new Spacetime({ sender })
+  const s = new Polybase({ sender })
   expect(s.collection('a')).toBeInstanceOf(Collection)
 })
 
 test('collection() returns collection using default namespace', () => {
-  const s = new Spacetime({ sender, defaultNamespace: 'hello-world' })
+  const s = new Polybase({ sender, defaultNamespace: 'hello-world' })
   expect(s.collection('a/path').id).toBe('hello-world/a/path')
 })
 
 test('collection() returns collection using absolute path', () => {
-  const s = new Spacetime({ sender, defaultNamespace: 'hello-world' })
+  const s = new Polybase({ sender, defaultNamespace: 'hello-world' })
   expect(s.collection('/a/path').id).toBe('a/path')
 })
 
 test('collection is reused', () => {
-  const s = new Spacetime({
+  const s = new Polybase({
     sender,
   })
   const a = s.collection('a')
@@ -40,7 +40,7 @@ test('collection is reused', () => {
 })
 
 test('creates collections from schema in namespace', async () => {
-  const s = new Spacetime({ sender, baseURL })
+  const s = new Polybase({ sender, baseURL })
   const namespace = 'test'
   const schema = `
     collection Col {
@@ -66,7 +66,7 @@ test('creates collections from schema in namespace', async () => {
       },
     },
     headers: {
-      'X-Spacetime-Client': 'spacetime@ts/client:v0',
+      'X-Polybase-Client': 'polybase@ts/client:v0',
     },
   })
 
@@ -82,7 +82,7 @@ test('creates collections from schema in namespace', async () => {
       },
     },
     headers: {
-      'X-Spacetime-Client': 'spacetime@ts/client:v0',
+      'X-Polybase-Client': 'polybase@ts/client:v0',
     },
   })
 
@@ -95,7 +95,7 @@ test('creates collections from schema in namespace', async () => {
 })
 
 test('caches a collection', () => {
-  const s = new Spacetime({ sender, baseURL })
+  const s = new Polybase({ sender, baseURL })
 
   const c1 = s.collection('hello')
   const c2 = s.collection('hello')

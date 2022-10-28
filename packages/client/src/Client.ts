@@ -27,7 +27,7 @@ export class Client {
       baseURL: this.config?.baseURL,
       data: req.data,
       headers: {
-        'X-Spacetime-Client': this.config?.clientId ?? 'Spacetime',
+        'X-Polybase-Client': this.config?.clientId ?? 'Polybase',
       },
     }, this.signer)
   }
@@ -56,7 +56,7 @@ export class ClientRequest {
       if (withAuth) {
         if (!req.headers) req.headers = {}
         const sig = await await this.getSignature()
-        req.headers['X-Spacetime-Signature'] = sig
+        req.headers['X-Polybase-Signature'] = sig
       }
       const res = await this.sender({
         ...req,

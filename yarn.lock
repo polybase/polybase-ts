@@ -1927,6 +1927,11 @@
     node-addon-api "^3.2.1"
     node-gyp-build "^4.3.0"
 
+"@polybase/polylang@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.2.2.tgz#da6be1c74a48970ab85916bd6afd1cea6afb3785"
+  integrity sha512-+zRy/8oJBq1to3/W05+e8Y5tr9O7Y5PGW5ro26vAlA+lOK64orOKtDBq5pVnVC/wV17bm8B6Ld/Mnw7mlb4h+A==
+
 "@samverschueren/stream-to-observable@^0.3.0", "@samverschueren/stream-to-observable@^0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@samverschueren/stream-to-observable/-/stream-to-observable-0.3.1.tgz#a21117b19ee9be70c379ec1877537ef2e1c63301"
@@ -1967,11 +1972,6 @@
   integrity sha512-BPS4ynJW/o92PUR4wgriz2Ud5gpST5vz6GQfMixEDK0Z8ZCUv2M7SkBLykH56T++Xs+8ln9zTGbOvNGIe02/jw==
   dependencies:
     "@sinonjs/commons" "^1.7.0"
-
-"@spacetimexyz/lang@0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@spacetimexyz/lang/-/lang-0.2.1.tgz#373442a9453ffc91412c3b163c82f4ed7d7b21bd"
-  integrity sha512-WNEO8/BGWzsTnAqOxmD5e44WHgiV7j6CSyDGqcB6n6EcqvlY0YHfg8xklcos077zclNEF9+bifzPHjQlvJ9T3g==
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"

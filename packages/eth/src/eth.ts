@@ -1,5 +1,5 @@
 
-import * as util from '@spacetimexyz/util'
+import * as util from '@polybase/util'
 
 export const win: any = (typeof self === 'object' && self.self === self && self) ||
   (typeof global === 'object' && global.global === global && global) ||

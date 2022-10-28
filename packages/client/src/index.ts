@@ -1,4 +1,4 @@
-export * from './Spacetime'
+export * from './Polybase'
 export * from './Collection'
 export * from './Client'
 export * from './Query'

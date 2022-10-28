@@ -1,6 +1,6 @@
 {
-  "name": "@spacetimexyz/eth",
-  "description": "Ethereum helper utility for Spacetime",
+  "name": "@polybase/eth",
+  "description": "Ethereum helper utility for Polybase",
   "version": "0.1.27",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "^9.1.2",
-    "@spacetimexyz/util": "^0.1.15",
     "@types/jest": "^29.0.0",
     "@types/sinonjs__fake-timers": "^8.1.2",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
@@ -46,6 +45,6 @@
   "dependencies": {
     "@ethersproject/keccak256": "^5.7.0",
     "@ethersproject/strings": "^5.7.0",
-    "@spacetimexyz/util": "^0.1.27"
+    "@polybase/util": "^0.1.27"
   }
 }
