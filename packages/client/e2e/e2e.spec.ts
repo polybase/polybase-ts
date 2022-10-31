@@ -9,7 +9,7 @@ const API_URL = `${BASE_API_URL}/v0`
 const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })
 const createCollection = async (s: Polybase, namespace: string, extraFields?: string) => {
   const collections = await s.applySchema(`
-    collection Col {
+    contract Col {
       id: string;
       name: string;
       publicKey: string;

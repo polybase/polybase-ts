@@ -1,4 +1,4 @@
-import { Program, Collection } from '@polybase/polylang'
+import { Program, Contract } from '@polybase/polylang'
 import { Doc } from './Doc'
 import type { CallArgs } from './types'
 
@@ -23,9 +23,9 @@ export function validateCallParameters (collectionId: string, functionName: stri
   }
 }
 
-export function getCollectionAST (id: string, ast: Program): Collection {
+export function getCollectionAST (id: string, ast: Program): Contract {
   const name = getCollectionShortNameFromId(id)
-  return ast.nodes.find(c => c.Collection?.name === name)?.Collection
+  return ast.nodes.find(c => c.Contract?.name === name)?.Contract
 }
 
 export function getCollectionShortNameFromId (id: string) {

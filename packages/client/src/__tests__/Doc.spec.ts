@@ -60,7 +60,7 @@ test('doc key is correct', () => {
 test('.call() sends a call request', async () => {
   const meta = {
     code: `
-      collection col {
+      contract col {
         age: number;
 
         function setAge(age: number) {
@@ -82,7 +82,7 @@ test('.call() sends a call request', async () => {
     data: {
       data: {
         id: 'id1',
-        age: 30,
+        age: 20,
       },
     },
   })
@@ -112,5 +112,10 @@ test('.call() sends a call request', async () => {
     },
   })
 
-  expect(result).toEqual(undefined)
+  expect(result).toEqual({
+    data: {
+      id: 'id1',
+      age: 20,
+    },
+  })
 })

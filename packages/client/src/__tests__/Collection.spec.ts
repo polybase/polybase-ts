@@ -37,7 +37,7 @@ test('.limit() creates query instance', () => {
 test('get metadata - success', async () => {
   const meta = {
     code: `
-      collection col {}
+      contract col {}
     `,
   }
 
@@ -56,7 +56,7 @@ test('get metadata - success', async () => {
 test('validate valid doc', async () => {
   const meta = {
     code: `
-      collection col {
+      contract col {
         name: string;
       }
     `,
@@ -77,7 +77,7 @@ test('validate valid doc', async () => {
 test('validate invalid doc', async () => {
   const meta = {
     code: `
-      collection col {
+      contract col {
         age: number;
       }  
     `,
@@ -124,9 +124,9 @@ test('collection key is correct', () => {
 test('.create() sends a create request', async () => {
   const meta = {
     code: `
-      collection col {
-        id: string!;
-        age: number;
+      contract col {
+        id: string;
+        age?: number;
 
         function constructor(id: string, age: number) {
           this.id = id;
