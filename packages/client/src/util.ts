@@ -2,8 +2,8 @@ import { Program, Contract } from '@polybase/polylang'
 import { Doc } from './Doc'
 import type { CallArgs } from './types'
 
-export function validateCallParameters (collectionId: string, functionName: string, ast: Program, args: CallArgs) {
-  const funcAST = getCollectionAST(collectionId, ast).items.find((f: any) => f?.Function?.name === functionName)?.Function
+export function validateCallParameters (contractId: string, functionName: string, ast: Program, args: CallArgs) {
+  const funcAST = getContractAST(contractId, ast).items.find((f: any) => f?.Function?.name === functionName)?.Function
   if (!funcAST) throw new Error('Function not found')
 
   for (const param in funcAST.parameters) {
@@ -23,11 +23,11 @@ export function validateCallParameters (collectionId: string, functionName: stri
   }
 }
 
-export function getCollectionAST (id: string, ast: Program): Contract {
-  const name = getCollectionShortNameFromId(id)
+export function getContractAST (id: string, ast: Program): Contract {
+  const name = getContractShortNameFromId(id)
   return ast.nodes.find(c => c.Contract?.name === name)?.Contract
 }
 
-export function getCollectionShortNameFromId (id: string) {
+export function getContractShortNameFromId (id: string) {
   return id.split('/').pop()
 }

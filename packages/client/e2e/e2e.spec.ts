@@ -1,14 +1,14 @@
 import Wallet from 'ethereumjs-wallet'
 import { ethPersonalSign } from '@polybase/eth'
-import { Polybase, Collection } from '../src'
+import { Polybase, Contract } from '../src'
 
 jest.setTimeout(10000)
 
 const BASE_API_URL = process.env.E2E_API_URL ?? 'http://localhost:8080'
 const API_URL = `${BASE_API_URL}/v0`
 const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })
-const createCollection = async (s: Polybase, namespace: string, extraFields?: string) => {
-  const collections = await s.applySchema(`
+const createContract = async (s: Polybase, namespace: string, extraFields?: string) => {
+  const contracts = await s.applySchema(`
     contract Col {
       id: string;
       name: string;
@@ -40,7 +40,7 @@ const createCollection = async (s: Polybase, namespace: string, extraFields?: st
     }
   `, namespace)
 
-  return collections[0]
+  return contracts[0]
 }
 
 const prefix = `test-${Date.now()}`
@@ -53,16 +53,16 @@ beforeEach(() => {
   })
 })
 
-test('create collection', async () => {
-  const namespace = `${prefix}-create-collection`
-  const c = await createCollection(s, namespace)
-  expect(c).toBeInstanceOf(Collection)
+test('create contract', async () => {
+  const namespace = `${prefix}-create-contract`
+  const c = await createContract(s, namespace)
+  expect(c).toBeInstanceOf(Contract)
   expect(c.id).toBe(namespace + '/Col')
 })
 
-test('create data on collection', async () => {
+test('create data on contract', async () => {
   const namespace = `${prefix}-create-data`
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum'])
   const res = await c.doc('id1').get()
@@ -79,9 +79,9 @@ test('create data on collection', async () => {
   })
 })
 
-test('call setName on collection', async () => {
+test('call setName on contract', async () => {
   const namespace = `${prefix}-update-data`
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum'])
   await c.doc('id1').call('setName', ['Calum2'])
@@ -99,9 +99,9 @@ test('call setName on collection', async () => {
   })
 })
 
-test('list data from collection', async () => {
+test('list data from contract', async () => {
   const namespace = `${prefix}-list-data`
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum'])
   await c.create(['id2', 'Sally'])
@@ -137,7 +137,7 @@ test('list data from collection', async () => {
 
 test('list data with == where clause', async () => {
   const namespace = `${prefix}-list-where-eq-data`
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum'])
   await c.create(['id2', 'Sally'])
@@ -174,7 +174,7 @@ test('list data with == where clause', async () => {
 
 test('list data with > where clause', async () => {
   const namespace = `${prefix}-list-where-gt-data`
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum'])
   await c.create(['id2', 'Sally'])
@@ -211,7 +211,7 @@ test('list data with > where clause', async () => {
 
 test('list data with sort clause', async () => {
   const namespace = `${prefix}-list-sorts-data`
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum'])
   await c.create(['id2', 'Sally'])
@@ -257,7 +257,7 @@ test('list data with sort clause', async () => {
 
 test('list data with snapshot', async () => {
   const namespace = `${prefix}-list-with-snapshot`
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum'])
 
@@ -293,7 +293,7 @@ test('list data with snapshot', async () => {
 
 test('list data with cursor', async () => {
   const namespace = `${prefix}-list-with-cursor`
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum'])
   await c.create(['id2', 'Sally'])
@@ -369,7 +369,7 @@ test('signing', async () => {
     },
   })
 
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum2'], pk)
 
@@ -401,7 +401,7 @@ test('signing', async () => {
 test('delete', async () => {
   const namespace = `${prefix}-delete`
 
-  const c = await createCollection(s, namespace)
+  const c = await createContract(s, namespace)
 
   await c.create(['id1', 'Calum2'])
   await c.doc('id1').call('destroy', [])

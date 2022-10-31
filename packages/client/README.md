@@ -24,10 +24,10 @@ const db = new Polybase({
 
 ## Get a single record
 
-You can read data once, by calling the `.doc(id: string).get()` method on a collection.
+You can read data once, by calling the `.doc(id: string).get()` method on a contract.
 
 ```ts
-const colRef = db.collection("org/places")
+const colRef = db.contract("org/places")
 const record = await colRef.doc("id").get()
 
 const { id, ...data } = record
@@ -37,7 +37,7 @@ const { id, ...data } = record
 ## Write data 
 
 ```ts
-const colRef = db.collection("org/places")
+const colRef = db.contract("org/places")
 const doc = await colRef.doc("london").set({
   name: "London",
   country: "UK",

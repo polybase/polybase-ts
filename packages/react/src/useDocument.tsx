@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Doc, PolybaseError, CollectionDocument } from '@polybase/client'
+import { Doc, PolybaseError, ContractDocument } from '@polybase/client'
 
 export interface UseDocumentReturnValue<T> {
   error: PolybaseError|null
-  data: CollectionDocument<T>|null
+  data: ContractDocument<T>|null
   loading: boolean
 }
 

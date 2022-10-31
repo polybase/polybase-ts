@@ -1,5 +1,5 @@
 export * from './Polybase'
-export * from './Collection'
+export * from './Contract'
 export * from './Client'
 export * from './Query'
 export * from './Doc'
