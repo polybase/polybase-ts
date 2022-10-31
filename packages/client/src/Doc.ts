@@ -1,7 +1,9 @@
+import { parse } from '@polybase/polylang'
 import { Collection } from './Collection'
 import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
 import { Client } from './Client'
 import { Request, CollectionDocument } from './types'
+import { validateCallParameters } from './util'
 
 export type DocSnapshotRegister<T> = (d: Doc<T>, fn: SubscriptionFn<CollectionDocument<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
@@ -18,34 +20,32 @@ export class Doc<T> {
     this.onSnapshotRegister = onSnapshotRegister
   }
 
-  delete = async (): Promise<CollectionDocument<T>> => {
-    const res = await this.client.request({
-      ...this.request(),
-      method: 'DELETE',
-    }).send()
-    return res.data
-  }
+  // delete = async (): Promise<CollectionDocument<T>> => {
+  //   const res = await this.client.request({
+  //     ...this.request(),
+  //     method: 'DELETE',
+  //   }).send()
+  //   return res.data
+  // }
 
-  set = async (data: Partial<T>, publicKeys?: string[]): Promise<CollectionDocument<T>> => {
-    data = {
-      id: this.id,
-      ...data,
-      ...(publicKeys ? { $pk: publicKeys.join(',') } : {}),
-    }
-
-    // TODO: check validatoon results
-    const isValid = await this.collection.validate(data)
-    if (!isValid) {
-      throw new Error('doc is not valid')
-    }
+  call = async (functionName: string, args: (string | number | Doc<any>)[] = [], pk?: string): Promise<CollectionDocument<T>> => {
+    const meta = await this.collection.getMeta()
+    const ast = await parse(meta.code)
+    validateCallParameters(this.collection.id, functionName, ast, args)
 
     const res = await this.client.request({
-      url: `/collections/${encodeURIComponent(this.collection.id)}/records/${encodeURIComponent(this.id)}`,
-      method: 'PUT',
+      url: `/contracts/${encodeURIComponent(this.collection.id)}/${encodeURIComponent(this.id)}/call/${encodeURIComponent(functionName)}`,
+      method: 'POST',
       data: {
-        data,
+        args: args.map(arg => {
+          if (arg instanceof Doc) {
+            return { id: arg.id }
+          }
+
+          return arg
+        }),
       },
-    }).send()
+    }).send(pk ? true : undefined)
 
     return res.data
   }
@@ -64,7 +64,7 @@ export class Doc<T> {
   }
 
   request = (): Request => ({
-    url: `/collections/${encodeURIComponent(this.collection.id)}/records/${encodeURIComponent(this.id)}`,
+    url: `/contracts/${encodeURIComponent(this.collection.id)}/${encodeURIComponent(this.id)}`,
     method: 'GET',
   })
 }

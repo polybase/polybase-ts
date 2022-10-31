@@ -43,13 +43,13 @@ test('creates collections from schema in namespace', async () => {
   const s = new Polybase({ sender, baseURL })
   const namespace = 'test'
   const schema = `
-    collection Col {
-      id: string!;
-      name: string;
+    contract Col {
+      id: string;
+      name?: string;
     }
 
-    collection Col2 {
-      id: string!;
+    contract Col2 {
+      id: string;
     }
   `
   const n = await s.applySchema(schema, namespace)
@@ -57,13 +57,10 @@ test('creates collections from schema in namespace', async () => {
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     baseURL,
-    url: '/collections/$collections/records/test%2FCol',
+    url: '/contracts/$Contract',
     method: 'POST',
     data: {
-      data: {
-        id: 'test/Col',
-        code: schema,
-      },
+      args: ['test/Col', schema],
     },
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',
@@ -73,13 +70,10 @@ test('creates collections from schema in namespace', async () => {
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     baseURL,
-    url: '/collections/$collections/records/test%2FCol2',
+    url: '/contracts/$Contract',
     method: 'POST',
     data: {
-      data: {
-        id: 'test/Col2',
-        code: schema,
-      },
+      args: ['test/Col2', schema],
     },
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',

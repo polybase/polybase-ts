@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@polybase/eth": "^0.1.27",
-    "@polybase/polylang": "^0.2.2",
+    "@polybase/polylang": "^0.3.0",
     "axios": "^0.27.2",
     "lodash.merge": "^4.6.2"
   }

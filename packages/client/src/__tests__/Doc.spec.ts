@@ -37,69 +37,8 @@ test('get request is sent to client', async () => {
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/collections/col1/records/id1',
+    url: '/contracts/col1/id1',
     method: 'GET',
-  })
-})
-
-test('delete request is sent to client', async () => {
-  const data = {
-    id: 'id1',
-  }
-  sender.mockResolvedValue({
-    data: {
-      data,
-    },
-  })
-  const d = new Doc('id1', collection, client, register)
-  await d.delete()
-
-  expect(sender).toHaveBeenCalledTimes(1)
-  expect(sender).toHaveBeenCalledWith({
-    ...defaultRequest,
-    url: '/collections/col1/records/id1',
-    method: 'DELETE',
-  })
-})
-
-test('set request is sent to client', async () => {
-  const meta = {
-    code: `
-      collection col1 {
-        id: string!;
-        name: string;
-      }
-    `,
-  }
-
-  const data = [{
-    id: 'id1',
-  }]
-  sender.mockResolvedValueOnce({
-    data: {
-      data: meta,
-    },
-  })
-  sender.mockResolvedValueOnce({
-    data: {
-      data,
-    },
-  })
-  const d = new Doc('id1', collection, client, register)
-  const set = { name: 'Jenna' }
-  await d.set(set)
-
-  expect(sender).toHaveBeenCalledTimes(2)
-  expect(sender).toHaveBeenCalledWith({
-    ...defaultRequest,
-    url: '/collections/col1/records/id1',
-    method: 'PUT',
-    data: {
-      data: {
-        id: 'id1',
-        ...set,
-      },
-    },
   })
 })
 
@@ -116,4 +55,67 @@ test('doc key is correct', () => {
   const d = new Doc('id1', collection, client, register)
   const key = d.key()
   expect(key).toBe('doc:col1/id1')
+})
+
+test('.call() sends a call request', async () => {
+  const meta = {
+    code: `
+      contract col {
+        age: number;
+
+        function setAge(age: number) {
+          this.age = age;
+        }
+      }
+    `,
+  }
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: {
+        id: 'id1',
+        age: 20,
+      },
+    },
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: {
+        block: {
+          hash: '0x0',
+        },
+      },
+    },
+  })
+
+  const c = new Collection('col', client)
+  const result = await c.doc('id1').call('setAge', [20])
+
+  expect(sender).toHaveBeenCalledWith({
+    ...defaultRequest,
+    url: '/contracts/col/id1/call/setAge',
+    method: 'POST',
+    data: {
+      args: [
+        20,
+      ],
+    },
+  })
+
+  expect(result).toEqual({
+    data: {
+      id: 'id1',
+      age: 20,
+    },
+  })
 })

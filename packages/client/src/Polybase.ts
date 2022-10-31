@@ -51,10 +51,10 @@ export class Polybase {
   private createCollection = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
     const id = data.id
     await this.client.request({
-      url: `/collections/$collections/records/${encodeURIComponent(id)}`,
+      url: '/contracts/$Contract',
       method: 'POST',
       data: {
-        data,
+        args: [id, data.code],
       },
     }).send()
     return this.collection<T>(data.id)
@@ -70,10 +70,10 @@ export class Polybase {
     }
 
     for (const node of ast.nodes) {
-      if (!node.Collection) continue
+      if (!node.Contract) continue
 
       collections.push(this.createCollection({
-        id: ns + '/' + node.Collection.name,
+        id: ns + '/' + node.Contract.name,
         code: schema,
       }))
     }

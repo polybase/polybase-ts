@@ -37,7 +37,7 @@ test('.limit() creates query instance', () => {
 test('get metadata - success', async () => {
   const meta = {
     code: `
-      collection col {}
+      contract col {}
     `,
   }
 
@@ -56,7 +56,7 @@ test('get metadata - success', async () => {
 test('validate valid doc', async () => {
   const meta = {
     code: `
-      collection col {
+      contract col {
         name: string;
       }
     `,
@@ -77,7 +77,7 @@ test('validate valid doc', async () => {
 test('validate invalid doc', async () => {
   const meta = {
     code: `
-      collection col {
+      contract col {
         age: number;
       }  
     `,
@@ -121,14 +121,16 @@ test('collection key is correct', () => {
   expect(key).toBe('collection:col')
 })
 
-test('.call() sends a call request', async () => {
+test('.create() sends a create request', async () => {
   const meta = {
     code: `
-      collection col {
-        age: number;
+      contract col {
+        id: string;
+        age?: number;
 
-        function setAge(a: record, age: number) {
-          a.age = age;
+        function constructor(id: string, age: number) {
+          this.id = id;
+          this.age = age;
         }
       }
     `,
@@ -163,21 +165,19 @@ test('.call() sends a call request', async () => {
   })
 
   const c = new Collection('col', client)
-  const result = await c.call('setAge', [c.doc('id1'), 20])
+  const result = await c.create(['id1', 20])
 
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/collections/col/functions/setAge/call',
+    url: '/contracts/col',
     method: 'POST',
     data: {
       args: [
-        {
-          id: 'id1',
-        },
+        'id1',
         20,
       ],
     },
   })
 
-  expect(result).toEqual(undefined)
+  expect(result.data).toEqual({ id: 'id1', age: 30 })
 })

@@ -1,5 +1,6 @@
 
 import { AxiosRequestConfig } from 'axios'
+import { Doc } from './Doc'
 export type BasicValue = string|number|boolean
 
 export interface CollectionDocument<T> {
@@ -55,3 +56,6 @@ export interface SignerResponse {
   sig: string
   h: 'eth-personal-sign'
 }
+
+export type CallArg = (string | number | Doc<any>)
+export type CallArgs = CallArg[]
