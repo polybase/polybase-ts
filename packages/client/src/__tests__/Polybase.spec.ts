@@ -1,5 +1,5 @@
 import { Polybase } from '../Polybase'
-import { Collection } from '../Collection'
+import { Contract } from '../Contract'
 import { defaultRequest } from './util'
 
 // const clock = FakeTimers.install()
@@ -16,30 +16,30 @@ test('polybase is instance of Polybase', () => {
   expect(s).toBeInstanceOf(Polybase)
 })
 
-test('collection() returns collection', () => {
+test('contract() returns contract', () => {
   const s = new Polybase({ sender })
-  expect(s.collection('a')).toBeInstanceOf(Collection)
+  expect(s.contract('a')).toBeInstanceOf(Contract)
 })
 
-test('collection() returns collection using default namespace', () => {
+test('contract() returns contract using default namespace', () => {
   const s = new Polybase({ sender, defaultNamespace: 'hello-world' })
-  expect(s.collection('a/path').id).toBe('hello-world/a/path')
+  expect(s.contract('a/path').id).toBe('hello-world/a/path')
 })
 
-test('collection() returns collection using absolute path', () => {
+test('contract() returns contract using absolute path', () => {
   const s = new Polybase({ sender, defaultNamespace: 'hello-world' })
-  expect(s.collection('/a/path').id).toBe('a/path')
+  expect(s.contract('/a/path').id).toBe('a/path')
 })
 
-test('collection is reused', () => {
+test('contract is reused', () => {
   const s = new Polybase({
     sender,
   })
-  const a = s.collection('a')
-  expect(s.collection('a')).toBe(a)
+  const a = s.contract('a')
+  expect(s.contract('a')).toBe(a)
 })
 
-test('creates collections from schema in namespace', async () => {
+test('creates contracts from schema in namespace', async () => {
   const s = new Polybase({ sender, baseURL })
   const namespace = 'test'
   const schema = `
@@ -81,18 +81,18 @@ test('creates collections from schema in namespace', async () => {
   })
 
   for (const item of n) {
-    expect(item).toBeInstanceOf(Collection)
+    expect(item).toBeInstanceOf(Contract)
   }
 
   expect(n.map((c) => c.id)).toContainEqual('test/Col')
   expect(n.map((c) => c.id)).toContainEqual('test/Col2')
 })
 
-test('caches a collection', () => {
+test('caches a contract', () => {
   const s = new Polybase({ sender, baseURL })
 
-  const c1 = s.collection('hello')
-  const c2 = s.collection('hello')
+  const c1 = s.contract('hello')
+  const c2 = s.contract('hello')
 
   expect(c1).toBe(c2)
 })

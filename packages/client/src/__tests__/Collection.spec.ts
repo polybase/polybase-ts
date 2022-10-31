@@ -1,4 +1,4 @@
-import { Collection } from '../Collection'
+import { Contract } from '../Contract'
 import { Doc } from '../Doc'
 import { Query } from '../Query'
 import { Client } from '../Client'
@@ -14,23 +14,23 @@ beforeEach(() => {
   client = new Client(sender, signer)
 })
 
-test('collection is instance of Collection', () => {
-  const c = new Collection('id', client)
-  expect(c).toBeInstanceOf(Collection)
+test('contract is instance of Contract', () => {
+  const c = new Contract('id', client)
+  expect(c).toBeInstanceOf(Contract)
 })
 
 test('.doc() creates doc instance', () => {
-  const c = new Collection('id', client)
+  const c = new Contract('id', client)
   expect(c.doc('id1')).toBeInstanceOf(Doc)
 })
 
 test('.where() creates query instance', () => {
-  const c = new Collection('id', client)
+  const c = new Contract('id', client)
   expect(c.where('id1', '==', 'abc')).toBeInstanceOf(Query)
 })
 
 test('.limit() creates query instance', () => {
-  const c = new Collection('id', client)
+  const c = new Contract('id', client)
   expect(c.limit(100)).toBeInstanceOf(Query)
 })
 
@@ -48,7 +48,7 @@ test('get metadata - success', async () => {
     },
   })
 
-  const c = new Collection('col', client)
+  const c = new Contract('col', client)
   const res = await c.getMeta()
   expect(res).toEqual(meta)
 })
@@ -69,7 +69,7 @@ test('validate valid doc', async () => {
     },
   })
 
-  const c = new Collection('col', client)
+  const c = new Contract('col', client)
   const res = await c.validate({ name: 'Calum' })
   expect(res).toEqual(true)
 })
@@ -90,12 +90,12 @@ test('validate invalid doc', async () => {
     },
   })
 
-  const c = new Collection('col', client)
+  const c = new Contract('col', client)
   const res = await c.validate({ name: 'Calum' })
   expect(res).toEqual(false)
 })
 
-test('get collection', async () => {
+test('get contract', async () => {
   const want = {
     id: 'id1',
     name: 'Calum',
@@ -108,17 +108,17 @@ test('get collection', async () => {
     },
   })
 
-  const c = new Collection('col', client)
+  const c = new Contract('col', client)
   const got = await c.get()
   expect(got).toEqual({
     data: want,
   })
 })
 
-test('collection key is correct', () => {
-  const c = new Collection('col', client)
+test('contract key is correct', () => {
+  const c = new Contract('col', client)
   const key = c.key()
-  expect(key).toBe('collection:col')
+  expect(key).toBe('contract:col')
 })
 
 test('.create() sends a create request', async () => {
@@ -164,7 +164,7 @@ test('.create() sends a create request', async () => {
     },
   })
 
-  const c = new Collection('col', client)
+  const c = new Contract('col', client)
   const result = await c.create(['id1', 20])
 
   expect(sender).toHaveBeenCalledWith({

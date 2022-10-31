@@ -2,9 +2,9 @@ import { parse } from '@polybase/polylang'
 import axios from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'
-import { Collection } from './Collection'
+import { Contract } from './Contract'
 import { createError } from './errors'
-import { CollectionMeta, Sender, Signer } from './types'
+import { ContractMeta, Sender, Signer } from './types'
 
 export interface PolybaseConfig {
   baseURL: string
@@ -23,7 +23,7 @@ const defaultConfig = {
 export class Polybase {
   private config: PolybaseConfig
   private client: Client
-  private collections: Record<string, Collection<any>> = {}
+  private contracts: Record<string, Contract<any>> = {}
 
   constructor (config?: Partial<PolybaseConfig>) {
     this.config = merge({}, defaultConfig, config)
@@ -35,12 +35,17 @@ export class Polybase {
     )
   }
 
-  collection<T=any> (path: string): Collection<T> {
+  contract<T=any> (path: string): Contract<T> {
     const rp = this.getResolvedPath(path)
-    if (this.collections[rp]) return this.collections[rp]
-    const c = new Collection<T>(rp, this.client)
-    this.collections[rp] = c
+    if (this.contracts[rp]) return this.contracts[rp]
+    const c = new Contract<T>(rp, this.client)
+    this.contracts[rp] = c
     return c
+  }
+
+  // Alias for contract
+  collection<T=any> (path: string): Contract<T> {
+    return this.contract(path)
   }
 
   private getResolvedPath = (path: string) => {
@@ -48,7 +53,7 @@ export class Polybase {
     return this.config.defaultNamespace ? `${this.config.defaultNamespace}/${path}` : path
   }
 
-  private createCollection = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
+  private createContract = async <T>(data: ContractMeta): Promise<Contract<T>> => {
     const id = data.id
     await this.client.request({
       url: '/contracts/$Contract',
@@ -57,11 +62,11 @@ export class Polybase {
         args: [id, data.code],
       },
     }).send()
-    return this.collection<T>(data.id)
+    return this.contract<T>(data.id)
   }
 
-  applySchema = async (schema: string, namespace?: string): Promise<Collection<any>[]> => {
-    const collections = []
+  applySchema = async (schema: string, namespace?: string): Promise<Contract<any>[]> => {
+    const contracts = []
     const ast = await parse(schema)
 
     const ns = (namespace ?? this.config.defaultNamespace)
@@ -72,13 +77,13 @@ export class Polybase {
     for (const node of ast.nodes) {
       if (!node.Contract) continue
 
-      collections.push(this.createCollection({
+      contracts.push(this.createContract({
         id: ns + '/' + node.Contract.name,
         code: schema,
       }))
     }
 
-    return await Promise.all(collections)
+    return await Promise.all(contracts)
   }
 
   signer = (fn: Signer) => {

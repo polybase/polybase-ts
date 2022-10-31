@@ -1,5 +1,5 @@
 import { Doc } from '../Doc'
-import { Collection } from '../Collection'
+import { Contract } from '../Contract'
 import { Client } from '../Client'
 import { defaultRequest } from './util'
 
@@ -7,18 +7,18 @@ let sender: jest.Mock
 let signer: jest.Mock
 let register: jest.Mock
 let client: Client
-let collection: Collection<any>
+let contract: Contract<any>
 
 beforeEach(() => {
   sender = jest.fn()
   signer = jest.fn()
   register = jest.fn()
   client = new Client(sender, signer)
-  collection = new Collection('col1', client)
+  contract = new Contract('col1', client)
 })
 
 test('doc is instance of Doc', () => {
-  const d = new Doc('id1', collection, client, register)
+  const d = new Doc('id1', contract, client, register)
   expect(d).toBeInstanceOf(Doc)
 })
 
@@ -31,7 +31,7 @@ test('get request is sent to client', async () => {
       data,
     },
   })
-  const d = new Doc('id1', collection, client, register)
+  const d = new Doc('id1', contract, client, register)
   await d.get()
 
   expect(sender).toHaveBeenCalledTimes(1)
@@ -44,7 +44,7 @@ test('get request is sent to client', async () => {
 
 test('registers snapshot', () => {
   const listener = jest.fn()
-  const d = new Doc('id1', collection, client, register)
+  const d = new Doc('id1', contract, client, register)
 
   d.onSnapshot(listener)
 
@@ -52,7 +52,7 @@ test('registers snapshot', () => {
 })
 
 test('doc key is correct', () => {
-  const d = new Doc('id1', collection, client, register)
+  const d = new Doc('id1', contract, client, register)
   const key = d.key()
   expect(key).toBe('doc:col1/id1')
 })
@@ -98,7 +98,7 @@ test('.call() sends a call request', async () => {
     },
   })
 
-  const c = new Collection('col', client)
+  const c = new Contract('col', client)
   const result = await c.doc('id1').call('setAge', [20])
 
   expect(sender).toHaveBeenCalledWith({
