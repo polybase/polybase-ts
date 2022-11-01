@@ -12,7 +12,6 @@
     "clean": "rimraf dist/* &",
     "build": "yarn clean && tsc",
     "prepare": "yarn build",
-    "test": "jest ./src",
     "fix": "yarn eslint \"./src/**/*.{ts,tsx}\" --fix"
   },
   "jest": {
