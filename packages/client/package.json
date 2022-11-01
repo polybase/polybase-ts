@@ -1,7 +1,7 @@
 {
   "name": "@polybase/client",
   "description": "Client (browser/node) for Polybase",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "license": "MIT",
@@ -54,7 +54,7 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
-    "@polybase/eth": "^0.1.27",
+    "@polybase/eth": "^0.3.0",
     "@polybase/polylang": "^0.3.0",
     "axios": "^0.27.2",
     "lodash.merge": "^4.6.2"
