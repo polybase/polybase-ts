@@ -37,7 +37,7 @@ test('get request is sent to client', async () => {
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/collections/col1/id1',
+    url: '/collections/col1/documents/id1',
     method: 'GET',
   })
 })
@@ -103,7 +103,7 @@ test('.call() sends a call request', async () => {
 
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/collections/col/id1/call/setAge',
+    url: '/collections/col/documents/id1/call/setAge',
     method: 'POST',
     data: {
       args: [

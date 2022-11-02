@@ -30,7 +30,7 @@ export class Collection<T> {
     try {
       if (this.meta) return this.meta
       const res = await this.client.request({
-        url: `/collections/Collection/${encodeURIComponent(this.id)}`,
+        url: `/collections/Collection/documents/${encodeURIComponent(this.id)}`,
         method: 'GET',
       }).send()
       this.meta = res.data?.data as CollectionMeta
@@ -69,7 +69,7 @@ export class Collection<T> {
     validateCallParameters(this.id, 'constructor', ast, args)
 
     const res = await this.client.request({
-      url: `/collections/${encodeURIComponent(this.id)}`,
+      url: `/collections/${encodeURIComponent(this.id)}/documents`,
       method: 'POST',
       data: {
         args,
@@ -81,7 +81,7 @@ export class Collection<T> {
 
   get = async (): Promise<CollectionList<T>> => {
     const res = await this.client.request({
-      url: `/collections/${encodeURIComponent(this.id)}`,
+      url: `/collections/${encodeURIComponent(this.id)}/documents`,
       method: 'GET',
     }).send()
 
