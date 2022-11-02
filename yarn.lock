@@ -1927,10 +1927,10 @@
     node-addon-api "^3.2.1"
     node-gyp-build "^4.3.0"
 
-"@polybase/polylang@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.3.0.tgz#c3c084e06c4459eca2b446734542a20d8ad5b0bb"
-  integrity sha512-Gpq6eGjCGt8wd3k0G4BSTB9XX9AtGAk2br9u3g4iaWTORsIPW0iukiHb8Ok+Xt5nDKYBLZLyy5Yq97u6Exbe1w==
+"@polybase/polylang@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.3.1.tgz#d7e030512070ceca59af9e0054bb10776e573ff1"
+  integrity sha512-cfbHQePe5mFZRtxQYLLW0Go9BwEqXWOdL7U2stJIk4glmB8oH50tD8r8J8gdCuAfzWq0L8slmf67qMVXljnpSQ==
 
 "@samverschueren/stream-to-observable@^0.3.0", "@samverschueren/stream-to-observable@^0.3.1":
   version "0.3.1"

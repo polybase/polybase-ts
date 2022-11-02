@@ -3,21 +3,21 @@ import { AxiosRequestConfig } from 'axios'
 import { Doc } from './Doc'
 export type BasicValue = string|number|boolean
 
-export interface ContractDocument<T> {
+export interface CollectionDocument<T> {
   block: string
   data: T
   publicKeys: string[]
 }
 
-export interface ContractList<T> {
-  data: ContractDocument<T>[]
+export interface CollectionList<T> {
+  data: CollectionDocument<T>[]
   cursor: {
     after: string
     before: string
   }
 }
 
-export interface ContractMeta {
+export interface CollectionMeta {
   id: string
   code: string
 }

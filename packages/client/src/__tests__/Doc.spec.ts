@@ -1,5 +1,5 @@
 import { Doc } from '../Doc'
-import { Contract } from '../Contract'
+import { Collection } from '../Collection'
 import { Client } from '../Client'
 import { defaultRequest } from './util'
 
@@ -7,18 +7,18 @@ let sender: jest.Mock
 let signer: jest.Mock
 let register: jest.Mock
 let client: Client
-let contract: Contract<any>
+let collection: Collection<any>
 
 beforeEach(() => {
   sender = jest.fn()
   signer = jest.fn()
   register = jest.fn()
   client = new Client(sender, signer)
-  contract = new Contract('col1', client)
+  collection = new Collection('col1', client)
 })
 
 test('doc is instance of Doc', () => {
-  const d = new Doc('id1', contract, client, register)
+  const d = new Doc('id1', collection, client, register)
   expect(d).toBeInstanceOf(Doc)
 })
 
@@ -31,20 +31,20 @@ test('get request is sent to client', async () => {
       data,
     },
   })
-  const d = new Doc('id1', contract, client, register)
+  const d = new Doc('id1', collection, client, register)
   await d.get()
 
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/contracts/col1/id1',
+    url: '/collections/col1/id1',
     method: 'GET',
   })
 })
 
 test('registers snapshot', () => {
   const listener = jest.fn()
-  const d = new Doc('id1', contract, client, register)
+  const d = new Doc('id1', collection, client, register)
 
   d.onSnapshot(listener)
 
@@ -52,7 +52,7 @@ test('registers snapshot', () => {
 })
 
 test('doc key is correct', () => {
-  const d = new Doc('id1', contract, client, register)
+  const d = new Doc('id1', collection, client, register)
   const key = d.key()
   expect(key).toBe('doc:col1/id1')
 })
@@ -60,7 +60,7 @@ test('doc key is correct', () => {
 test('.call() sends a call request', async () => {
   const meta = {
     code: `
-      contract col {
+      collection col {
         age: number;
 
         function setAge(age: number) {
@@ -98,12 +98,12 @@ test('.call() sends a call request', async () => {
     },
   })
 
-  const c = new Contract('col', client)
+  const c = new Collection('col', client)
   const result = await c.doc('id1').call('setAge', [20])
 
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/contracts/col/id1/call/setAge',
+    url: '/collections/col/id1/call/setAge',
     method: 'POST',
     data: {
       args: [

@@ -2,15 +2,15 @@ import { Doc } from './Doc'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
-import { BasicValue, ContractMeta, ContractDocument, ContractList, QueryWhereOperator, CallArgs } from './types'
+import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator, CallArgs } from './types'
 import { parse, validateSet } from '@polybase/polylang'
-import { validateCallParameters, getContractAST } from './util'
+import { validateCallParameters, getCollectionAST } from './util'
 
-export class Contract<T> {
+export class Collection<T> {
   id: string
-  private querySubs: Record<string, Subscription<ContractList<T>>> = {}
-  private docSubs: Record<string, Subscription<ContractDocument<T>>> = {}
-  private meta?: ContractMeta
+  private querySubs: Record<string, Subscription<CollectionList<T>>> = {}
+  private docSubs: Record<string, Subscription<CollectionDocument<T>>> = {}
+  private meta?: CollectionMeta
   private validator?: (data: Partial<T>) => Promise<boolean>
   private client: Client
 
@@ -30,13 +30,13 @@ export class Contract<T> {
     try {
       if (this.meta) return this.meta
       const res = await this.client.request({
-        url: `/contracts/$Contract/${encodeURIComponent(this.id)}`,
+        url: `/collections/Collection/${encodeURIComponent(this.id)}`,
         method: 'GET',
       }).send()
-      this.meta = res.data?.data as ContractMeta
+      this.meta = res.data?.data as CollectionMeta
       return this.meta
     } catch (e) {
-      // TODO: handle missing contract
+      // TODO: handle missing collection
       throw new Error('Unable to fetch metadata')
     }
   }
@@ -48,7 +48,7 @@ export class Contract<T> {
     const ast = await parse(meta.code)
     this.validator = async (data: Partial<T>) => {
       try {
-        await validateSet(getContractAST(this.id, ast), data)
+        await validateSet(getCollectionAST(this.id, ast), data)
         return true
       } catch {
         return false
@@ -63,13 +63,13 @@ export class Contract<T> {
     return await validator(data)
   }
 
-  create = async (args: CallArgs, pk?: string): Promise<ContractDocument<T>> => {
+  create = async (args: CallArgs, pk?: string): Promise<CollectionDocument<T>> => {
     const meta = await this.getMeta()
     const ast = await parse(meta.code)
     validateCallParameters(this.id, 'constructor', ast, args)
 
     const res = await this.client.request({
-      url: `/contracts/${encodeURIComponent(this.id)}`,
+      url: `/collections/${encodeURIComponent(this.id)}`,
       method: 'POST',
       data: {
         args,
@@ -79,9 +79,9 @@ export class Contract<T> {
     return res.data
   }
 
-  get = async (): Promise<ContractList<T>> => {
+  get = async (): Promise<CollectionList<T>> => {
     const res = await this.client.request({
-      url: `/contracts/${encodeURIComponent(this.id)}`,
+      url: `/collections/${encodeURIComponent(this.id)}`,
       method: 'GET',
     }).send()
 
@@ -104,7 +104,7 @@ export class Contract<T> {
     return this.createQuery().limit(limit)
   }
 
-  onSnapshot = (fn: SubscriptionFn<ContractList<T>>) => {
+  onSnapshot = (fn: SubscriptionFn<CollectionList<T>>) => {
     return this.createQuery().onSnapshot(fn)
   }
 
@@ -117,25 +117,25 @@ export class Contract<T> {
   }
 
   key = () => {
-    return `contract:${this.id}`
+    return `collection:${this.id}`
   }
 
   private createQuery () {
     return new Query<T>(this.id, this.client, this.onQuerySnapshotRegister)
   }
 
-  private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<ContractList<T>>, errFn?: SubscriptionErrorFn) => {
+  private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {
     const k = q.key()
     if (!this.querySubs[k]) {
-      this.querySubs[k] = new Subscription<ContractList<T>>(q.request(), this.client)
+      this.querySubs[k] = new Subscription<CollectionList<T>>(q.request(), this.client)
     }
     return this.querySubs[k].subscribe(fn, errFn)
   }
 
-  private onDocSnapshotRegister = (d: Doc<T>, fn: SubscriptionFn<ContractDocument<T>>, errFn?: SubscriptionErrorFn) => {
+  private onDocSnapshotRegister = (d: Doc<T>, fn: SubscriptionFn<CollectionDocument<T>>, errFn?: SubscriptionErrorFn) => {
     const k = d.key()
     if (!this.docSubs[k]) {
-      this.docSubs[k] = new Subscription<ContractDocument<T>>(d.request(), this.client)
+      this.docSubs[k] = new Subscription<CollectionDocument<T>>(d.request(), this.client)
     }
     return this.docSubs[k].subscribe(fn, errFn)
   }
