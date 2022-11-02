@@ -88,7 +88,7 @@ export class Query<T> {
 
   request = (): Request => {
     return {
-      url: `/collections/${encodeURIComponent(this.id)}`,
+      url: `/collections/${encodeURIComponent(this.id)}/documents`,
       method: 'GET',
       params: this.params,
     }

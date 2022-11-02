@@ -34,7 +34,7 @@ export class Doc<T> {
     validateCallParameters(this.collection.id, functionName, ast, args)
 
     const res = await this.client.request({
-      url: `/collections/${encodeURIComponent(this.collection.id)}/${encodeURIComponent(this.id)}/call/${encodeURIComponent(functionName)}`,
+      url: `/collections/${encodeURIComponent(this.collection.id)}/documents/${encodeURIComponent(this.id)}/call/${encodeURIComponent(functionName)}`,
       method: 'POST',
       data: {
         args: args.map(arg => {
@@ -64,7 +64,7 @@ export class Doc<T> {
   }
 
   request = (): Request => ({
-    url: `/collections/${encodeURIComponent(this.collection.id)}/${encodeURIComponent(this.id)}`,
+    url: `/collections/${encodeURIComponent(this.collection.id)}/documents/${encodeURIComponent(this.id)}`,
     method: 'GET',
   })
 }

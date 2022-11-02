@@ -169,7 +169,7 @@ test('.create() sends a create request', async () => {
 
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/collections/col',
+    url: '/collections/col/documents',
     method: 'POST',
     data: {
       args: [
