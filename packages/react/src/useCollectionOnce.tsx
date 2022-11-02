@@ -19,5 +19,3 @@ export function useCollectionOnce<T=any> (collection?: Collection<T>|Query<T>|nu
 
   return res
 }
-
-export const useCollectionOnce = useCollectionOnce

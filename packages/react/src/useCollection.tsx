@@ -25,5 +25,3 @@ export function useCollection<T=any> (collection?: Collection<T>|Query<T>|null):
 
   return res
 }
-
-export const useCollection = useCollection
