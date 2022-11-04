@@ -1,7 +1,7 @@
 {
   "name": "@polybase/eth",
   "description": "Ethereum helper utility for Polybase",
-  "version": "0.3.0",
+  "version": "0.3.3",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
@@ -45,6 +45,6 @@
   "dependencies": {
     "@ethersproject/keccak256": "^5.7.0",
     "@ethersproject/strings": "^5.7.0",
-    "@polybase/util": "^0.3.0"
+    "@polybase/util": "^0.3.3"
   }
 }
