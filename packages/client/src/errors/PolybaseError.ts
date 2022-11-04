@@ -37,6 +37,8 @@ export class PolybaseError extends Error {
     extra?: PolybaseErrorExtra,
   ) {
     super(`${reason} error`)
+    Object.setPrototypeOf(this, PolybaseError.prototype)
+
     this.reason = reason
     this.data = extra?.data
 

@@ -11,16 +11,18 @@ export function wrapError (err: any) {
 }
 
 export interface ErrorResponseData {
-  message: string
-  reason: string
-  code: string
+  error: {
+    message: string
+    reason: string
+    code: string
+  }
 }
 
 export function createErrorFromAxiosError (err: AxiosError) {
   const data = err.response?.data as ErrorResponseData|undefined
-  const e = createError(data?.reason ?? 'unknown-error', {
-    message: data?.message,
-    code: data?.code as keyof typeof ERROR_CODES,
+  const e = createError(data?.error?.reason ?? 'unknown-error', {
+    message: data?.error?.message,
+    code: data?.error?.code as keyof typeof ERROR_CODES,
     statusCode: err.response?.status,
     originalError: err,
   })
