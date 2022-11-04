@@ -63,7 +63,7 @@ export class Collection<T> {
     return await validator(data)
   }
 
-  create = async (args: CallArgs, pk?: string): Promise<CollectionDocument<T>> => {
+  create = async (args: CallArgs): Promise<CollectionDocument<T>> => {
     const meta = await this.getMeta()
     const ast = await parse(meta.code)
     validateCallParameters(this.id, 'constructor', ast, args)
@@ -74,7 +74,7 @@ export class Collection<T> {
       data: {
         args,
       },
-    }).send(pk ? true : undefined)
+    }).send()
 
     return res.data
   }

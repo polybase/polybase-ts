@@ -371,9 +371,9 @@ test('signing', async () => {
 
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum2'], pk)
+  await c.create(['id1', 'Calum2'])
 
-  const res = await c.doc('id1').call('setName', ['Calum4'], pk)
+  const res = await c.doc('id1').call('setName', ['Calum4'])
 
   expect(res.data).toEqual({
     publicKey: pk,
@@ -388,7 +388,7 @@ test('signing', async () => {
     name: 'Calum4',
   })
 
-  await c.doc('id1').call('setNameWithAuth', ['Calum5'], pk)
+  await c.doc('id1').call('setNameWithAuth', ['Calum5'])
 
   const res3 = await c.doc('id1').get()
   expect(res3.data).toEqual({
