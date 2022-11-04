@@ -24,42 +24,47 @@ export class Client {
       url: req.url,
       method: req.method,
       params: parseParams(req.params),
-      baseURL: this.config?.baseURL,
       data: req.data,
-      headers: {
-        'X-Polybase-Client': this.config?.clientId ?? 'Polybase',
-      },
-    }, this.signer)
+    }, this.signer, this.config)
   }
 }
 
 export class ClientRequest {
   private aborter: AbortController
-  private req: AxiosRequestConfig
+  private req: Request
   private sender: Sender
   private signer?: Signer
+  private config?: ClientConfig
 
-  constructor (sender: Sender, req: AxiosRequestConfig, signer?: Signer) {
+  constructor (sender: Sender, req: Request, signer?: Signer, config?: ClientConfig) {
     this.aborter = new AbortController()
     this.req = req
     this.sender = sender
     this.signer = signer
+    this.config = config
   }
 
   abort = () => {
     this.aborter.abort()
   }
 
-  send = async (withAuth?: true): Promise<SenderResponse> => {
+  send = async (): Promise<SenderResponse> => {
     try {
-      const req = this.req
-      if (withAuth) {
-        if (!req.headers) req.headers = {}
+      const req = this.req as AxiosRequestConfig
+      if (this.signer) {
         const sig = await await this.getSignature()
-        req.headers['X-Polybase-Signature'] = sig
+        if (sig) {
+          if (!req.headers) req.headers = {}
+          req.headers['X-Polybase-Signature'] = sig
+        }
       }
       const res = await this.sender({
         ...req,
+        headers: {
+          'X-Polybase-Client': this.config?.clientId ?? 'Polybase',
+          ...req.headers,
+        },
+        baseURL: this.config?.baseURL,
         signal: this.aborter.signal,
       })
       return res
@@ -67,9 +72,6 @@ export class ClientRequest {
       if (e instanceof AxiosError) {
         if (e.code === 'ERR_CANCELED') {
           throw createError('request-cancelled')
-        }
-        if (e.response?.status === 401 && !withAuth && this.signer) {
-          return this.send(true)
         }
         throw createErrorFromAxiosError(e)
       }
@@ -80,7 +82,8 @@ export class ClientRequest {
   private getSignature = async () => {
     if (!this.signer) return ''
     const t = Math.round(Date.now() * 1000)
-    const sig = await this.signer(`${t}.${this.req.data ? JSON.stringify(this.req.data) : ''}`)
+    const sig = await this.signer(`${t}.${this.req.data ? JSON.stringify(this.req.data) : ''}`, this.req)
+    if (!sig) return null
     return [
       'v=0',
       `t=${t}`,

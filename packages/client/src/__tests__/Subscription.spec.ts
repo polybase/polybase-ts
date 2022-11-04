@@ -49,6 +49,8 @@ test('start/stop subscriber', async () => {
 
   c.subscribe(spy)
 
+  await clock.tickAsync(0)
+
   expect(sender).toHaveBeenCalled()
 
   await clock.tickAsync(0)

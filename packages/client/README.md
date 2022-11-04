@@ -38,10 +38,7 @@ const { id, ...data } = record
 
 ```ts
 const colRef = db.collection("org/places")
-const doc = await colRef.doc("london").set({
-  name: "London",
-  country: "UK",
-})
+const doc = await colRef.doc("london").call("setName", ["Name"])
 ```
 
 

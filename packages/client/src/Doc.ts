@@ -28,7 +28,7 @@ export class Doc<T> {
   //   return res.data
   // }
 
-  call = async (functionName: string, args: (string | number | Doc<any>)[] = [], pk?: string): Promise<CollectionDocument<T>> => {
+  call = async (functionName: string, args: (string | number | Doc<any>)[] = []): Promise<CollectionDocument<T>> => {
     const meta = await this.collection.getMeta()
     const ast = await parse(meta.code)
     validateCallParameters(this.collection.id, functionName, ast, args)
@@ -45,7 +45,7 @@ export class Doc<T> {
           return arg
         }),
       },
-    }).send(pk ? true : undefined)
+    }).send()
 
     return res.data
   }
