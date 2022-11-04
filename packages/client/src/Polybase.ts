@@ -3,7 +3,7 @@ import axios from 'axios'
 import merge from 'lodash.merge'
 import { Client } from './Client'
 import { Collection } from './Collection'
-import { createError } from './errors'
+import { PolybaseError, createError } from './errors'
 import { CollectionMeta, Sender, Signer } from './types'
 
 export interface PolybaseConfig {
@@ -48,15 +48,23 @@ export class Polybase {
     return this.config.defaultNamespace ? `${this.config.defaultNamespace}/${path}` : path
   }
 
-  private createCollection = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
+  private setCollectionCode = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
     const id = data.id
-    await this.client.request({
-      url: '/collections/Collection/documents',
-      method: 'POST',
-      data: {
-        args: [id, data.code],
-      },
-    }).send()
+    const col = this.collection('Collection')
+
+    // Does ID already exist?
+    try {
+      const res = await col.doc(id).get()
+      if (!res) {
+        throw new Error('Unable to fetch metadata')
+      }
+      await col.doc(id).call('updateCode', [data.code])
+    } catch (e: any) {
+      if (e instanceof PolybaseError && e.reason === 'record-not-found') {
+        await this.collection('Collection').create([id, data.code])
+      }
+    }
+
     return this.collection<T>(data.id)
   }
 
@@ -72,7 +80,7 @@ export class Polybase {
     for (const node of ast.nodes) {
       if (!node.Collection) continue
 
-      collections.push(this.createCollection({
+      collections.push(this.setCollectionCode({
         id: ns + '/' + node.Collection.name,
         code: schema,
       }))
