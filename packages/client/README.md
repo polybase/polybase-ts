@@ -1,6 +1,6 @@
-# Polybase Client (Browser/Node)
+# [Polybase](https://polybase.xyz) Client (Browser/Node)
 
-A client to connect to the Polybase decentralized database.
+A client to connect to the [Polybase decentralized database](https://polybase.xyz).
 
 
 ## Install Polybase

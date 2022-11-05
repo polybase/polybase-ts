@@ -4,6 +4,7 @@
   "version": "0.3.3",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
+  "homepage": "https://github.com/polybase/polybase-ts/tree/main/packages/client",
   "license": "MIT",
   "files": [
     "dist/*"
