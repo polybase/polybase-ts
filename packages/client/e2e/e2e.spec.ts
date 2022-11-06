@@ -371,6 +371,9 @@ test('signing', async () => {
 
   const c = await createCollection(s, namespace)
 
+  const col = await s.collection('Collection').doc(`${namespace}/Col`).get()
+  expect(col.data.publicKey).toEqual(expect.stringContaining('0x'))
+
   await c.create(['id1', 'Calum2'])
 
   const res = await c.doc('id1').call('setName', ['Calum4'])
