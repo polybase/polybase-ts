@@ -38,7 +38,7 @@ export class Doc<T> {
       method: 'POST',
       data: {
         args: args.map(arg => {
-          if (arg instanceof Doc) {
+          if (args && typeof arg === 'object' && arg instanceof Doc) {
             return { id: arg.id }
           }
 

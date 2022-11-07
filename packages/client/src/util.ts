@@ -17,7 +17,7 @@ export function validateCallParameters (collectionId: string, functionName: stri
         if (typeof ourArg !== 'number') throw new Error(`Argument ${param} must be a number`)
         break
       case 'Record':
-        if (!(ourArg instanceof Doc)) throw new Error(`Argument ${param} must be a record`)
+        if (!(ourArg && typeof ourArg === 'object' && ourArg instanceof Doc)) throw new Error(`Argument ${param} must be a record`)
         break
     }
   }

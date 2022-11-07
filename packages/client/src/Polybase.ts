@@ -52,15 +52,11 @@ export class Polybase {
     const id = data.id
     const col = this.collection('Collection')
 
-    // Does ID already exist?
     try {
-      const res = await col.doc(id).get()
-      if (!res) {
-        throw new Error('Unable to fetch metadata')
-      }
+      await this.collection(id).getMeta()
       await col.doc(id).call('updateCode', [data.code])
     } catch (e: any) {
-      if (e instanceof PolybaseError && e.reason === 'record-not-found') {
+      if (e && typeof e === 'object' && e instanceof PolybaseError && e.reason === 'collection-not-found') {
         await this.collection('Collection').create([id, data.code])
       }
     }

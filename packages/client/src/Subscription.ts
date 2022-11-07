@@ -77,7 +77,7 @@ export class Subscription<T> {
       // Don't error for 304
       if (statusCode !== 304) {
         // TODO: we should create a client abort error
-        if (err instanceof AxiosError) {
+        if (err && typeof err === 'object' && err instanceof AxiosError) {
           // We cancelled the request
           if (err.code === 'ERR_CANCELED') {
             return

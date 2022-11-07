@@ -1,8 +1,8 @@
 import { AxiosError } from 'axios'
-import { ERROR_CODES } from './constants'
+import { ERROR_CODES, ERROR_REASONS } from './constants'
 import { PolybaseError, PolybaseErrorExtra } from './PolybaseError'
 
-export function createError (reason: string, extra?: PolybaseErrorExtra) {
+export function createError (reason: keyof typeof ERROR_REASONS, extra?: PolybaseErrorExtra) {
   return new PolybaseError(reason, extra)
 }
 

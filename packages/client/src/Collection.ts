@@ -5,6 +5,7 @@ import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator, CallArgs } from './types'
 import { parse, validateSet } from '@polybase/polylang'
 import { validateCallParameters, getCollectionAST } from './util'
+import { createError, PolybaseError } from './errors'
 
 export class Collection<T> {
   id: string
@@ -29,21 +30,23 @@ export class Collection<T> {
   getMeta = async () => {
     try {
       if (this.meta) return this.meta
-      const res = await this.client.request({
-        url: `/collections/Collection/documents/${encodeURIComponent(this.id)}`,
-        method: 'GET',
-      }).send()
-      this.meta = res.data?.data as CollectionMeta
+      const col = new Collection<CollectionMeta>('Collection', this.client)
+      const res = await col.doc(this.id).get()
+      this.meta = res.data
       return this.meta
-    } catch (e) {
-      // TODO: handle missing collection
-      throw new Error('Unable to fetch metadata')
+    } catch (e: any) {
+      if (e && typeof e === 'object' && e instanceof PolybaseError) {
+        if (e.reason === 'record-not-found') {
+          throw createError('collection-not-found')
+        }
+        throw e
+      }
+      throw createError('unknown-error', { originalError: e })
     }
   }
 
   private getValidator = async (): Promise<(data: Partial<T>) => Promise<boolean>> => {
     if (this.validator) return this.validator
-
     const meta = await this.getMeta()
     const ast = await parse(meta.code)
     this.validator = async (data: Partial<T>) => {

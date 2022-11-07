@@ -17,8 +17,11 @@ export const ERROR_CODES = {
 export const ERROR_REASONS: Record<string, { code?: keyof typeof ERROR_CODES, message: string }> = {
   'not-found': { code: 'not-found', message: 'Not found' },
   'record-not-found': { code: 'not-found', message: 'Record not found' },
+  'collection-not-found': { code: 'invalid-argument', message: 'Collection not found' },
   'server-error': { code: 'internal', message: 'An internal error occured' },
   'request-cancelled': { message: 'Request was cancelled by the client' },
   'unknown-error': { message: 'Unexpected error received' },
   'missing-namespace': { code: 'invalid-argument', message: 'Namespace is required' },
+  'missing-index': { code: 'failed-precondition', message: 'Required index is missing' },
+  'unique-constraint-violation': { code: 'failed-precondition', message: 'Unique constraint vilolation' },
 }
