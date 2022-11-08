@@ -36,12 +36,12 @@ export class Collection<T> {
       return this.meta
     } catch (e: any) {
       if (e && typeof e === 'object' && e instanceof PolybaseError) {
-        if (e.reason === 'record-not-found') {
-          throw createError('collection-not-found')
+        if (e.reason === 'document/not-found') {
+          throw createError('collection/not-found')
         }
         throw e
       }
-      throw createError('unknown-error', { originalError: e })
+      throw createError('unknown/error', { originalError: e })
     }
   }
 

@@ -63,7 +63,7 @@ test('creates collections from schema in namespace', async () => {
       status: 400,
       data: {
         error: {
-          reason: 'record-not-found',
+          reason: 'document/not-found',
           code: 'not-found',
           message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
         },

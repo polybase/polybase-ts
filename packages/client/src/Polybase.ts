@@ -56,7 +56,7 @@ export class Polybase {
       await this.collection(id).getMeta()
       await col.doc(id).call('updateCode', [data.code])
     } catch (e: any) {
-      if (e && typeof e === 'object' && e instanceof PolybaseError && e.reason === 'collection-not-found') {
+      if (e && typeof e === 'object' && e instanceof PolybaseError && e.reason === 'collection/not-found') {
         await this.collection('Collection').create([id, data.code])
       }
     }
@@ -70,7 +70,7 @@ export class Polybase {
 
     const ns = (namespace ?? this.config.defaultNamespace)
     if (!ns) {
-      throw createError('missing-namespace')
+      throw createError('collection/invalid-id', { message: 'Namespace is missing' })
     }
 
     for (const node of ast.nodes) {

@@ -18,7 +18,7 @@ export interface PolybaseErrorExtra {
 }
 
 export class PolybaseError extends Error {
-  reason: keyof typeof ERROR_REASONS
+  reason: ERROR_REASONS
 
   /** The status code or error group */
   code?: keyof typeof ERROR_CODES
@@ -33,7 +33,7 @@ export class PolybaseError extends Error {
   originalError?: Error
 
   constructor (
-    reason: keyof typeof ERROR_REASONS,
+    reason: ERROR_REASONS,
     extra?: PolybaseErrorExtra,
   ) {
     super(`${reason} error`)
@@ -42,13 +42,11 @@ export class PolybaseError extends Error {
     this.reason = reason
     this.data = extra?.data
 
-    const { code, message } = ERROR_REASONS[reason] ?? {}
-
-    this.message = extra?.message ?? message
-    this.code = code
+    if (extra?.message) this.message = extra?.message
+    if (extra?.code) this.code = extra?.code
     this.statusCode = extra?.statusCode
-    if (code && !this.statusCode) {
-      this.statusCode = ERROR_CODES[code]
+    if (this.code && !this.statusCode) {
+      this.statusCode = ERROR_CODES[this.code]
     }
 
     if (extra?.originalError) {
