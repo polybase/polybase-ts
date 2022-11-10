@@ -1,5 +1,5 @@
 import { Collection } from '../Collection'
-import { Doc } from '../Doc'
+import { CollectionRecord } from '../CollectionRecord'
 import { Query } from '../Query'
 import { Client } from '../Client'
 import { defaultRequest } from './util'
@@ -19,9 +19,9 @@ test('collection is instance of Collection', () => {
   expect(c).toBeInstanceOf(Collection)
 })
 
-test('.doc() creates doc instance', () => {
+test('.record() creates record instance', () => {
   const c = new Collection('id', client)
-  expect(c.doc('id1')).toBeInstanceOf(Doc)
+  expect(c.record('id1')).toBeInstanceOf(CollectionRecord)
 })
 
 test('.where() creates query instance', () => {
@@ -53,7 +53,7 @@ test('get metadata - success', async () => {
   expect(res).toEqual(meta)
 })
 
-test('validate valid doc', async () => {
+test('validate valid record', async () => {
   const meta = {
     code: `
       collection col {
@@ -74,7 +74,7 @@ test('validate valid doc', async () => {
   expect(res).toEqual(true)
 })
 
-test('validate invalid doc', async () => {
+test('validate invalid record', async () => {
   const meta = {
     code: `
       collection col {
@@ -169,7 +169,7 @@ test('.create() sends a create request', async () => {
 
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/collections/col/documents',
+    url: '/collections/col/records',
     method: 'POST',
     data: {
       args: [

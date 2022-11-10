@@ -24,11 +24,11 @@ const db = new Polybase({
 
 ## Get a single record
 
-You can read data once, by calling the `.doc(id: string).get()` method on a collection.
+You can read data once, by calling the `.record(id: string).get()` method on a collection.
 
 ```ts
 const colRef = db.collection("org/places")
-const record = await colRef.doc("id").get()
+const record = await colRef.record("id").get()
 
 const { id, ...data } = record
 ```
@@ -38,7 +38,7 @@ const { id, ...data } = record
 
 ```ts
 const colRef = db.collection("org/places")
-const doc = await colRef.doc("london").call("setName", ["Name"])
+const record = await colRef.record("london").call("setName", ["Name"])
 ```
 
 

@@ -1,8 +1,8 @@
-import { Doc } from './Doc'
+import { CollectionRecord } from './Record'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
-import { BasicValue, CollectionMeta, CollectionDocument, CollectionList, QueryWhereOperator, CallArgs } from './types'
+import { BasicValue, CollectionMeta, CollectionRecordResponse, CollectionList, QueryWhereOperator, CallArgs } from './types'
 import { parse, validateSet } from '@polybase/polylang'
 import { validateCallParameters, getCollectionAST } from './util'
 import { createError, PolybaseError } from './errors'
@@ -10,7 +10,7 @@ import { createError, PolybaseError } from './errors'
 export class Collection<T> {
   id: string
   private querySubs: Record<string, Subscription<CollectionList<T>>> = {}
-  private docSubs: Record<string, Subscription<CollectionDocument<T>>> = {}
+  private recordSubs: Record<string, Subscription<CollectionRecordResponse<T>>> = {}
   private meta?: CollectionMeta
   private validator?: (data: Partial<T>) => Promise<boolean>
   private client: Client
@@ -31,12 +31,12 @@ export class Collection<T> {
     try {
       if (this.meta) return this.meta
       const col = new Collection<CollectionMeta>('Collection', this.client)
-      const res = await col.doc(this.id).get()
+      const res = await col.record(this.id).get()
       this.meta = res.data
       return this.meta
     } catch (e: any) {
       if (e && typeof e === 'object' && e instanceof PolybaseError) {
-        if (e.reason === 'document/not-found') {
+        if (e.reason === 'record/not-found') {
           throw createError('collection/not-found')
         }
         throw e
@@ -66,13 +66,13 @@ export class Collection<T> {
     return await validator(data)
   }
 
-  create = async (args: CallArgs): Promise<CollectionDocument<T>> => {
+  create = async (args: CallArgs): Promise<CollectionRecordResponse<T>> => {
     const meta = await this.getMeta()
     const ast = await parse(meta.code)
     validateCallParameters(this.id, 'constructor', ast, args)
 
     const res = await this.client.request({
-      url: `/collections/${encodeURIComponent(this.id)}/documents`,
+      url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'POST',
       data: {
         args,
@@ -84,15 +84,20 @@ export class Collection<T> {
 
   get = async (): Promise<CollectionList<T>> => {
     const res = await this.client.request({
-      url: `/collections/${encodeURIComponent(this.id)}/documents`,
+      url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'GET',
     }).send()
 
     return res.data
   }
 
-  doc = (id: string): Doc<T> => {
-    return new Doc<T>(id, this, this.client, this.onDocSnapshotRegister)
+  record = (id: string): CollectionRecord<T> => {
+    return new CollectionRecord<T>(id, this, this.client, this.onCollectionRecordSnapshotRegister)
+  }
+
+  // Deprecated
+  doc = (id: string): CollectionRecord<T> => {
+    return this.record(id)
   }
 
   where = (field: string, op: QueryWhereOperator, value: BasicValue): Query<T> => {
@@ -135,11 +140,11 @@ export class Collection<T> {
     return this.querySubs[k].subscribe(fn, errFn)
   }
 
-  private onDocSnapshotRegister = (d: Doc<T>, fn: SubscriptionFn<CollectionDocument<T>>, errFn?: SubscriptionErrorFn) => {
+  private onCollectionRecordSnapshotRegister = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => {
     const k = d.key()
-    if (!this.docSubs[k]) {
-      this.docSubs[k] = new Subscription<CollectionDocument<T>>(d.request(), this.client)
+    if (!this.recordSubs[k]) {
+      this.recordSubs[k] = new Subscription<CollectionRecordResponse<T>>(d.request(), this.client)
     }
-    return this.docSubs[k].subscribe(fn, errFn)
+    return this.recordSubs[k].subscribe(fn, errFn)
   }
 }

@@ -65,7 +65,7 @@ test('create data on collection', async () => {
   const c = await createCollection(s, namespace)
 
   await c.create(['id1', 'Calum'])
-  const res = await c.doc('id1').get()
+  const res = await c.record('id1').get()
 
   expect(res).toEqual({
     data: {
@@ -84,8 +84,8 @@ test('call setName on collection', async () => {
   const c = await createCollection(s, namespace)
 
   await c.create(['id1', 'Calum'])
-  await c.doc('id1').call('setName', ['Calum2'])
-  const res = await c.doc('id1').get()
+  await c.record('id1').call('setName', ['Calum2'])
+  const res = await c.record('id1').get()
 
   expect(res).toEqual({
     data: {
@@ -371,12 +371,12 @@ test('signing', async () => {
 
   const c = await createCollection(s, namespace)
 
-  const col = await s.collection('Collection').doc(`${namespace}/Col`).get()
+  const col = await s.collection('Collection').record(`${namespace}/Col`).get()
   expect(col.data.publicKey).toEqual(expect.stringContaining('0x'))
 
   await c.create(['id1', 'Calum2'])
 
-  const res = await c.doc('id1').call('setName', ['Calum4'])
+  const res = await c.record('id1').call('setName', ['Calum4'])
 
   expect(res.data).toEqual({
     publicKey: pk,
@@ -384,16 +384,16 @@ test('signing', async () => {
     name: 'Calum4',
   })
 
-  const res2 = await c.doc('id1').get()
+  const res2 = await c.record('id1').get()
   expect(res2.data).toEqual({
     publicKey: pk,
     id: 'id1',
     name: 'Calum4',
   })
 
-  await c.doc('id1').call('setNameWithAuth', ['Calum5'])
+  await c.record('id1').call('setNameWithAuth', ['Calum5'])
 
-  const res3 = await c.doc('id1').get()
+  const res3 = await c.record('id1').get()
   expect(res3.data).toEqual({
     publicKey: pk,
     id: 'id1',
@@ -407,7 +407,7 @@ test('delete', async () => {
   const c = await createCollection(s, namespace)
 
   await c.create(['id1', 'Calum2'])
-  await c.doc('id1').call('destroy', [])
+  await c.record('id1').call('destroy', [])
 
-  await expect(c.doc('id1').get()).rejects.toThrow()
+  await expect(c.record('id1').get()).rejects.toThrow()
 })

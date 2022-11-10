@@ -1,5 +1,5 @@
 import { Program, Collection } from '@polybase/polylang'
-import { Doc } from './Doc'
+import { CollectionRecord } from './Record'
 import type { CallArgs } from './types'
 
 export function validateCallParameters (collectionId: string, functionName: string, ast: Program, args: CallArgs) {
@@ -17,7 +17,7 @@ export function validateCallParameters (collectionId: string, functionName: stri
         if (typeof ourArg !== 'number') throw new Error(`Argument ${param} must be a number`)
         break
       case 'Record':
-        if (!(ourArg && typeof ourArg === 'object' && ourArg instanceof Doc)) throw new Error(`Argument ${param} must be a record`)
+        if (!(ourArg && typeof ourArg === 'object' && ourArg instanceof CollectionRecord)) throw new Error(`Argument ${param} must be a record`)
         break
     }
   }
