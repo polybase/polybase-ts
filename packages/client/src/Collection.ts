@@ -95,7 +95,9 @@ export class Collection<T> {
     return new CollectionRecord<T>(id, this, this.client, this.onCollectionRecordSnapshotRegister)
   }
 
-  // Deprecated
+  /**
+   * @deprecated use .record(id: string)
+   */
   doc = (id: string): CollectionRecord<T> => {
     return this.record(id)
   }

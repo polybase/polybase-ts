@@ -69,4 +69,7 @@ export class CollectionRecord<T> {
   })
 }
 
+/**
+ * @deprecated use CollectionRecord
+ */
 export const Doc = CollectionRecord
