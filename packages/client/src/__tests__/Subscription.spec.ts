@@ -17,7 +17,7 @@ beforeEach(() => {
 
 test('sub is instance of Subscription', () => {
   const c = new Subscription({
-    url: '/collections/col/documents/id',
+    url: '/collections/col/records/id',
     method: 'GET',
     params: {},
   }, client)
@@ -42,7 +42,7 @@ test('start/stop subscriber', async () => {
   })
 
   const c = new Subscription({
-    url: '/collections/col/documents/id',
+    url: '/collections/col/records/id',
     method: 'GET',
     params: {},
   }, client)
@@ -82,7 +82,7 @@ test('subscriber does not error on 304', async () => {
   })
 
   const c = new Subscription({
-    url: '/collections/col/documents/id',
+    url: '/collections/col/records/id',
     method: 'GET',
     params: {},
   }, client)
@@ -109,7 +109,7 @@ test('subscriber errors on error', async () => {
   })
 
   const c = new Subscription({
-    url: '/collections/col/documents/id',
+    url: '/collections/col/records/id',
     method: 'GET',
     params: {},
   }, client)
@@ -127,7 +127,7 @@ test('subscriber errors on error', async () => {
 
 test('subscriber closes on unsub', () => {
   const c = new Subscription({
-    url: '/collections/col/documents/id',
+    url: '/collections/col/records/id',
     method: 'GET',
     params: {},
   }, client)
@@ -142,7 +142,7 @@ test('subscriber closes on unsub', () => {
 
 test('subscriber adds/removes multiple subs', async () => {
   const c = new Subscription({
-    url: '/collections/col/documents/id',
+    url: '/collections/col/records/id',
     method: 'GET',
     params: {},
   }, client)
@@ -179,7 +179,7 @@ test('subscriber adds/removes multiple subs', async () => {
 
 test('data is cached through reset', async () => {
   const c = new Subscription({
-    url: '/collections/col/documents/id',
+    url: '/collections/col/records/id',
     method: 'GET',
     params: {},
   }, client)

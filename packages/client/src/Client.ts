@@ -71,7 +71,7 @@ export class ClientRequest {
     } catch (e: unknown) {
       if (e && typeof e === 'object' && e instanceof AxiosError) {
         if (e.code === 'ERR_CANCELED') {
-          throw createError('request-cancelled')
+          throw createError('request/cancelled')
         }
         throw createErrorFromAxiosError(e)
       }

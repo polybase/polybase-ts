@@ -1,16 +1,16 @@
 
 import { AxiosRequestConfig } from 'axios'
-import { Doc } from './Doc'
+import { CollectionRecord } from './Record'
 export type BasicValue = string|number|boolean
 
-export interface CollectionDocument<T> {
+export interface CollectionRecordResponse<T> {
   block: string
   data: T
   publicKeys: string[]
 }
 
 export interface CollectionList<T> {
-  data: CollectionDocument<T>[]
+  data: CollectionRecordResponse<T>[]
   cursor: {
     after: string
     before: string
@@ -57,5 +57,5 @@ export interface SignerResponse {
   h: 'eth-personal-sign'
 }
 
-export type CallArg = (string | number | Doc<any>)
+export type CallArg = (string | number | CollectionRecord<any>)
 export type CallArgs = CallArg[]

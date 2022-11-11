@@ -63,7 +63,7 @@ export class Subscription<T> {
       this.since = res.headers['x-polybase-timestamp'] ?? `${Date.now() / 1000}`
 
       // TODO: this is not nice, we should handle proccessing resp in
-      // parent doc or query
+      // parent record or query
       this.data = res.data
 
       this._listeners.forEach(({ fn }) => {

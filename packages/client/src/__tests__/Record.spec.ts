@@ -1,4 +1,4 @@
-import { Doc } from '../Doc'
+import { CollectionRecord } from '../Record'
 import { Collection } from '../Collection'
 import { Client } from '../Client'
 import { defaultRequest } from './util'
@@ -17,9 +17,9 @@ beforeEach(() => {
   collection = new Collection('col1', client)
 })
 
-test('doc is instance of Doc', () => {
-  const d = new Doc('id1', collection, client, register)
-  expect(d).toBeInstanceOf(Doc)
+test('record is instance of CollectionRecord', () => {
+  const d = new CollectionRecord('id1', collection, client, register)
+  expect(d).toBeInstanceOf(CollectionRecord)
 })
 
 test('get request is sent to client', async () => {
@@ -31,30 +31,30 @@ test('get request is sent to client', async () => {
       data,
     },
   })
-  const d = new Doc('id1', collection, client, register)
+  const d = new CollectionRecord('id1', collection, client, register)
   await d.get()
 
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/collections/col1/documents/id1',
+    url: '/collections/col1/records/id1',
     method: 'GET',
   })
 })
 
 test('registers snapshot', () => {
   const listener = jest.fn()
-  const d = new Doc('id1', collection, client, register)
+  const d = new CollectionRecord('id1', collection, client, register)
 
   d.onSnapshot(listener)
 
   expect(register).toHaveBeenCalledWith(d, listener, undefined)
 })
 
-test('doc key is correct', () => {
-  const d = new Doc('id1', collection, client, register)
+test('record key is correct', () => {
+  const d = new CollectionRecord('id1', collection, client, register)
   const key = d.key()
-  expect(key).toBe('doc:col1/id1')
+  expect(key).toBe('record:col1/id1')
 })
 
 test('.call() sends a call request', async () => {
@@ -99,11 +99,11 @@ test('.call() sends a call request', async () => {
   })
 
   const c = new Collection('col', client)
-  const result = await c.doc('id1').call('setAge', [20])
+  const result = await c.record('id1').call('setAge', [20])
 
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
-    url: '/collections/col/documents/id1/call/setAge',
+    url: '/collections/col/records/id1/call/setAge',
     method: 'POST',
     data: {
       args: [

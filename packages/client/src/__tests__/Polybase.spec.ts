@@ -63,7 +63,7 @@ test('creates collections from schema in namespace', async () => {
       status: 400,
       data: {
         error: {
-          reason: 'record-not-found',
+          reason: 'record/not-found',
           code: 'not-found',
           message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
         },
@@ -118,7 +118,7 @@ test('creates collections from schema in namespace', async () => {
   expect(sender.mock.calls[0][0]).toMatchObject({
     ...defaultRequest,
     baseURL,
-    url: '/collections/Collection/documents/test%2FCol',
+    url: '/collections/Collection/records/test%2FCol',
     method: 'GET',
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',
@@ -128,7 +128,7 @@ test('creates collections from schema in namespace', async () => {
   expect(sender.mock.calls[1][0]).toMatchObject({
     ...defaultRequest,
     baseURL,
-    url: '/collections/Collection/documents/test%2FCol2',
+    url: '/collections/Collection/records/test%2FCol2',
     method: 'GET',
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',
@@ -138,7 +138,7 @@ test('creates collections from schema in namespace', async () => {
   expect(sender.mock.calls[2][0]).toMatchObject({
     ...defaultRequest,
     baseURL,
-    url: '/collections/Collection/documents/Collection',
+    url: '/collections/Collection/records/Collection',
     method: 'GET',
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',
@@ -148,7 +148,7 @@ test('creates collections from schema in namespace', async () => {
   expect(sender.mock.calls[3][0]).toMatchObject({
     ...defaultRequest,
     baseURL,
-    url: '/collections/Collection/documents/Collection',
+    url: '/collections/Collection/records/Collection',
     method: 'GET',
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',
@@ -158,7 +158,7 @@ test('creates collections from schema in namespace', async () => {
   expect(sender.mock.calls[4][0]).toMatchObject({
     ...defaultRequest,
     baseURL,
-    url: '/collections/Collection/documents',
+    url: '/collections/Collection/records',
     method: 'POST',
     data: {
       args: ['test/Col', schema],
@@ -171,7 +171,7 @@ test('creates collections from schema in namespace', async () => {
   expect(sender.mock.calls[5][0]).toMatchObject({
     ...defaultRequest,
     baseURL,
-    url: '/collections/Collection/documents/test%2FCol2/call/updateCode',
+    url: '/collections/Collection/records/test%2FCol2/call/updateCode',
     method: 'POST',
     data: {
       args: [schema],
