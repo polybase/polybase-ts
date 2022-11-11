@@ -20,14 +20,6 @@ export class CollectionRecord<T> {
     this.onSnapshotRegister = onSnapshotRegister
   }
 
-  // delete = async (): Promise<CollectionRecordResponse<T>> => {
-  //   const res = await this.client.request({
-  //     ...this.request(),
-  //     method: 'DELETE',
-  //   }).send()
-  //   return res.data
-  // }
-
   call = async (functionName: string, args: (string | number | CollectionRecord<any>)[] = []): Promise<CollectionRecordResponse<T>> => {
     const meta = await this.collection.getMeta()
     const ast = await parse(meta.code)
