@@ -50,7 +50,7 @@ export interface SenderResponse {
   data: any
 }
 
-export type Signer = (data: string, req: Request) => Promise<SignerResponse|null>
+export type Signer = (data: string, req: Request) => Promise<SignerResponse|null>|SignerResponse|null
 
 export interface SignerResponse {
   sig: string
