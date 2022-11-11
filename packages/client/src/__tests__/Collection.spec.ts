@@ -1,5 +1,5 @@
 import { Collection } from '../Collection'
-import { CollectionRecord } from '../CollectionRecord'
+import { CollectionRecord } from '../Record'
 import { Query } from '../Query'
 import { Client } from '../Client'
 import { defaultRequest } from './util'
