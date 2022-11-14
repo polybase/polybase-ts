@@ -1,7 +1,7 @@
 {
   "name": "@polybase/eth",
   "description": "Ethereum helper utility for Polybase",
-  "version": "0.3.4",
+  "version": "0.3.7",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/polybase/polybase-ts/tree/main/packages/eth",
@@ -46,6 +46,6 @@
   "dependencies": {
     "@ethersproject/keccak256": "^5.7.0",
     "@ethersproject/strings": "^5.7.0",
-    "@polybase/util": "^0.3.4"
+    "@polybase/util": "^0.3.7"
   }
 }
