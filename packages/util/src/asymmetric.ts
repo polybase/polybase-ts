@@ -2,21 +2,31 @@ import * as nacl from 'tweetnacl'
 import * as naclUtil from 'tweetnacl-util'
 import { isNullish, makeDataSafe, stringifiableToHex } from './util'
 
-export function encryptToHex (publicKey: string, data: unknown) {
-  const e = encrypt({ publicKey, data, version: 'x25519-xsalsa20-poly1305' })
+export function asymmetricEncryptToHex (publicKey: string, data: string): string {
+  const e = asymmetricEncrypt(publicKey, data)
   return stringifiableToHex(e)
 }
 
-export function decryptFromHex (privateKey: string, hex: string) {
+export function asymmetricDecryptFromHex (privateKey: string, hex: string): string {
   let h = hex
   if (hex.startsWith('0x')) {
     h = hex.substring(2)
   }
   const e = JSON.parse(Buffer.from(h, 'hex').toString())
-  return decrypt({ encryptedData: e, privateKey })
+  return asymmetricDecrypt(privateKey, e)
 }
 
-export interface EthEncryptedData {
+/**
+ * @deprecated use asymmetricEncryptToHex()
+ */
+export const encryptToHex = asymmetricEncryptToHex
+
+/**
+ * @deprecated use asymmetricDecryptFromHex()
+ */
+export const decryptFromHex = asymmetricDecryptFromHex
+
+export interface EncryptedData {
   version: string;
   nonce: string;
   ephemPublicKey: string;
@@ -24,7 +34,33 @@ export interface EthEncryptedData {
 }
 
 /**
+ * Encrypt a message with a public key, asymmetric encryption
+ *
+ * @param {string} publicKey  - The public key of the message recipient.
+ * @param {string} data - The message data.
+ * @returns {EncryptedData} The encrypted data.
+ */
+
+export function asymmetricEncrypt (publicKey: string, data: string): EncryptedData {
+  return encrypt({ publicKey, data, version: 'x25519-xsalsa20-poly1305' })
+}
+
+/**
+ * Decrypt a message with a private key, asymmetric encryption
+ *
+ * @param {string} privateKey  - private key to decrypt with
+ * @param {EncryptedData} encryptedData - data to decrypt
+ * @returns {string} decrypted data
+ */
+
+export function asymmetricDecrypt (privateKey: string, encryptedData: EncryptedData): string {
+  return decrypt({ encryptedData, privateKey })
+}
+
+/**
  * Encrypt a message.
+ *
+ * @deprecated use asymmetricEncrypt()
  *
  * @param options - The encryption options.
  * @param options.publicKey - The public key of the message recipient.
@@ -40,7 +76,7 @@ export function encrypt ({
   publicKey: string;
   data: string;
   version: string;
-}): EthEncryptedData {
+}): EncryptedData {
   if (isNullish(publicKey)) {
     throw new Error('Missing publicKey parameter')
   } else if (isNullish(data)) {
@@ -98,6 +134,8 @@ export function encrypt ({
  * The message is padded to a multiple of 2048 before being encrypted so that the length of the
  * resulting encrypted message can't be used to guess the exact length of the original message.
  *
+ * @deprecated
+ *
  * @param options - The encryption options.
  * @param options.publicKey - The public key of the message recipient.
  * @param options.data - The message data.
@@ -112,7 +150,7 @@ export function encryptSafely ({
   publicKey: string;
   data: string;
   version: string;
-}): EthEncryptedData {
+}): EncryptedData {
   if (isNullish(publicKey)) {
     throw new Error('Missing publicKey parameter')
   } else if (isNullish(data)) {
@@ -128,6 +166,8 @@ export function encryptSafely ({
 /**
  * Decrypt a message.
  *
+ *  @deprecated use asymmetricDecrypt()
+ *
  * @param options - The decryption options.
  * @param options.encryptedData - The encrypted data.
  * @param options.privateKey - The private key to decrypt with.
@@ -137,7 +177,7 @@ export function decrypt ({
   encryptedData,
   privateKey,
 }: {
-  encryptedData: EthEncryptedData;
+  encryptedData: EncryptedData;
   privateKey: string;
 }): string {
   if (isNullish(encryptedData)) {
@@ -191,6 +231,8 @@ export function decrypt ({
 /**
  * Decrypt a message that has been encrypted using `encryptSafely`.
  *
+ * @deprecated
+ *
  * @param options - The decryption options.
  * @param options.encryptedData - The encrypted data.
  * @param options.privateKey - The private key to decrypt with.
@@ -200,7 +242,7 @@ export function decryptSafely ({
   encryptedData,
   privateKey,
 }: {
-  encryptedData: EthEncryptedData;
+  encryptedData: EncryptedData;
   privateKey: string;
 }): string {
   if (isNullish(encryptedData)) {
