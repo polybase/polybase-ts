@@ -1,4 +1,5 @@
 export * from './util'
 export * from './encrypt'
 export * from './sign'
+export * from './symmetric'
 export * from '@ethersproject/bytes'
