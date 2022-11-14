@@ -1,9 +1,13 @@
+
+import { Crypto } from '@peculiar/webcrypto'
+const crypto = new Crypto()
+
 const SYMM_KEY_ALGO_PARAMS = {
   name: 'AES-CBC',
   length: 256,
 }
 
-export async function generateSymmetricKey () {
+export async function generateSymmetricKey (): Promise<CryptoKey> {
   const symmKey = await crypto.subtle.generateKey(SYMM_KEY_ALGO_PARAMS, true, [
     'encrypt',
     'decrypt',
@@ -11,25 +15,25 @@ export async function generateSymmetricKey () {
   return symmKey
 }
 
-export async function encryptWithSymmetricKey (symmKey: CryptoKey, data: Buffer) {
+export async function encryptWithSymmetricKey (symmKey: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
   const iv = crypto.getRandomValues(new Uint8Array(16))
 
-  const encryptedZipData = await crypto.subtle.encrypt(
+  const encrypted = await crypto.subtle.encrypt(
     { name: SYMM_KEY_ALGO_PARAMS.name, iv },
     symmKey,
     data,
   )
 
-  const encryptedZipBlob = new Blob([iv, new Uint8Array(encryptedZipData)], {
-    type: 'application/octet-stream',
-  })
+  const buff = new Uint8Array(iv.byteLength + encrypted.byteLength)
+  buff.set(iv, 0)
+  buff.set(new Uint8Array(encrypted), iv.byteLength)
 
-  return encryptedZipBlob
+  return buff
 }
 
-export async function decryptWithSymmetricKey (encryptedBlob: Blob, symmKey: any) {
-  const recoveredIv = await encryptedBlob.slice(0, 16).arrayBuffer()
-  const encryptedZipArrayBuffer = await encryptedBlob.slice(16).arrayBuffer()
+export async function decryptWithSymmetricKey (encryptedBlob: ArrayBuffer, symmKey: any): Promise<ArrayBuffer> {
+  const recoveredIv = await encryptedBlob.slice(0, 16)
+  const encryptedZipArrayBuffer = await encryptedBlob.slice(16)
   const decryptedZip = await crypto.subtle.decrypt(
     {
       name: SYMM_KEY_ALGO_PARAMS.name,
@@ -41,7 +45,7 @@ export async function decryptWithSymmetricKey (encryptedBlob: Blob, symmKey: any
   return decryptedZip
 }
 
-export async function importSymmetricKey (symmKey: Uint8Array) {
+export async function importSymmetricKey (symmKey: Uint8Array): Promise<CryptoKey> {
   const importedSymmKey = await crypto.subtle.importKey(
     'raw',
     symmKey,
