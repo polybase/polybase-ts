@@ -31,7 +31,7 @@ export async function encryptWithSymmetricKey (symmKey: CryptoKey, data: ArrayBu
   return buff
 }
 
-export async function decryptWithSymmetricKey (encryptedBlob: ArrayBuffer, symmKey: any): Promise<ArrayBuffer> {
+export async function decryptWithSymmetricKey (encryptedBlob: ArrayBuffer, symmKey: CryptoKey): Promise<ArrayBuffer> {
   const recoveredIv = await encryptedBlob.slice(0, 16)
   const encryptedZipArrayBuffer = await encryptedBlob.slice(16)
   const decryptedZip = await crypto.subtle.decrypt(
@@ -45,7 +45,7 @@ export async function decryptWithSymmetricKey (encryptedBlob: ArrayBuffer, symmK
   return decryptedZip
 }
 
-export async function importSymmetricKey (symmKey: Uint8Array): Promise<CryptoKey> {
+export async function importSymmetricKey (symmKey: ArrayBuffer): Promise<CryptoKey> {
   const importedSymmKey = await crypto.subtle.importKey(
     'raw',
     symmKey,
