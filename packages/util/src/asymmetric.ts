@@ -1,22 +1,32 @@
 import * as nacl from 'tweetnacl'
 import * as naclUtil from 'tweetnacl-util'
-import { isNullish, stringifiableToHex } from './util'
+import { isNullish, makeDataSafe, stringifiableToHex } from './util'
 
-export function encryptToHex (publicKey: string, data: unknown) {
-  const e = encrypt({ publicKey, data, version: 'x25519-xsalsa20-poly1305' })
+export function asymmetricEncryptToHex (publicKey: string, data: string): string {
+  const e = asymmetricEncrypt(publicKey, data)
   return stringifiableToHex(e)
 }
 
-export function decryptFromHex (privateKey: string, hex: string) {
+export function asymmetricDecryptFromHex (privateKey: string, hex: string): string {
   let h = hex
   if (hex.startsWith('0x')) {
     h = hex.substring(2)
   }
   const e = JSON.parse(Buffer.from(h, 'hex').toString())
-  return decrypt({ encryptedData: e, privateKey })
+  return asymmetricDecrypt(privateKey, e)
 }
 
-export interface EthEncryptedData {
+/**
+ * @deprecated use asymmetricEncryptToHex()
+ */
+export const encryptToHex = asymmetricEncryptToHex
+
+/**
+ * @deprecated use asymmetricDecryptFromHex()
+ */
+export const decryptFromHex = asymmetricDecryptFromHex
+
+export interface EncryptedData {
   version: string;
   nonce: string;
   ephemPublicKey: string;
@@ -24,7 +34,33 @@ export interface EthEncryptedData {
 }
 
 /**
+ * Encrypt a message with a public key, asymmetric encryption
+ *
+ * @param {string} publicKey  - The public key of the message recipient.
+ * @param {string} data - The message data.
+ * @returns {EncryptedData} The encrypted data.
+ */
+
+export function asymmetricEncrypt (publicKey: string, data: string): EncryptedData {
+  return encrypt({ publicKey, data, version: 'x25519-xsalsa20-poly1305' })
+}
+
+/**
+ * Decrypt a message with a private key, asymmetric encryption
+ *
+ * @param {string} privateKey  - private key to decrypt with
+ * @param {EncryptedData} encryptedData - data to decrypt
+ * @returns {string} decrypted data
+ */
+
+export function asymmetricDecrypt (privateKey: string, encryptedData: EncryptedData): string {
+  return decrypt({ encryptedData, privateKey })
+}
+
+/**
  * Encrypt a message.
+ *
+ * @deprecated use asymmetricEncrypt()
  *
  * @param options - The encryption options.
  * @param options.publicKey - The public key of the message recipient.
@@ -38,9 +74,9 @@ export function encrypt ({
   version,
 }: {
   publicKey: string;
-  data: unknown;
+  data: string;
   version: string;
-}): EthEncryptedData {
+}): EncryptedData {
   if (isNullish(publicKey)) {
     throw new Error('Missing publicKey parameter')
   } else if (isNullish(data)) {
@@ -98,6 +134,8 @@ export function encrypt ({
  * The message is padded to a multiple of 2048 before being encrypted so that the length of the
  * resulting encrypted message can't be used to guess the exact length of the original message.
  *
+ * @deprecated
+ *
  * @param options - The encryption options.
  * @param options.publicKey - The public key of the message recipient.
  * @param options.data - The message data.
@@ -110,9 +148,9 @@ export function encryptSafely ({
   version,
 }: {
   publicKey: string;
-  data: unknown;
+  data: string;
   version: string;
-}): EthEncryptedData {
+}): EncryptedData {
   if (isNullish(publicKey)) {
     throw new Error('Missing publicKey parameter')
   } else if (isNullish(data)) {
@@ -121,42 +159,14 @@ export function encryptSafely ({
     throw new Error('Missing version parameter')
   }
 
-  const DEFAULT_PADDING_LENGTH = 2 ** 11
-  const NACL_EXTRA_BYTES = 16
-
-  if (data && typeof data === 'object' && 'toJSON' in data) {
-    // remove toJSON attack vector
-    // TODO, check all possible children
-    throw new Error(
-      'Cannot encrypt with toJSON property.  Please remove toJSON property',
-    )
-  }
-
-  // add padding
-  const dataWithPadding = {
-    data,
-    padding: '',
-  }
-
-  // calculate padding
-  const dataLength = Buffer.byteLength(
-    JSON.stringify(dataWithPadding),
-    'utf-8',
-  )
-  const modVal = dataLength % DEFAULT_PADDING_LENGTH
-  let padLength = 0
-  // Only pad if necessary
-  if (modVal > 0) {
-    padLength = DEFAULT_PADDING_LENGTH - modVal - NACL_EXTRA_BYTES // nacl extra bytes
-  }
-  dataWithPadding.padding = '0'.repeat(padLength)
-
-  const paddedMessage = JSON.stringify(dataWithPadding)
-  return encrypt({ publicKey, data: paddedMessage, version })
+  const paddedData = makeDataSafe(data)
+  return encrypt({ publicKey, data: paddedData, version })
 }
 
 /**
  * Decrypt a message.
+ *
+ *  @deprecated use asymmetricDecrypt()
  *
  * @param options - The decryption options.
  * @param options.encryptedData - The encrypted data.
@@ -167,7 +177,7 @@ export function decrypt ({
   encryptedData,
   privateKey,
 }: {
-  encryptedData: EthEncryptedData;
+  encryptedData: EncryptedData;
   privateKey: string;
 }): string {
   if (isNullish(encryptedData)) {
@@ -221,6 +231,8 @@ export function decrypt ({
 /**
  * Decrypt a message that has been encrypted using `encryptSafely`.
  *
+ * @deprecated
+ *
  * @param options - The decryption options.
  * @param options.encryptedData - The encrypted data.
  * @param options.privateKey - The private key to decrypt with.
@@ -230,7 +242,7 @@ export function decryptSafely ({
   encryptedData,
   privateKey,
 }: {
-  encryptedData: EthEncryptedData;
+  encryptedData: EncryptedData;
   privateKey: string;
 }): string {
   if (isNullish(encryptedData)) {
