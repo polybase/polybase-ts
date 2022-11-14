@@ -1,6 +1,6 @@
 import * as nacl from 'tweetnacl'
 import * as naclUtil from 'tweetnacl-util'
-import { isNullish, stringifiableToHex } from './util'
+import { isNullish, makeDataSafe, stringifiableToHex } from './util'
 
 export function encryptToHex (publicKey: string, data: unknown) {
   const e = encrypt({ publicKey, data, version: 'x25519-xsalsa20-poly1305' })
@@ -121,38 +121,8 @@ export function encryptSafely ({
     throw new Error('Missing version parameter')
   }
 
-  const DEFAULT_PADDING_LENGTH = 2 ** 11
-  const NACL_EXTRA_BYTES = 16
-
-  if (data && typeof data === 'object' && 'toJSON' in data) {
-    // remove toJSON attack vector
-    // TODO, check all possible children
-    throw new Error(
-      'Cannot encrypt with toJSON property.  Please remove toJSON property',
-    )
-  }
-
-  // add padding
-  const dataWithPadding = {
-    data,
-    padding: '',
-  }
-
-  // calculate padding
-  const dataLength = Buffer.byteLength(
-    JSON.stringify(dataWithPadding),
-    'utf-8',
-  )
-  const modVal = dataLength % DEFAULT_PADDING_LENGTH
-  let padLength = 0
-  // Only pad if necessary
-  if (modVal > 0) {
-    padLength = DEFAULT_PADDING_LENGTH - modVal - NACL_EXTRA_BYTES // nacl extra bytes
-  }
-  dataWithPadding.padding = '0'.repeat(padLength)
-
-  const paddedMessage = JSON.stringify(dataWithPadding)
-  return encrypt({ publicKey, data: paddedMessage, version })
+  const paddedData = makeDataSafe(data)
+  return encrypt({ publicKey, data: paddedData, version })
 }
 
 /**

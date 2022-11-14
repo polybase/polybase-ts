@@ -1,5 +1,7 @@
-
 import { Crypto } from '@peculiar/webcrypto'
+import { hexlify } from '@ethersproject/bytes'
+import { makeDataSafe } from './util'
+
 const crypto = new Crypto()
 
 const SYMM_KEY_ALGO_PARAMS = {
@@ -13,6 +15,28 @@ export async function generateSymmetricKey (): Promise<CryptoKey> {
     'decrypt',
   ])
   return symmKey
+}
+
+export async function symmetricEncryptToHex (symmKey: CryptoKey, data: any) {
+  const encrypted = await encryptWithSymmetricKeySafely(symmKey, data)
+  return hexlify(Buffer.from(encrypted))
+}
+
+export async function symmetricDecryptFromHex (symmKey: CryptoKey, hex: string) {
+  let h = hex
+  if (hex.startsWith('0x')) {
+    h = hex.substring(2)
+  }
+  return decryptWithSymmetricKeySafely(symmKey, Buffer.from(h, 'hex'))
+}
+
+export async function encryptWithSymmetricKeySafely (symmKey: CryptoKey, data: any): Promise<ArrayBuffer> {
+  return encryptWithSymmetricKey(symmKey, Buffer.from(makeDataSafe(data), 'utf8'))
+}
+
+export async function decryptWithSymmetricKeySafely (symmKey: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
+  const decrypted = await decryptWithSymmetricKey(symmKey, data)
+  return JSON.parse(Buffer.from(decrypted).toString()).data
 }
 
 export async function encryptWithSymmetricKey (symmKey: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
@@ -31,7 +55,7 @@ export async function encryptWithSymmetricKey (symmKey: CryptoKey, data: ArrayBu
   return buff
 }
 
-export async function decryptWithSymmetricKey (encryptedBlob: ArrayBuffer, symmKey: CryptoKey): Promise<ArrayBuffer> {
+export async function decryptWithSymmetricKey (symmKey: CryptoKey, encryptedBlob: ArrayBuffer): Promise<ArrayBuffer> {
   const recoveredIv = await encryptedBlob.slice(0, 16)
   const encryptedZipArrayBuffer = await encryptedBlob.slice(16)
   const decryptedZip = await crypto.subtle.decrypt(
