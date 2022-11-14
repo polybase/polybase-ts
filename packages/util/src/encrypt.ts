@@ -38,7 +38,7 @@ export function encrypt ({
   version,
 }: {
   publicKey: string;
-  data: unknown;
+  data: string;
   version: string;
 }): EthEncryptedData {
   if (isNullish(publicKey)) {
@@ -110,7 +110,7 @@ export function encryptSafely ({
   version,
 }: {
   publicKey: string;
-  data: unknown;
+  data: string;
   version: string;
 }): EthEncryptedData {
   if (isNullish(publicKey)) {

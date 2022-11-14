@@ -1,6 +1,6 @@
 import { Crypto } from '@peculiar/webcrypto'
+// import * as nacl from 'tweetnacl'
 import { hexlify } from '@ethersproject/bytes'
-import { makeDataSafe } from './util'
 
 const crypto = new Crypto()
 
@@ -17,26 +17,18 @@ export async function generateSymmetricKey (): Promise<CryptoKey> {
   return symmKey
 }
 
-export async function symmetricEncryptToHex (symmKey: CryptoKey, data: any) {
-  const encrypted = await encryptWithSymmetricKeySafely(symmKey, data)
+export async function symmetricEncryptToHex (symmKey: CryptoKey, data: string) {
+  const encrypted = await encryptWithSymmetricKey(symmKey, Buffer.from(data, 'utf8'))
   return hexlify(Buffer.from(encrypted))
 }
 
-export async function symmetricDecryptFromHex (symmKey: CryptoKey, hex: string) {
+export async function symmetricDecryptFromHex (symmKey: CryptoKey, hex: string): Promise<string> {
   let h = hex
   if (hex.startsWith('0x')) {
     h = hex.substring(2)
   }
-  return decryptWithSymmetricKeySafely(symmKey, Buffer.from(h, 'hex'))
-}
-
-export async function encryptWithSymmetricKeySafely (symmKey: CryptoKey, data: any): Promise<ArrayBuffer> {
-  return encryptWithSymmetricKey(symmKey, Buffer.from(makeDataSafe(data), 'utf8'))
-}
-
-export async function decryptWithSymmetricKeySafely (symmKey: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
-  const decrypted = await decryptWithSymmetricKey(symmKey, data)
-  return JSON.parse(Buffer.from(decrypted).toString()).data
+  const res = await decryptWithSymmetricKey(symmKey, Buffer.from(h, 'hex'))
+  return Buffer.from(res).toString('utf8')
 }
 
 export async function encryptWithSymmetricKey (symmKey: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
