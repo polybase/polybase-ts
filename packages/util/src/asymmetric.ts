@@ -1,19 +1,16 @@
-import * as nacl from 'tweetnacl'
-import * as naclUtil from 'tweetnacl-util'
-import { isNullish, makeDataSafe, stringifiableToHex } from './util'
 
-export function asymmetricEncryptToHex (publicKey: string, data: string): string {
-  const e = asymmetricEncrypt(publicKey, data)
-  return stringifiableToHex(e)
+import eccrypto from 'eccrypto'
+import { stringifiableToHex } from './util'
+
+export async function asymmetricEncryptToHex (publicKey: ArrayBuffer|Buffer, data: string): Promise<string> {
+  const e = await asymmetricEncrypt(publicKey, Buffer.from(data))
+  return stringifyEncrypedData(e, 'hex')
 }
 
-export function asymmetricDecryptFromHex (privateKey: string, hex: string): string {
-  let h = hex
-  if (hex.startsWith('0x')) {
-    h = hex.substring(2)
-  }
-  const e = JSON.parse(Buffer.from(h, 'hex').toString())
-  return asymmetricDecrypt(privateKey, e)
+export async function asymmetricDecryptFromHex (privateKey: ArrayBuffer|Buffer, hex: string): Promise<string> {
+  const e = parseEncrypedData(hex, 'hex')
+  const res = await asymmetricDecrypt(privateKey, e)
+  return Buffer.from(res).toString()
 }
 
 /**
@@ -26,11 +23,8 @@ export const encryptToHex = asymmetricEncryptToHex
  */
 export const decryptFromHex = asymmetricDecryptFromHex
 
-export interface EncryptedData {
+export interface EncryptedData extends eccrypto.Ecies {
   version: string;
-  nonce: string;
-  ephemPublicKey: string;
-  ciphertext: string;
 }
 
 /**
@@ -41,8 +35,13 @@ export interface EncryptedData {
  * @returns {EncryptedData} The encrypted data.
  */
 
-export function asymmetricEncrypt (publicKey: string, data: string): EncryptedData {
-  return encrypt({ publicKey, data, version: 'x25519-xsalsa20-poly1305' })
+export async function asymmetricEncrypt (publicKey: ArrayBuffer|Buffer, data: ArrayBuffer|Buffer): Promise<EncryptedData> {
+  const res = await eccrypto.encrypt(normalizePublicKey(Buffer.from(publicKey)), Buffer.from(data))
+
+  return {
+    version: 'secp256k1',
+    ...res,
+  }
 }
 
 /**
@@ -53,228 +52,46 @@ export function asymmetricEncrypt (publicKey: string, data: string): EncryptedDa
  * @returns {string} decrypted data
  */
 
-export function asymmetricDecrypt (privateKey: string, encryptedData: EncryptedData): string {
-  return decrypt({ encryptedData, privateKey })
-}
-
-/**
- * Encrypt a message.
- *
- * @deprecated use asymmetricEncrypt()
- *
- * @param options - The encryption options.
- * @param options.publicKey - The public key of the message recipient.
- * @param options.data - The message data.
- * @param options.version - The type of encryption to use.
- * @returns The encrypted data.
- */
-export function encrypt ({
-  publicKey,
-  data,
-  version,
-}: {
-  publicKey: string;
-  data: string;
-  version: string;
-}): EncryptedData {
-  if (isNullish(publicKey)) {
-    throw new Error('Missing publicKey parameter')
-  } else if (isNullish(data)) {
-    throw new Error('Missing data parameter')
-  } else if (isNullish(version)) {
-    throw new Error('Missing version parameter')
+export async function asymmetricDecrypt (privateKey: ArrayBuffer|Buffer, encryptedData: EncryptedData): Promise<Buffer> {
+  if (encryptedData.version !== 'secp256k1') {
+    throw new Error('Encryption type/version not supported')
   }
 
-  switch (version) {
-    case 'x25519-xsalsa20-poly1305': {
-      if (typeof data !== 'string') {
-        throw new Error('Message data must be given as a string')
-      }
-      // generate ephemeral keypair
-      const ephemeralKeyPair = nacl.box.keyPair()
-
-      // assemble encryption parameters - from string to UInt8
-      let pubKeyUInt8Array
-      try {
-        pubKeyUInt8Array = naclUtil.decodeBase64(publicKey)
-      } catch (err) {
-        throw new Error('Bad public key')
-      }
-
-      const msgParamsUInt8Array = naclUtil.decodeUTF8(data)
-      const nonce = nacl.randomBytes(nacl.box.nonceLength)
-
-      // encrypt
-      const encryptedMessage = nacl.box(
-        msgParamsUInt8Array,
-        nonce,
-        pubKeyUInt8Array,
-        ephemeralKeyPair.secretKey,
-      )
-
-      // handle encrypted data
-      const output = {
-        version: 'x25519-xsalsa20-poly1305',
-        nonce: naclUtil.encodeBase64(nonce),
-        ephemPublicKey: naclUtil.encodeBase64(ephemeralKeyPair.publicKey),
-        ciphertext: naclUtil.encodeBase64(encryptedMessage),
-      }
-      // return encrypted msg data
-      return output
-    }
-
-    default:
-      throw new Error('Encryption type/version not supported')
-  }
+  return eccrypto.decrypt(Buffer.from(privateKey), encryptedData)
 }
 
-/**
- * Encrypt a message in a way that obscures the message length.
- *
- * The message is padded to a multiple of 2048 before being encrypted so that the length of the
- * resulting encrypted message can't be used to guess the exact length of the original message.
- *
- * @deprecated
- *
- * @param options - The encryption options.
- * @param options.publicKey - The public key of the message recipient.
- * @param options.data - The message data.
- * @param options.version - The type of encryption to use.
- * @returns The encrypted data.
- */
-export function encryptSafely ({
-  publicKey,
-  data,
-  version,
-}: {
-  publicKey: string;
-  data: string;
-  version: string;
-}): EncryptedData {
-  if (isNullish(publicKey)) {
-    throw new Error('Missing publicKey parameter')
-  } else if (isNullish(data)) {
-    throw new Error('Missing data parameter')
-  } else if (isNullish(version)) {
-    throw new Error('Missing version parameter')
+export function hexStringToBuffer (hex: string): Buffer {
+  let h = hex
+  if (hex.startsWith('0x')) {
+    h = hex.substring(2)
   }
-
-  const paddedData = makeDataSafe(data)
-  return encrypt({ publicKey, data: paddedData, version })
+  return Buffer.from(h, 'hex')
 }
 
-/**
- * Decrypt a message.
- *
- *  @deprecated use asymmetricDecrypt()
- *
- * @param options - The decryption options.
- * @param options.encryptedData - The encrypted data.
- * @param options.privateKey - The private key to decrypt with.
- * @returns The decrypted message.
- */
-export function decrypt ({
-  encryptedData,
-  privateKey,
-}: {
-  encryptedData: EncryptedData;
-  privateKey: string;
-}): string {
-  if (isNullish(encryptedData)) {
-    throw new Error('Missing encryptedData parameter')
-  } else if (isNullish(privateKey)) {
-    throw new Error('Missing privateKey parameter')
-  }
-
-  switch (encryptedData.version) {
-    case 'x25519-xsalsa20-poly1305': {
-      // string to buffer to UInt8Array
-      const recieverPrivateKeyUint8Array = naclDecodeHex(privateKey)
-      const recieverEncryptionPrivateKey = nacl.box.keyPair.fromSecretKey(
-        recieverPrivateKeyUint8Array,
-      ).secretKey
-
-      // assemble decryption parameters
-      const nonce = naclUtil.decodeBase64(encryptedData.nonce)
-      const ciphertext = naclUtil.decodeBase64(encryptedData.ciphertext)
-      const ephemPublicKey = naclUtil.decodeBase64(
-        encryptedData.ephemPublicKey,
-      )
-
-      // decrypt
-      const decryptedMessage = nacl.box.open(
-        ciphertext,
-        nonce,
-        ephemPublicKey,
-        recieverEncryptionPrivateKey,
-      )
-
-      // return decrypted msg data
-      let output
-      try {
-        if (decryptedMessage) output = naclUtil.encodeUTF8(decryptedMessage)
-      } catch (err) {
-        throw new Error('Decryption failed.')
-      }
-
-      if (output) {
-        return output
-      }
-      throw new Error('Decryption failed.')
-    }
-
-    default:
-      throw new Error('Encryption type/version not supported.')
-  }
+export function normalizePublicKey (publicKey: Buffer) {
+  if (publicKey.byteLength === 64) return Buffer.concat([Buffer.from([0x4]), publicKey])
+  return publicKey
 }
 
-/**
- * Decrypt a message that has been encrypted using `encryptSafely`.
- *
- * @deprecated
- *
- * @param options - The decryption options.
- * @param options.encryptedData - The encrypted data.
- * @param options.privateKey - The private key to decrypt with.
- * @returns The decrypted message.
- */
-export function decryptSafely ({
-  encryptedData,
-  privateKey,
-}: {
-  encryptedData: EncryptedData;
-  privateKey: string;
-}): string {
-  if (isNullish(encryptedData)) {
-    throw new Error('Missing encryptedData parameter')
-  } else if (isNullish(privateKey)) {
-    throw new Error('Missing privateKey parameter')
+export function stringifyEncrypedData (data: EncryptedData, encoding: 'hex'|'base64' = 'hex') {
+  const { version, iv, ephemPublicKey, ciphertext, mac } = data
+  return stringifiableToHex({
+    version,
+    iv: iv.toString(encoding),
+    ephemPublicKey: ephemPublicKey.toString(encoding),
+    ciphertext: ciphertext.toString(encoding),
+    mac: mac.toString(encoding),
+  })
+}
+
+export function parseEncrypedData (str: string, encoding: 'hex'|'base64' = 'hex'): EncryptedData {
+  const buf = encoding === 'hex' ? hexStringToBuffer(str) : Buffer.from(str, 'base64')
+  const { version, iv, ephemPublicKey, ciphertext, mac } = JSON.parse(buf.toString('utf8'))
+  return {
+    version,
+    iv: Buffer.from(iv, encoding),
+    ephemPublicKey: Buffer.from(ephemPublicKey, encoding),
+    ciphertext: Buffer.from(ciphertext, encoding),
+    mac: Buffer.from(mac, encoding),
   }
-
-  const dataWithPadding = JSON.parse(decrypt({ encryptedData, privateKey }))
-  return dataWithPadding.data
-}
-
-/**
- * Get the encryption public key for the given key.
- *
- * @param privateKey - The private key to generate the encryption public key with.
- * @returns The encryption public key.
- */
-export function getEncryptionPublicKey (privateKey: string): string {
-  const privateKeyUint8Array = naclDecodeHex(privateKey)
-  const encryptionPublicKey =
-    nacl.box.keyPair.fromSecretKey(privateKeyUint8Array).publicKey
-  return naclUtil.encodeBase64(encryptionPublicKey)
-}
-
-/**
- * Convert a hex string to the UInt8Array format used by nacl.
- *
- * @param msgHex - The string to convert.
- * @returns The converted string.
- */
-function naclDecodeHex (msgHex: string): Uint8Array {
-  const msgBase64 = Buffer.from(msgHex, 'hex').toString('base64')
-  return naclUtil.decodeBase64(msgBase64)
 }
