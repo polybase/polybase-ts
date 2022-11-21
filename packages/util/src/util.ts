@@ -23,12 +23,12 @@ export function encodeToString (data: Uint8Array, encoding: 'hex'|'base64'|'utf8
   if (encoding === 'hex') return hexlify(data)
   if (encoding === 'utf8') return encodeUTF8(data)
   if (encoding === 'base64') return encodeBase64(data)
-  throw new Error('Invalid encoding, must be either hex or base64')
+  throw new Error('Invalid encoding, must be either hex, utf8 or base64')
 }
 
 export function decodeFromString (data: string, encoding: 'hex'|'base64'|'utf8'): Uint8Array {
   if (encoding === 'hex') return arrayify(data)
   if (encoding === 'utf8') return decodeUTF8(data)
   if (encoding === 'base64') return decodeBase64(data)
-  throw new Error('Invalid encoding, must be either hex or base64')
+  throw new Error('Invalid encoding, must be either hex, utf8 or base64')
 }
