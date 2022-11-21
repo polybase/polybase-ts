@@ -1,5 +1,6 @@
 export * from './util'
 export * from './deprecated'
 export * from '@ethersproject/bytes'
+export * as aescbc from './algorithems/aes-cbc'
 export * as secp256k1 from './algorithems/secp256k1'
-export * as x25519xsalsa20poly1305 from './algorithems/x25519-xsalsa20-poly1305'
+export * as x25519salsa20poly1305 from './algorithems/x25519-xsalsa20-poly1305'

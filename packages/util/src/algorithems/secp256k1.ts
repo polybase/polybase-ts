@@ -14,17 +14,17 @@ export function generatePrivateKey () {
   return randomBytes(32)
 }
 
+export async function generateKeyPair () {
+  const privateKey = generatePrivateKey()
+  return { privateKey, publicKey: secp256k1.publicKeyCreate(privateKey) }
+}
+
 export function getPublicKey (privateKey: Uint8Array) {
   return secp256k1.publicKeyCreate(privateKey, false)
 }
 
 export function getPublicCompressed (privateKey: Uint8Array) {
   return secp256k1.publicKeyCreate(privateKey, true)
-}
-
-export async function generateKeyPair () {
-  const privateKey = generatePrivateKey()
-  return { privateKey, publicKey: secp256k1.publicKeyCreate(privateKey) }
 }
 
 export function compressPublicKey (publicKey: Uint8Array): Uint8Array {
