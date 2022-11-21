@@ -3,14 +3,14 @@ export type EncryptedDataVersion = EncryptedData['version']
 
 export interface EncryptedDataBase {
   // AKA IV
-  nonce: Buffer
-  ephemPublicKey: Buffer
-  ciphertext: Buffer
+  nonce: Uint8Array
+  ephemPublicKey: Uint8Array
+  ciphertext: Uint8Array
 }
 
 export interface EncryptedDataSecp256k1 extends EncryptedDataBase {
   version: 'secp256k1'
-  mac: Buffer
+  mac: Uint8Array
 }
 
 export interface EncryptedDataX25519 extends EncryptedDataBase {
@@ -19,6 +19,6 @@ export interface EncryptedDataX25519 extends EncryptedDataBase {
 
 export interface KeyPair {
   version: EncryptedDataVersion
-  publicKey: ArrayBuffer
-  privateKey: ArrayBuffer
+  publicKey: Uint8Array
+  privateKey: Uint8Array
 }

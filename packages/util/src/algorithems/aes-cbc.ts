@@ -1,7 +1,4 @@
-import { Crypto } from '@peculiar/webcrypto'
-import { hexlify } from '@ethersproject/bytes'
-
-const crypto = new Crypto()
+import { crypto } from '../crypto'
 
 const SYMM_KEY_ALGO_PARAMS = {
   name: 'AES-CBC',
@@ -14,42 +11,12 @@ const SYMM_KEY_ALGO_PARAMS = {
  * @returns {Promise<CryptoKey>} The CryptoKey interface of the Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey
  */
 
-export async function symmetricGenerateKey (): Promise<CryptoKey> {
+export async function generateKey (): Promise<CryptoKey> {
   const symmKey = await crypto.subtle.generateKey(SYMM_KEY_ALGO_PARAMS, true, [
     'encrypt',
     'decrypt',
   ])
   return symmKey
-}
-
-/**
- * Encrypt a string, and encrypted string in hex format
- *
- * @param {CryptoKey} symmKey  - CryptoKey interface of the Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey
- * @param {string} data - The message data
- * @returns {Promise<string>} Encrypted string as hex
- */
-
-export async function symmetricEncryptToHex (symmKey: CryptoKey, data: string): Promise<string> {
-  const encrypted = await symmetricEncrypt(symmKey, Buffer.from(data, 'utf8'))
-  return hexlify(Buffer.from(encrypted))
-}
-
-/**
- * Decrypt a string encrypted with symmetricEncryptToHex()
- *
- * @param {CryptoKey} symmKey  - CryptoKey interface of the Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey
- * @param {string} hex - Encrypted string in hex format
- * @returns {Promise<string>} Encrypted string as hex
- */
-
-export async function symmetricDecryptFromHex (symmKey: CryptoKey, hex: string): Promise<string> {
-  let h = hex
-  if (hex.startsWith('0x')) {
-    h = hex.substring(2)
-  }
-  const res = await symmetricDecrypt(symmKey, Buffer.from(h, 'hex'))
-  return Buffer.from(res).toString('utf8')
 }
 
 /**
@@ -105,7 +72,7 @@ export async function symmetricDecrypt (symmKey: CryptoKey, encryptedData: Array
  * @returns {Promise<CryptoKey>} - CryptoKey interface of the Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey
  */
 
-export async function symmetricImportKey (symmKey: ArrayBuffer): Promise<CryptoKey> {
+export async function importKey (symmKey: ArrayBuffer): Promise<CryptoKey> {
   const importedSymmKey = await crypto.subtle.importKey(
     'raw',
     symmKey,
