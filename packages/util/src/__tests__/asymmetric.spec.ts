@@ -1,5 +1,6 @@
 import Wallet from 'ethereumjs-wallet'
 import eccrypto from 'eccrypto'
+import * as nacl from 'tweetnacl'
 import {
   asymmetricEncrypt,
   asymmetricDecrypt,
@@ -52,5 +53,13 @@ test('decrypt/encrypt to hex', async function () {
   const str = 'hello world'
   const encrypted = await asymmetricEncryptToHex(publicKey, str)
   const decrypted = await asymmetricDecryptFromHex(privateKey, encrypted)
+  expect(decrypted.toString()).toEqual('hello world')
+})
+
+test('decrypt/encrypt x25519-xsalsa20-poly1305', async () => {
+  const { publicKey, secretKey } = nacl.box.keyPair()
+  const str = 'hello world'
+  const encrypted = await asymmetricEncryptToHex(publicKey, str, 'x25519-xsalsa20-poly1305')
+  const decrypted = await asymmetricDecryptFromHex(secretKey, encrypted)
   expect(decrypted.toString()).toEqual('hello world')
 })

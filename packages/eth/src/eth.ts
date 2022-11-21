@@ -1,4 +1,6 @@
 
+import * as nacl from 'tweetnacl'
+import * as naclUtil from 'tweetnacl-util'
 import * as util from '@polybase/util'
 
 export const win: any = (typeof self === 'object' && self.self === self && self) ||
@@ -22,7 +24,7 @@ export async function requestAccounts (): Promise<string[]> {
 
 export async function encrypt (cipherText: string, address: string) {
   const publicKey = await getEncryptionKey(address)
-  const ev = util.encrypt({ publicKey, data: cipherText, version: 'x25519-xsalsa20-poly1305' })
+  const ev = await util.asymmetricEncrypt({ publicKey, data: cipherText, version: 'x25519-xsalsa20-poly1305' })
   return util.stringifiableToHex(ev)
 }
 
