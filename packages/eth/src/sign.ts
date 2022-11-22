@@ -1,6 +1,6 @@
-import { sign, BytesLike } from '@polybase/util'
+import { secp256k1, BytesLike } from '@polybase/util'
 import { hashEthereumSignedMessage } from './hash'
 
 export function ethPersonalSign (privateKey: BytesLike, d: BytesLike): string {
-  return sign(privateKey, hashEthereumSignedMessage(d))
+  return secp256k1.sign(privateKey, hashEthereumSignedMessage(d))
 }

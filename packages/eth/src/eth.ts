@@ -1,5 +1,9 @@
 
-import * as util from '@polybase/util'
+import {
+  x25519xsalsa20poly1305,
+  decodeFromString,
+  stringifyEncryptedData,
+} from '@polybase/util'
 
 export const win: any = (typeof self === 'object' && self.self === self && self) ||
   (typeof global === 'object' && global.global === global && global) ||
@@ -20,10 +24,10 @@ export async function requestAccounts (): Promise<string[]> {
   })
 }
 
-export async function encrypt (cipherText: string, address: string) {
+export async function encrypt (data: string, address: string): Promise<string> {
   const publicKey = await getEncryptionKey(address)
-  const ev = util.encrypt({ publicKey, data: cipherText, version: 'x25519-xsalsa20-poly1305' })
-  return util.stringifiableToHex(ev)
+  const ev = await x25519xsalsa20poly1305.asymmetricEncrypt(decodeFromString(publicKey, 'base64'), decodeFromString(data, 'utf8'))
+  return stringifyEncryptedData(ev, 'hex')
 }
 
 export async function decrypt (cipherText: string, account: string): Promise<string> {
