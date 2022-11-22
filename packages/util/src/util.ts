@@ -32,3 +32,30 @@ export function decodeFromString (data: string, encoding: 'hex'|'base64'|'utf8')
   if (encoding === 'base64') return decodeBase64(data)
   throw new Error('Invalid encoding, must be either hex, utf8 or base64')
 }
+
+export function stringifyEncryptedData (data: any, encoding: 'hex'|'base64' = 'hex'): string {
+  const obj: any = {}
+  Object.keys(data).forEach((key: any) => {
+    obj[key] = typeof data[key] === 'string' ? data[key] : encodeToString(data[key] as Uint8Array, encoding)
+  })
+  const str = JSON.stringify(obj)
+  const buf = decodeFromString(str, 'utf8')
+  return encodeToString(buf, encoding)
+}
+
+export function parseEncrypedData (str: string, encoding: 'hex'|'base64' = 'hex'): any {
+  const buf = decodeFromString(str, encoding)
+  const data = JSON.parse(encodeToString(buf, 'utf8'))
+  const obj: any = {}
+  Object.keys(data).forEach((key: any) => {
+    if (key === 'version') obj[key] = data[key]
+    else obj[key] = decodeFromString(data[key] as string, encoding)
+  })
+  return obj
+}
+
+export function assert (condition: boolean, message: string) {
+  if (!condition) {
+    throw new Error(message || 'Assertion failed')
+  }
+}

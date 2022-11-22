@@ -1,27 +1,29 @@
+import { decodeFromString, encodeToString } from '../../util'
 import {
-  generateKey,
+  generateSecretKey,
   symmetricEncrypt,
   symmetricDecrypt,
-  // symmetricEncryptToHex,
-  // symmetricDecryptFromHex,
+  importKey,
 } from '../aes-cbc'
 
 test('generate key', async function () {
-  const key = await generateKey()
-  expect(key.algorithm).toEqual({ length: 256, name: 'AES-CBC' })
+  const key = await generateSecretKey()
+  expect(key.byteLength).toEqual(32)
 })
 
-test('decrypt/encrypt', async function () {
-  const key = await generateKey()
-  const buffer = Buffer.from('hello world', 'utf8')
-  const encrypted = await symmetricEncrypt(key, buffer)
-  const dval = await symmetricDecrypt(key, encrypted)
-  expect(Buffer.from(dval).toString('utf8')).toEqual('hello world')
+test('can import key', async function () {
+  const key = await generateSecretKey()
+  const ckey = await importKey(key)
+  expect(ckey.algorithm).toEqual({ length: 256, name: 'AES-CBC' })
 })
 
-// test('decrypt/encrypt hex', async function () {
-//   const key = await generateKey()
-//   const encrypted = await symmetricEncryptToHex(key, 'hello world')
-//   const dval = await symmetricDecryptFromHex(key, encrypted)
-//   expect(dval).toEqual('hello world')
-// })
+describe('symmetric', () => {
+  test('decrypt/encrypt', async function () {
+    const key = await generateSecretKey()
+    const str = 'hello world'
+    const buffer = decodeFromString(str, 'utf8')
+    const encrypted = await symmetricEncrypt(key, buffer)
+    const decrypted = await symmetricDecrypt(key, encrypted)
+    expect(encodeToString(decrypted, 'utf8')).toEqual(str)
+  })
+})

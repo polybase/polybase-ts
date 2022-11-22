@@ -1,4 +1,6 @@
 import { crypto } from '../crypto'
+import { randomBytes } from '../randombytes'
+import { EncryptedDataAesCbc256 } from '../types'
 
 const SYMM_KEY_ALGO_PARAMS = {
   name: 'AES-CBC',
@@ -8,71 +10,62 @@ const SYMM_KEY_ALGO_PARAMS = {
 /**
  * Generate a symmetric encryption key
  *
- * @returns {Promise<CryptoKey>} The CryptoKey interface of the Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey
+ * @returns secret key
  */
 
-export async function generateKey (): Promise<CryptoKey> {
-  const symmKey = await crypto.subtle.generateKey(SYMM_KEY_ALGO_PARAMS, true, [
-    'encrypt',
-    'decrypt',
-  ])
-  return symmKey
+export function generateSecretKey (): Uint8Array {
+  return randomBytes(32)
 }
 
 /**
- * Encrypt data
+ * Symetric encrypt data
  *
- * @param {CryptoKey} symmKey  - CryptoKey interface of the Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey
- * @param {ArrayBuffer} data - The message data
- * @returns {Promise<ArrayBuffer>} - Encrypted data
+ * @returns encrypted data
  */
 
-export async function symmetricEncrypt (symmKey: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
+export async function symmetricEncrypt (symmKey: Uint8Array, data: Uint8Array): Promise<EncryptedDataAesCbc256> {
+  const key = await importKey(symmKey)
   const iv = crypto.getRandomValues(new Uint8Array(16))
 
   const encrypted = await crypto.subtle.encrypt(
     { name: SYMM_KEY_ALGO_PARAMS.name, iv },
-    symmKey,
+    key,
     data,
   )
 
-  const buff = new Uint8Array(iv.byteLength + encrypted.byteLength)
-  buff.set(iv, 0)
-  buff.set(new Uint8Array(encrypted), iv.byteLength)
-
-  return buff
+  return {
+    version: 'aes-cbc-256/symmetric',
+    nonce: iv,
+    ciphertext: new Uint8Array(encrypted),
+  }
 }
 
 /**
  * Decrypt data, encrypted with symmetricEncrypt()
  *
- * @param {CryptoKey} symmKey  - CryptoKey interface of the Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey
- * @param {ArrayBuffer} encryptedData - Encrypted data
- * @returns {Promise<ArrayBuffer>} - Decrypted data
+ * @returns decrypted data
  */
 
-export async function symmetricDecrypt (symmKey: CryptoKey, encryptedData: ArrayBuffer): Promise<ArrayBuffer> {
-  const recoveredIv = await encryptedData.slice(0, 16)
-  const encryptedZipArrayBuffer = await encryptedData.slice(16)
+export async function symmetricDecrypt (symmKey: Uint8Array, encryptedData: EncryptedDataAesCbc256): Promise<Uint8Array> {
+  const key = await importKey(symmKey)
   const decryptedZip = await crypto.subtle.decrypt(
     {
       name: SYMM_KEY_ALGO_PARAMS.name,
-      iv: recoveredIv,
+      iv: encryptedData.nonce,
     },
-    symmKey,
-    encryptedZipArrayBuffer,
+    key,
+    encryptedData.ciphertext,
   )
-  return decryptedZip
+  return new Uint8Array(decryptedZip)
 }
 
 /**
- * Import a key (if using own key implementation)
+ * Import a key
  *
- * @param {ArrayBuffer} symmKey  - key to import
- * @returns {Promise<CryptoKey>} - CryptoKey interface of the Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey
+ * @returns CryptoKey interface of the Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey
  */
 
-export async function importKey (symmKey: ArrayBuffer): Promise<CryptoKey> {
+export async function importKey (symmKey: Uint8Array): Promise<CryptoKey> {
   const importedSymmKey = await crypto.subtle.importKey(
     'raw',
     symmKey,
