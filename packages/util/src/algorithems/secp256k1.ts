@@ -3,7 +3,7 @@ import elliptic from 'elliptic'
 import { concat, joinSignature, BytesLike } from '@ethersproject/bytes'
 import { SigningKey } from '@ethersproject/signing-key'
 import { randomBytes } from '../randombytes'
-import { addPublicKeyPrefix, assert } from '../util'
+import { addPublicKeyPrefix, assert, encodeToString, decodeFromString, stringifyEncryptedData, parseEncrypedData } from '../util'
 import { crypto } from '../crypto'
 import { EncryptedDataSecp256k1 } from '../types'
 
@@ -185,4 +185,25 @@ async function importAesCbcKey (key: Uint8Array) {
     false,
     ['encrypt', 'decrypt'],
   )
+}
+
+/**
+ * Asymmetric encrypt string data as a given encoding (hex/base64). Defaults to base64.
+ *
+ * @returns encrypted data as hex
+ */
+export async function asymmetricEncryptToEncoding (publicKey: Uint8Array, data: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
+  const e = await asymmetricEncrypt(publicKey, decodeFromString(data, 'utf8'))
+  return stringifyEncryptedData(e, encoding)
+}
+
+/**
+ * Asymmetric decrypt data from given encoding (hex/base64). Defaults to base64.
+ *
+ * @returns decrypted string
+ */
+export async function asymmetricDecryptFromEncoding (privateKey: Uint8Array, hex: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
+  const e = parseEncrypedData(hex, encoding)
+  const res = await asymmetricDecrypt(privateKey, e)
+  return encodeToString(res, 'utf8')
 }

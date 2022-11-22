@@ -1,6 +1,7 @@
 import { crypto } from '../crypto'
 import { randomBytes } from '../randombytes'
 import { EncryptedDataAesCbc256 } from '../types'
+import { stringifyEncryptedData, parseEncrypedData, decodeFromString, encodeToString } from '../util'
 
 const SYMM_KEY_ALGO_PARAMS = {
   name: 'AES-CBC',
@@ -75,4 +76,25 @@ export async function importKey (symmKey: Uint8Array): Promise<CryptoKey> {
   )
 
   return importedSymmKey
+}
+
+/**
+ * Symmetric encrypt string data as a given encoding (hex/base64). Defaults to base64.
+ *
+ * @returns encrypted data as encoding
+ */
+export async function symmetricEncryptToEncoding (publicKey: Uint8Array, data: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
+  const e = await symmetricEncrypt(publicKey, decodeFromString(data, 'utf8'))
+  return stringifyEncryptedData(e, encoding)
+}
+
+/**
+ * Symmetric decrypt data from given encoding (hex/base64). Defaults to base64.
+ *
+ * @returns decrypted string
+ */
+export async function symmetricDecryptFromEncoding (privateKey: Uint8Array, hex: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
+  const e = parseEncrypedData(hex, encoding)
+  const res = await symmetricDecrypt(privateKey, e)
+  return encodeToString(res, 'utf8')
 }

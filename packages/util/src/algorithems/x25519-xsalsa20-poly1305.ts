@@ -96,22 +96,43 @@ export async function symmetricDecrypt (privateKey: Uint8Array, encryptedData: E
 }
 
 /**
- * Asymmetric encrypt string data as a hex
+ * Asymmetric encrypt string data as a given encoding (hex/base64). Defaults to base64.
  *
  * @returns encrypted data as hex
  */
-export async function asymmetricEncryptToHex (publicKey: Uint8Array, data: string): Promise<string> {
+export async function asymmetricEncryptToEncoding (publicKey: Uint8Array, data: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
   const e = await asymmetricEncrypt(publicKey, decodeFromString(data, 'utf8'))
-  return stringifyEncryptedData(e, 'hex')
+  return stringifyEncryptedData(e, encoding)
 }
 
 /**
- * Asymmetric decrypt data from hex string
+ * Asymmetric decrypt data from given encoding (hex/base64). Defaults to base64.
  *
  * @returns decrypted string
  */
-export async function asymmetricDecryptFromHex (privateKey: Uint8Array, hex: string): Promise<string> {
-  const e = parseEncrypedData(hex, 'hex')
+export async function asymmetricDecryptFromEncoding (privateKey: Uint8Array, hex: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
+  const e = parseEncrypedData(hex, encoding)
   const res = await asymmetricDecrypt(privateKey, e)
+  return encodeToString(res, 'utf8')
+}
+
+/**
+ * Symmetric encrypt string data as a given encoding (hex/base64). Defaults to base64.
+ *
+ * @returns encrypted data as encoding
+ */
+export async function symmetricEncryptToEncoding (publicKey: Uint8Array, data: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
+  const e = await symmetricEncrypt(publicKey, decodeFromString(data, 'utf8'))
+  return stringifyEncryptedData(e, encoding)
+}
+
+/**
+ * Symmetric decrypt data from given encoding (hex/base64). Defaults to base64.
+ *
+ * @returns decrypted string
+ */
+export async function symmetricDecryptFromEncoding (privateKey: Uint8Array, hex: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
+  const e = parseEncrypedData(hex, encoding)
+  const res = await symmetricDecrypt(privateKey, e)
   return encodeToString(res, 'utf8')
 }
