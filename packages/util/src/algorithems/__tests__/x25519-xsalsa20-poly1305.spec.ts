@@ -1,18 +1,29 @@
 import * as nacl from 'tweetnacl'
 import { decodeFromString, encodeToString } from '../../util'
 import {
-  asymmetricEncryptToHex,
-  asymmetricDecryptFromHex,
   symmetricEncrypt,
   symmetricDecrypt,
+  asymmetricDecrypt,
+  asymmetricEncrypt,
+  asymmetricEncryptToEncoding,
+  asymmetricDecryptFromEncoding,
+  // getPublicKey,
 } from '../x25519-xsalsa20-poly1305'
 
 describe('asymmetric', () => {
   test('decrypt/encrypt', async () => {
     const { publicKey, secretKey } = nacl.box.keyPair()
     const str = 'hello world'
-    const encrypted = await asymmetricEncryptToHex(publicKey, str)
-    const decrypted = await asymmetricDecryptFromHex(secretKey, encrypted)
+    const encrypted = await asymmetricEncrypt(publicKey, decodeFromString(str, 'utf8'))
+    const decrypted = await asymmetricDecrypt(secretKey, encrypted)
+    expect(encodeToString(decrypted, 'utf8')).toEqual('hello world')
+  })
+
+  test('decrypt/encrypt with encoding', async () => {
+    const { publicKey, secretKey } = nacl.box.keyPair()
+    const str = 'hello world'
+    const encrypted = await asymmetricEncryptToEncoding(publicKey, str)
+    const decrypted = await asymmetricDecryptFromEncoding(secretKey, encrypted)
     expect(decrypted).toEqual('hello world')
   })
 })

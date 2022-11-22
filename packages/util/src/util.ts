@@ -27,7 +27,12 @@ export function encodeToString (data: Uint8Array, encoding: 'hex'|'base64'|'utf8
 }
 
 export function decodeFromString (data: string, encoding: 'hex'|'base64'|'utf8'): Uint8Array {
-  if (encoding === 'hex') return arrayify(data)
+  if (encoding === 'hex') {
+    if (!data.startsWith('0x')) {
+      return arrayify(`0x${data}`)
+    }
+    return arrayify(data)
+  }
   if (encoding === 'utf8') return decodeUTF8(data)
   if (encoding === 'base64') return decodeBase64(data)
   throw new Error('Invalid encoding, must be either hex, utf8 or base64')

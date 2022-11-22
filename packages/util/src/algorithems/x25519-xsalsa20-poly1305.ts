@@ -17,6 +17,15 @@ export function generateKeyPair (): KeyPair {
 }
 
 /**
+ * Generate 65-byte uncompressed public key from private key
+ *
+ * @returns public key
+ */
+export function getPublicKey (privateKey: Uint8Array): Uint8Array {
+  return nacl.box.keyPair.fromSecretKey(privateKey).publicKey
+}
+
+/**
  * Asymmetric encrypt bytes
  *
  * @returns encrypted data
