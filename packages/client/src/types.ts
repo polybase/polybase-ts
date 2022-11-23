@@ -53,8 +53,9 @@ export interface SenderResponse {
 export type Signer = (data: string, req: Request) => Promise<SignerResponse|null>|SignerResponse|null
 
 export interface SignerResponse {
-  sig: string
   h: 'eth-personal-sign'
+  sig: string
+  pk?: string
 }
 
 export type CallArg = (string | number | CollectionRecord<any>)
