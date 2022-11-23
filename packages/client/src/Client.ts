@@ -84,12 +84,16 @@ export class ClientRequest {
     const t = Math.round(Date.now() * 1000)
     const sig = await this.signer(`${t}.${this.req.data ? JSON.stringify(this.req.data) : ''}`, this.req)
     if (!sig) return null
-    return [
+    const h = [
       'v=0',
       `t=${t}`,
       `h=${sig.h}`,
       `sig=${sig.sig}`,
-    ].join(',')
+    ]
+    if (sig.pk) {
+      h.push(`pk=${sig.pk}`)
+    }
+    return h.join(',')
   }
 }
 
