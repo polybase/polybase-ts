@@ -1,6 +1,7 @@
-import Wallet from 'ethereumjs-wallet'
+import { encodeToString, secp256k1, stripPublicKeyPrefix } from '@polybase/util'
 import { ethPersonalSign } from '@polybase/eth'
 import { Polybase, Collection } from '../src'
+import { getPublicKey } from '@polybase/util/dist/algorithems/secp256k1'
 
 jest.setTimeout(10000)
 
@@ -355,13 +356,14 @@ test('list data with cursor', async () => {
 
 test('signing', async () => {
   const namespace = `${prefix}-signing`
-  const wallet = Wallet.generate()
-  const pk = `0x${wallet.getPublicKey().toString('hex')}`
+  const pv = await secp256k1.generatePrivateKey()
+  // console.log(getPublicKey(pv))
+  const pk = encodeToString(stripPublicKeyPrefix(getPublicKey(pv)), 'hex')
 
   s = new Polybase({
     baseURL: API_URL,
     signer: async (d: string) => {
-      const sig = ethPersonalSign(wallet.getPrivateKey(), d)
+      const sig = ethPersonalSign(pv, d)
       return {
         sig,
         h: 'eth-personal-sign',
