@@ -77,7 +77,7 @@ export class Collection<T> {
       data: {
         args,
       },
-    }).send()
+    }).send(true)
 
     return res.data
   }
@@ -86,7 +86,7 @@ export class Collection<T> {
     const res = await this.client.request({
       url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'GET',
-    }).send()
+    }).send(false)
 
     return res.data
   }

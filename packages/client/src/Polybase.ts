@@ -64,6 +64,7 @@ export class Polybase {
     return this.collection<T>(data.id)
   }
 
+  /* Applies the given schema to the database, creating new collections and adding existing collections  */
   applySchema = async (schema: string, namespace?: string): Promise<Collection<any>[]> => {
     const collections = []
     const ast = await parse(schema)

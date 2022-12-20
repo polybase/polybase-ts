@@ -48,10 +48,11 @@ export class ClientRequest {
     this.aborter.abort()
   }
 
-  send = async (): Promise<SenderResponse> => {
+  /* Sending a request to the server. */
+  send = async (withAuth?: boolean): Promise<SenderResponse> => {
     try {
       const req = this.req as AxiosRequestConfig
-      if (this.signer) {
+      if (this.signer && withAuth) {
         const sig = await await this.getSignature()
         if (sig) {
           if (!req.headers) req.headers = {}
