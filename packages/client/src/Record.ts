@@ -37,13 +37,13 @@ export class CollectionRecord<T> {
           return arg
         }),
       },
-    }).send()
+    }).send(true)
 
     return res.data
   }
 
   get = async (): Promise<CollectionRecordResponse<T>> => {
-    const res = await this.client.request(this.request()).send()
+    const res = await this.client.request(this.request()).send(false)
     return res.data
   }
 

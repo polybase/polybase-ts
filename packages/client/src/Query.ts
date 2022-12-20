@@ -68,7 +68,7 @@ export class Query<T> {
   }
 
   get = async (): Promise<CollectionList<T>> => {
-    const res = await this.client.request(this.request()).send()
+    const res = await this.client.request(this.request()).send(false)
     return {
       data: res.data?.data,
       cursor: res.data?.cursor,
