@@ -58,15 +58,17 @@ export interface SignerResponse {
   pk?: string
 }
 
-export type CallArg =
+interface Map {
+  [k: string | number]: FieldTypes
+}
+
+type FieldTypes =
   string
   | number
   | string[]
   | number[]
-  | Record<string, string>
-  | Record<string, number>
-  | Record<number, string>
-  | Record<number, number>
-  | CollectionRecord<any>
+  | Map
+
+export type CallArg = FieldTypes | CollectionRecord<any>
 
 export type CallArgs = CallArg[]
