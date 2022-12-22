@@ -58,5 +58,15 @@ export interface SignerResponse {
   pk?: string
 }
 
-export type CallArg = (string | number | CollectionRecord<any>)
+export type CallArg =
+  string
+  | number
+  | string[]
+  | number[]
+  | Record<string, string>
+  | Record<string, number>
+  | Record<number, string>
+  | Record<number, number>
+  | CollectionRecord<any>
+
 export type CallArgs = CallArg[]
