@@ -13,14 +13,18 @@ const createCollection = async (s: Polybase, namespace: string, extraFields?: st
     collection Col {
       id: string;
       name: string;
+      aliases: string[];
+      balances: map<string, number>;
       publicKey: string;
       ${extraFields ?? ''}
 
       @index(name);
 
-      function constructor (id: string, name: string) {
+      function constructor (id: string, name: string, aliases: string[], balances: map<string, number>) {
         this.id = id;
         this.name = name;
+        this.aliases = aliases;
+        this.balances = balances;
         this.publicKey = ctx.publicKey;
       }
 
@@ -65,13 +69,15 @@ test('create data on collection', async () => {
   const namespace = `${prefix}-create-data`
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum'])
+  await c.create(['id1', 'Calum', ['Cal'], { ETH: 1 }])
   const res = await c.record('id1').get()
 
   expect(res).toEqual({
     data: {
       id: 'id1',
       name: 'Calum',
+      aliases: ['Cal'],
+      balances: { ETH: 1 },
       publicKey: '',
     },
     block: {
@@ -84,7 +90,7 @@ test('call setName on collection', async () => {
   const namespace = `${prefix}-update-data`
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum'])
+  await c.create(['id1', 'Calum', [], {}])
   await c.record('id1').call('setName', ['Calum2'])
   const res = await c.record('id1').get()
 
@@ -92,6 +98,8 @@ test('call setName on collection', async () => {
     data: {
       id: 'id1',
       name: 'Calum2',
+      aliases: [],
+      balances: {},
       publicKey: '',
     },
     block: {
@@ -104,8 +112,8 @@ test('list data from collection', async () => {
   const namespace = `${prefix}-list-data`
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum'])
-  await c.create(['id2', 'Sally'])
+  await c.create(['id1', 'Calum', [], {}])
+  await c.create(['id2', 'Sally', [], {}])
 
   const res = await c.get()
 
@@ -118,6 +126,8 @@ test('list data from collection', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -127,6 +137,8 @@ test('list data from collection', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -140,9 +152,9 @@ test('list data with == where clause', async () => {
   const namespace = `${prefix}-list-where-eq-data`
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum'])
-  await c.create(['id2', 'Sally'])
-  await c.create(['id3', 'Sally'])
+  await c.create(['id1', 'Calum', [], {}])
+  await c.create(['id2', 'Sally', [], {}])
+  await c.create(['id3', 'Sally', [], {}])
 
   const res = await c.where('name', '==', 'Sally').get()
 
@@ -155,6 +167,8 @@ test('list data with == where clause', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -164,6 +178,8 @@ test('list data with == where clause', async () => {
       data: {
         id: 'id3',
         name: 'Sally',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -177,9 +193,9 @@ test('list data with > where clause', async () => {
   const namespace = `${prefix}-list-where-gt-data`
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum'])
-  await c.create(['id2', 'Sally'])
-  await c.create(['id3', 'Sally'])
+  await c.create(['id1', 'Calum', [], {}])
+  await c.create(['id2', 'Sally', [], {}])
+  await c.create(['id3', 'Sally', [], {}])
 
   const res = await c.where('name', '>', 'John').get()
 
@@ -192,6 +208,8 @@ test('list data with > where clause', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -201,6 +219,8 @@ test('list data with > where clause', async () => {
       data: {
         id: 'id3',
         name: 'Sally',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -214,9 +234,9 @@ test('list data with sort clause', async () => {
   const namespace = `${prefix}-list-sorts-data`
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum'])
-  await c.create(['id2', 'Sally'])
-  await c.create(['id3', 'John'])
+  await c.create(['id1', 'Calum', [], {}])
+  await c.create(['id2', 'Sally', [], {}])
+  await c.create(['id3', 'John', [], {}])
 
   const res = await c.sort('name').get()
 
@@ -229,6 +249,8 @@ test('list data with sort clause', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -238,6 +260,8 @@ test('list data with sort clause', async () => {
       data: {
         id: 'id3',
         name: 'John',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -247,6 +271,8 @@ test('list data with sort clause', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -260,7 +286,7 @@ test('list data with snapshot', async () => {
   const namespace = `${prefix}-list-with-snapshot`
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum'])
+  await c.create(['id1', 'Calum', [], {}])
 
   const spy = jest.fn()
   const q = c.where('name', '==', 'Calum')
@@ -279,6 +305,8 @@ test('list data with snapshot', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -287,7 +315,7 @@ test('list data with snapshot', async () => {
     }],
   })
 
-  await c.create(['id4', 'Calum'])
+  await c.create(['id4', 'Calum', [], {}])
 
   unsub()
 })
@@ -296,8 +324,8 @@ test('list data with cursor', async () => {
   const namespace = `${prefix}-list-with-cursor`
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum'])
-  await c.create(['id2', 'Sally'])
+  await c.create(['id1', 'Calum', [], {}])
+  await c.create(['id2', 'Sally', [], {}])
 
   const first = await c.limit(1).get()
   expect(first).toEqual({
@@ -309,6 +337,8 @@ test('list data with cursor', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -327,6 +357,8 @@ test('list data with cursor', async () => {
       data: {
         id: 'id2',
         name: 'Sally',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -345,6 +377,8 @@ test('list data with cursor', async () => {
       data: {
         id: 'id1',
         name: 'Calum',
+        aliases: [],
+        balances: {},
         publicKey: '',
       },
       block: {
@@ -376,7 +410,7 @@ test('signing', async () => {
   const col = await s.collection('Collection').record(`${namespace}/Col`).get()
   expect(col.data.publicKey).toEqual(expect.stringContaining('0x'))
 
-  await c.create(['id1', 'Calum2'])
+  await c.create(['id1', 'Calum2', [], {}])
 
   const res = await c.record('id1').call('setName', ['Calum4'])
 
@@ -384,6 +418,8 @@ test('signing', async () => {
     publicKey: pk,
     id: 'id1',
     name: 'Calum4',
+    aliases: [],
+    balances: {},
   })
 
   const res2 = await c.record('id1').get()
@@ -391,6 +427,8 @@ test('signing', async () => {
     publicKey: pk,
     id: 'id1',
     name: 'Calum4',
+    aliases: [],
+    balances: {},
   })
 
   await c.record('id1').call('setNameWithAuth', ['Calum5'])
@@ -400,6 +438,8 @@ test('signing', async () => {
     publicKey: pk,
     id: 'id1',
     name: 'Calum5',
+    aliases: [],
+    balances: {},
   })
 })
 
@@ -408,7 +448,7 @@ test('delete', async () => {
 
   const c = await createCollection(s, namespace)
 
-  await c.create(['id1', 'Calum2'])
+  await c.create(['id1', 'Calum2', [], {}])
   await c.record('id1').call('destroy', [])
 
   await expect(c.record('id1').get()).rejects.toThrow()
