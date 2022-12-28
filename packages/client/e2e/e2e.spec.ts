@@ -39,8 +39,18 @@ const createCollection = async (s: Polybase, namespace: string, extraFields?: st
         this.name = name;
       }
 
+      function takeOtherCol(otherCol: OtherCol) {}
+
       function destroy () {
         selfdestruct();
+      }
+    }
+
+    collection OtherCol {
+      id: string;
+
+      function constructor (id: string) {
+        this.id = id;
       }
     }
   `, namespace)
@@ -106,6 +116,20 @@ test('call setName on collection', async () => {
       hash: expect.stringMatching(/^./),
     },
   })
+})
+
+// eslint-disable-next-line jest/expect-expect
+test('call takeOtherCol', async () => {
+  const namespace = `${prefix}-take-other-col`
+  const col = await createCollection(s, namespace)
+
+  const otherCol = s.collection(`${namespace}/OtherCol`)
+
+  await otherCol.create(['id1'])
+
+  await col.create(['id1', 'Calum', [], {}])
+
+  await col.record('id1').call('takeOtherCol', [otherCol.record('id1')])
 })
 
 test('list data from collection', async () => {
