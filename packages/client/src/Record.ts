@@ -31,7 +31,7 @@ export class CollectionRecord<T> {
       data: {
         args: args.map(arg => {
           if (args && typeof arg === 'object' && arg instanceof CollectionRecord) {
-            return { id: arg.id }
+            return { collectionId: arg.collection.id, id: arg.id }
           }
 
           return arg
