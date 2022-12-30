@@ -56,7 +56,10 @@ export class Polybase {
       await this.collection(id).getMeta()
       await col.record(id).call('updateCode', [data.code])
     } catch (e: any) {
-      if (e && typeof e === 'object' && e instanceof PolybaseError && e.reason === 'collection/not-found') {
+      if (e && typeof e === 'object' &&
+            e instanceof PolybaseError &&
+            (e.reason === 'collection/not-found' || e.reason === 'record/not-found')
+      ) {
         await this.collection('Collection').create([id, data.code])
       }
     }
