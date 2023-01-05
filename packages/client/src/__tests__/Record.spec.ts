@@ -119,3 +119,66 @@ test('.call() sends a call request', async () => {
     },
   })
 })
+
+test('.call() works with boolean arguments', async () => {
+  const meta = {
+    code: `
+      collection col {
+        isActive: boolean;
+
+        function setIsActive(isActive: boolean) {
+          this.isActive = isActive;
+        }
+      }
+    `,
+  }
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: {
+        id: 'id1',
+        isActive: true,
+      },
+    },
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: {
+        block: {
+          hash: '0x0',
+        },
+      },
+    },
+  })
+
+  const c = new Collection('col', client)
+  const result = await c.record('id1').call('setIsActive', [true])
+
+  expect(sender).toHaveBeenCalledWith({
+    ...defaultRequest,
+    url: '/collections/col/records/id1/call/setIsActive',
+    method: 'POST',
+    data: {
+      args: [
+        true,
+      ],
+    },
+  })
+
+  expect(result).toEqual({
+    data: {
+      id: 'id1',
+      isActive: true,
+    },
+  })
+})

@@ -65,8 +65,10 @@ interface Map {
 type FieldTypes =
   string
   | number
+  | boolean
   | string[]
   | number[]
+  | boolean[]
   | Map
 
 export type CallArg = FieldTypes | CollectionRecord<any>
