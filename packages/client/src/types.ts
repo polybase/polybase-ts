@@ -65,6 +65,7 @@ interface Map {
 type FieldTypes =
   string
   | number
+  | boolean
   | string[]
   | number[]
   | Map

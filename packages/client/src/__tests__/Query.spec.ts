@@ -29,7 +29,11 @@ test('query is sent to client', async () => {
     },
   })
   const q = new Query('col1', client, register)
-  await q.limit(100).where('name', '==', 'Hannah').get()
+  await q
+    .limit(100)
+    .where('name', '==', 'Hannah')
+    .where('isActive', '==', true)
+    .get()
 
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
@@ -38,7 +42,7 @@ test('query is sent to client', async () => {
     method: 'GET',
     params: {
       limit: 100,
-      where: JSON.stringify({ name: 'Hannah' }),
+      where: JSON.stringify({ name: 'Hannah', isActive: true }),
     },
   })
 })

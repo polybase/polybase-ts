@@ -2,7 +2,7 @@ import { parse } from '@polybase/polylang'
 import { Collection } from './Collection'
 import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
 import { Client } from './Client'
-import { Request, CollectionRecordResponse } from './types'
+import { Request, CollectionRecordResponse, CallArgs } from './types'
 import { validateCallParameters } from './util'
 
 export type CollectionRecordSnapshotRegister<T> = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => (() => void)
@@ -20,7 +20,7 @@ export class CollectionRecord<T> {
     this.onSnapshotRegister = onSnapshotRegister
   }
 
-  call = async (functionName: string, args: (string | number | CollectionRecord<any>)[] = []): Promise<CollectionRecordResponse<T>> => {
+  call = async (functionName: string, args: CallArgs = []): Promise<CollectionRecordResponse<T>> => {
     const meta = await this.collection.getMeta()
     const ast = await parse(meta.code)
     validateCallParameters(this.collection.id, functionName, ast, args)
