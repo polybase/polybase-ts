@@ -17,7 +17,6 @@ export const ERROR_CODES = {
 export type ERROR_REASONS =
   'record/not-found'
   | 'index/missing-index'
-  | 'index/unique-constraint-violation'
   | 'constructor/no-id-assigned'
   | 'function/invalidated-id'
   | 'function/not-found'
