@@ -61,6 +61,8 @@ export class Polybase {
             (e.reason === 'collection/not-found' || e.reason === 'record/not-found')
       ) {
         await this.collection('Collection').create([id, data.code])
+      } else {
+        throw e
       }
     }
 
