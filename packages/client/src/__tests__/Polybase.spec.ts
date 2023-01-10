@@ -197,3 +197,32 @@ test('caches a collection', () => {
 
   expect(c1).toBe(c2)
 })
+
+test('applySchema re-throws a non-not-found error', async () => {
+  const s = new Polybase({ sender, baseURL })
+  const namespace = 'test'
+  const schema = `
+    collection Col {
+      name?: string;
+    }
+  `
+
+  sender.mockRejectedValueOnce(new AxiosError(
+    'bad request',
+    'bad request',
+    {} as AxiosRequestConfig,
+    {},
+    {
+      status: 400,
+      data: {
+        error: {
+          reason: 'collection/invalid-id',
+          code: 'invalid-argument',
+          message: 'Collection@Col invalid id',
+        },
+      },
+    } as AxiosResponse,
+  ))
+
+  await expect(s.applySchema(schema, namespace)).rejects.toThrow('Collection@Col invalid id')
+})
