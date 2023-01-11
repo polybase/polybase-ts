@@ -115,8 +115,8 @@ export class Collection<T> {
     return this.createQuery().limit(limit)
   }
 
-  onSnapshot = (fn: SubscriptionFn<CollectionList<T>>) => {
-    return this.createQuery().onSnapshot(fn)
+  onSnapshot = (fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {
+    return this.createQuery().onSnapshot(fn, errFn)
   }
 
   after = (cursor: string): Query<T> => {
