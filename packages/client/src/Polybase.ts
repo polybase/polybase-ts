@@ -1,6 +1,5 @@
 import { parse } from '@polybase/polylang'
 import axios from 'axios'
-import merge from 'lodash.merge'
 import { Client } from './Client'
 import { Collection } from './Collection'
 import { PolybaseError, createError } from './errors'
@@ -26,7 +25,7 @@ export class Polybase {
   private collections: Record<string, Collection<any>> = {}
 
   constructor (config?: Partial<PolybaseConfig>) {
-    this.config = merge({}, defaultConfig, config)
+    this.config = Object.assign({}, defaultConfig, config)
     const { clientId, baseURL } = this.config
     this.client = new Client(
       this.config.sender,
