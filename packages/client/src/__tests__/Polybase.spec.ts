@@ -226,3 +226,19 @@ test('applySchema re-throws a non-not-found error', async () => {
 
   await expect(s.applySchema(schema, namespace)).rejects.toThrow('Collection@Col invalid id')
 })
+
+test('config merges with default config', () => {
+  const config = {
+    baseURL: 'http://test.test',
+    clientId: 'test',
+    sender,
+  }
+
+  const s = new Polybase(config)
+
+  expect(s).toHaveProperty('config', {
+    baseURL: 'http://test.test',
+    clientId: 'test',
+    sender,
+  })
+})

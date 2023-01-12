@@ -216,3 +216,19 @@ test('data is cached through reset', async () => {
 
   unsub2()
 })
+
+test('subscription options are merged with default options', () => {
+  const options = {
+    timeout: 1,
+    maxErrorTimeout: 1,
+  }
+
+  const c = new Subscription({
+    url: '/collections/col/records/id',
+    method: 'GET',
+    params: {},
+  }, client, options)
+
+  expect(c).toHaveProperty('options.timeout', 1)
+  expect(c).toHaveProperty('options.maxErrorTimeout', 1)
+})
