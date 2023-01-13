@@ -79,10 +79,17 @@ export class Polybase {
       throw createError('collection/invalid-id', { message: 'Namespace is missing' })
     }
 
+    // We already manually prepend the namespace to the collection name,
+    // so we need a client without a default namespace.
+    const polybaseWithoutNamespace = new Polybase({
+      ...this.config,
+      defaultNamespace: undefined,
+    })
+
     for (const node of ast.nodes) {
       if (!node.Collection) continue
 
-      collections.push(this.setCollectionCode({
+      collections.push(polybaseWithoutNamespace.setCollectionCode({
         id: ns + '/' + node.Collection.name,
         code: schema,
       }))
