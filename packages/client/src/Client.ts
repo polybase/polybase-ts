@@ -1,4 +1,4 @@
-import { createError, createErrorFromAxiosError } from './errors'
+import { createError, createErrorFromFetchError } from './errors'
 import { BasicValue, Request, RequestParams, Sender, SenderResponse, Signer } from './types'
 
 export interface ClientConfig {
@@ -85,7 +85,7 @@ export class ClientRequest {
         if (e.message === 'ERR_CANCELED') {
           throw createError('request/cancelled')
         }
-        throw createErrorFromAxiosError(e)
+        throw createErrorFromFetchError(e)
       }
       throw e
     }
