@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { createError, createErrorFromAxiosError, PolybaseError } from './errors'
 import { RequestConfig } from './request'
+=======
+
+import { makeFetchRequest } from './request'
+>>>>>>> b85ade9 (Replace  axios with fetch)
 import { BasicValue, Request, RequestParams, Sender, SenderResponse, Signer } from './types'
 
 export interface ClientConfig {
@@ -49,6 +54,7 @@ export class ClientRequest {
 
   /* Sending a request to the server. */
   send = async (withAuth?: boolean): Promise<SenderResponse> => {
+<<<<<<< HEAD
     try {
       const req = this.req as RequestConfig
       if (this.signer && withAuth) {
@@ -68,7 +74,18 @@ export class ClientRequest {
       } else {
         throw e
       }
+=======
+    const req = this.req
+    if (this.signer && withAuth) {
+      const sig = await this.getSignature()
+      if (sig) {
+        if (!req.headers) req.headers = {}
+        req.headers['X-Polybase-Signature'] = sig
+      }
+>>>>>>> b85ade9 (Replace  axios with fetch)
     }
+    const res = await makeFetchRequest(req, this.config)
+    return res
   }
 
   private getRequest = (req: Request, baseUrl: string, signal:AbortSignal) => {

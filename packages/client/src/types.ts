@@ -47,7 +47,11 @@ export type QueryWhereValue = BasicValue|Record<QueryWhereKey, BasicValue>
 export type QueryWhereKey = '$lt'|'$gt'|'$gte'|'$lte'|'$eq'
 export type QueryWhereOperator = '=='|'>'|'<'|'>='|'<='
 
+<<<<<<< HEAD
 export type Sender = (config: RequestConfig) => Promise<SenderResponse>
+=======
+export type Sender = () => Promise<SenderResponse>
+>>>>>>> b85ade9 (Replace  axios with fetch)
 export interface SenderResponse {
   status: number
   headers: Headers
