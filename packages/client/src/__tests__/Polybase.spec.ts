@@ -378,7 +378,6 @@ test('applySchema re-throws a non-not-found error', async () => {
 test('config merges with default config', () => {
   const config = {
     baseURL: 'http://test.test',
-    clientId: 'test',
     sender,
   }
 
@@ -386,7 +385,7 @@ test('config merges with default config', () => {
 
   expect(s).toHaveProperty('config', {
     baseURL: 'http://test.test',
-    clientId: 'test',
+    clientId: 'polybase@ts/client:v0',
     sender,
   })
 })
