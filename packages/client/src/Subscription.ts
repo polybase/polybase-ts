@@ -59,7 +59,7 @@ export class Subscription<T> {
       this.aborter = req.abort
       const res = await req.send()
 
-      this.since = res.headers['x-polybase-timestamp'] ?? `${Date.now() / 1000}`
+      this.since = res.headers.get('x-polybase-timestamp') ?? `${Date.now() / 1000}`
 
       // TODO: this is not nice, we should handle proccessing resp in
       // parent record or query

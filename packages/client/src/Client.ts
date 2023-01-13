@@ -1,5 +1,3 @@
-
-import { AxiosError, AxiosRequestConfig } from 'axios'
 import { createError, createErrorFromAxiosError } from './errors'
 import { BasicValue, Request, RequestParams, Sender, SenderResponse, Signer } from './types'
 
@@ -62,11 +60,29 @@ export class ClientRequest {
 
       const fetchRequest = this.getRequest(req, this.config?.baseURL ?? '', this.aborter.signal)
 
-      const res = await this.sender(fetchRequest) // START HERE
+      const res = await this.sender(fetchRequest).then(async response => {
+        const isJson = response.headers.get('content-type')?.includes('application/json')
+        const data = isJson ? await response.json() : null
+
+        if (!response.ok) {
+          return Promise.reject(new Error((data && data.message) || response.status))
+        }
+
+        const senderRes: SenderResponse = {
+          status: response.status,
+          headers: response.headers,
+          data,
+        }
+        return senderRes
+      })
+        .catch(e => {
+          console.error('There was an error!', e)
+          throw e
+        }) as SenderResponse
       return res
     } catch (e: unknown) {
-      if (e && typeof e === 'object' && e instanceof AxiosError) {
-        if (e.code === 'ERR_CANCELED') {
+      if (e && typeof e === 'object' && e instanceof Error) { // TODO FIX ERROR HANDLING
+        if (e.message === 'ERR_CANCELED') {
           throw createError('request/cancelled')
         }
         throw createErrorFromAxiosError(e)
