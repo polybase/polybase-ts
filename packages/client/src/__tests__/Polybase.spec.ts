@@ -189,6 +189,154 @@ test('creates collections from schema in namespace', async () => {
   expect(n.map((c) => c.id)).toContainEqual('test/Col2')
 })
 
+test('creates collections from schema in defaultNamespace', async () => {
+  const s = new Polybase({ sender, baseURL, defaultNamespace: 'test' })
+  const schema = `
+    collection Col {
+      id: string;
+      name?: string;
+    }
+
+    collection Col2 {
+      id: string;
+    }
+  `
+
+  sender.mockRejectedValueOnce(new AxiosError(
+    'bad request',
+    'bad request',
+    {} as AxiosRequestConfig,
+    {},
+    {
+      status: 400,
+      data: {
+        error: {
+          reason: 'record/not-found',
+          code: 'not-found',
+          message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
+        },
+      },
+    } as AxiosResponse,
+  ))
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {},
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: {
+        id: 'Collection',
+        code: 'collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }',
+      },
+    },
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: {
+        id: 'Collection',
+        code: 'collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }',
+      },
+    },
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: {
+        id: 'Collection',
+        code: 'collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }',
+      },
+    },
+  })
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {},
+  })
+
+  const n = await s.applySchema(schema)
+
+  expect(sender).toHaveBeenCalledTimes(6)
+
+  expect(sender.mock.calls[0][0]).toMatchObject({
+    ...defaultRequest,
+    baseURL,
+    url: '/collections/Collection/records/test%2FCol',
+    method: 'GET',
+    headers: {
+      'X-Polybase-Client': 'polybase@ts/client:v0',
+    },
+  })
+
+  expect(sender.mock.calls[1][0]).toMatchObject({
+    ...defaultRequest,
+    baseURL,
+    url: '/collections/Collection/records/test%2FCol2',
+    method: 'GET',
+    headers: {
+      'X-Polybase-Client': 'polybase@ts/client:v0',
+    },
+  })
+
+  expect(sender.mock.calls[2][0]).toMatchObject({
+    ...defaultRequest,
+    baseURL,
+    url: '/collections/Collection/records/Collection',
+    method: 'GET',
+    headers: {
+      'X-Polybase-Client': 'polybase@ts/client:v0',
+    },
+  })
+
+  expect(sender.mock.calls[3][0]).toMatchObject({
+    ...defaultRequest,
+    baseURL,
+    url: '/collections/Collection/records/Collection',
+    method: 'GET',
+    headers: {
+      'X-Polybase-Client': 'polybase@ts/client:v0',
+    },
+  })
+
+  expect(sender.mock.calls[4][0]).toMatchObject({
+    ...defaultRequest,
+    baseURL,
+    url: '/collections/Collection/records',
+    method: 'POST',
+    data: {
+      args: ['test/Col', schema],
+    },
+    headers: {
+      'X-Polybase-Client': 'polybase@ts/client:v0',
+    },
+  })
+
+  expect(sender.mock.calls[5][0]).toMatchObject({
+    ...defaultRequest,
+    baseURL,
+    url: '/collections/Collection/records/test%2FCol2/call/updateCode',
+    method: 'POST',
+    data: {
+      args: [schema],
+    },
+    headers: {
+      'X-Polybase-Client': 'polybase@ts/client:v0',
+    },
+  })
+
+  for (const item of n) {
+    expect(item).toBeInstanceOf(Collection)
+  }
+
+  expect(n.map((c) => c.id)).toContainEqual('test/Col')
+  expect(n.map((c) => c.id)).toContainEqual('test/Col2')
+})
+
 test('caches a collection', () => {
   const s = new Polybase({ sender, baseURL })
 
