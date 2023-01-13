@@ -50,7 +50,7 @@ export type QueryWhereOperator = '=='|'>'|'<'|'>='|'<='
 export type Sender = (config: RequestConfig) => Promise<SenderResponse>
 export interface SenderResponse {
   status: number
-  headers: Record<string, string>
+  headers: Headers
   data: any
 }
 
