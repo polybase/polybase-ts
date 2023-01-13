@@ -71,6 +71,19 @@ export class ClientRequest {
     }
   }
 
+  private getRequest = (req: Request, baseUrl: string, signal:AbortSignal) => {
+    const r: globalThis.Request = new Request(baseUrl + req.url + new URLSearchParams(JSON.stringify(req.params)), {
+      method: req.method,
+      headers: {
+        'X-Polybase-Client': this.config?.clientId ?? 'Polybase',
+        ...req.headers,
+      },
+      body: req.data ? JSON.stringify(req.data) : undefined,
+      signal,
+    })
+    return r
+  }
+
   private getSignature = async () => {
     if (!this.signer) return ''
     const t = Math.round(Date.now() * 1000)

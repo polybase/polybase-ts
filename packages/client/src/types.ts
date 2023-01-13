@@ -30,6 +30,7 @@ export interface Request {
   method: 'GET'|'POST'|'PUT'|'DELETE'
   params?: RequestParams
   data?: any
+  headers?: Record<string, string>
 }
 
 export interface RequestParams {

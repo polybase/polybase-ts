@@ -1,5 +1,4 @@
 import { parse } from '@polybase/polylang'
-import axios from 'axios'
 import { Client } from './Client'
 import { Collection } from './Collection'
 import { PolybaseError, createError } from './errors'
