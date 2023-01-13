@@ -51,23 +51,18 @@ export class ClientRequest {
   /* Sending a request to the server. */
   send = async (withAuth?: boolean): Promise<SenderResponse> => {
     try {
-      const req = this.req as AxiosRequestConfig
+      const req = this.req
       if (this.signer && withAuth) {
-        const sig = await await this.getSignature()
+        const sig = await this.getSignature()
         if (sig) {
           if (!req.headers) req.headers = {}
           req.headers['X-Polybase-Signature'] = sig
         }
       }
-      const res = await this.sender({
-        ...req,
-        headers: {
-          'X-Polybase-Client': this.config?.clientId ?? 'Polybase',
-          ...req.headers,
-        },
-        baseURL: this.config?.baseURL,
-        signal: this.aborter.signal,
-      })
+
+      const fetchRequest = this.getRequest(req, this.config?.baseURL ?? '', this.aborter.signal)
+
+      const res = await this.sender(fetchRequest) // START HERE
       return res
     } catch (e: unknown) {
       if (e && typeof e === 'object' && e instanceof AxiosError) {
@@ -78,6 +73,19 @@ export class ClientRequest {
       }
       throw e
     }
+  }
+
+  private getRequest = (req: Request, baseUrl: string, signal:AbortSignal) => {
+    const r: globalThis.Request = new Request(baseUrl + req.url + new URLSearchParams(JSON.stringify(req.params)), {
+      method: req.method,
+      headers: {
+        'X-Polybase-Client': this.config?.clientId ?? 'Polybase',
+        ...req.headers,
+      },
+      body: req.data ? JSON.stringify(req.data) : undefined,
+      signal,
+    })
+    return r
   }
 
   private getSignature = async () => {
