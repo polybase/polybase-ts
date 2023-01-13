@@ -46,7 +46,7 @@ export type QueryWhereValue = BasicValue|Record<QueryWhereKey, BasicValue>
 export type QueryWhereKey = '$lt'|'$gt'|'$gte'|'$lte'|'$eq'
 export type QueryWhereOperator = '=='|'>'|'<'|'>='|'<='
 
-export type Sender = (config: globalThis.Request) => Promise<Response>
+export type Sender = () => Promise<SenderResponse>
 export interface SenderResponse {
   status: number
   headers: Headers

@@ -1,4 +1,5 @@
-import { createError, createErrorFromFetchError } from './errors'
+
+import { makeFetchRequest } from './request'
 import { BasicValue, Request, RequestParams, Sender, SenderResponse, Signer } from './types'
 
 export interface ClientConfig {
@@ -48,47 +49,16 @@ export class ClientRequest {
 
   /* Sending a request to the server. */
   send = async (withAuth?: boolean): Promise<SenderResponse> => {
-    try {
-      const req = this.req
-      if (this.signer && withAuth) {
-        const sig = await this.getSignature()
-        if (sig) {
-          if (!req.headers) req.headers = {}
-          req.headers['X-Polybase-Signature'] = sig
-        }
+    const req = this.req
+    if (this.signer && withAuth) {
+      const sig = await this.getSignature()
+      if (sig) {
+        if (!req.headers) req.headers = {}
+        req.headers['X-Polybase-Signature'] = sig
       }
-
-      const fetchRequest = this.getRequest(req, this.config?.baseURL ?? '', this.aborter.signal)
-
-      const res = await this.sender(fetchRequest).then(async response => {
-        const isJson = response.headers.get('content-type')?.includes('application/json')
-        const data = isJson ? await response.json() : null
-
-        if (!response.ok) {
-          return Promise.reject(new Error((data && data.message) || response.status))
-        }
-
-        const senderRes: SenderResponse = {
-          status: response.status,
-          headers: response.headers,
-          data,
-        }
-        return senderRes
-      })
-        .catch(e => {
-          console.error('There was an error!', e)
-          throw e
-        }) as SenderResponse
-      return res
-    } catch (e: unknown) {
-      if (e && typeof e === 'object' && e instanceof Error) { // TODO FIX ERROR HANDLING
-        if (e.message === 'ERR_CANCELED') {
-          throw createError('request/cancelled')
-        }
-        throw createErrorFromFetchError(e)
-      }
-      throw e
     }
+    const res = await makeFetchRequest(req, this.config)
+    return res
   }
 
   private getRequest = (req: Request, baseUrl: string, signal:AbortSignal) => {
