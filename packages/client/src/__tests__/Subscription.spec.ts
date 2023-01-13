@@ -219,7 +219,6 @@ test('data is cached through reset', async () => {
 
 test('subscription options are merged with default options', () => {
   const options = {
-    timeout: 1,
     maxErrorTimeout: 1,
   }
 
@@ -229,6 +228,6 @@ test('subscription options are merged with default options', () => {
     params: {},
   }, client, options)
 
-  expect(c).toHaveProperty('options.timeout', 1)
+  expect(c).toHaveProperty('options.timeout', 100)
   expect(c).toHaveProperty('options.maxErrorTimeout', 1)
 })
