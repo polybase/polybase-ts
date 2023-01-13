@@ -1,5 +1,4 @@
 import { AxiosError } from 'axios'
-import merge from 'lodash.merge'
 import { Client } from './Client'
 import { wrapError, PolybaseError } from './errors'
 import { Request } from './types'
@@ -41,7 +40,7 @@ export class Subscription<T> {
     this.req = req
     this.client = client
     this._listeners = []
-    this.options = merge({}, defaultOptions, options)
+    this.options = Object.assign({}, defaultOptions, options)
   }
 
   tick = async (id?: number) => {
