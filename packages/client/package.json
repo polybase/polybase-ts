@@ -33,7 +33,6 @@
   "devDependencies": {
     "@sinonjs/fake-timers": "^10.0.2",
     "@types/jest": "^29.2.4",
-    "@types/lodash.merge": "^4.6.7",
     "@types/sinonjs__fake-timers": "^8.1.2",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
     "@typescript-eslint/parser": "^5.47.0",
@@ -55,7 +54,6 @@
   "dependencies": {
     "@polybase/eth": "^0.3.13",
     "@polybase/polylang": "0.4.4",
-    "axios": "0.27.2",
-    "lodash.merge": "^4.6.2"
+    "axios": "0.27.2"
   }
 }
