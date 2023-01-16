@@ -1,6 +1,7 @@
 
 import { AxiosError, AxiosRequestConfig } from 'axios'
-import { createError, createErrorFromAxiosError } from './errors'
+import { createError, createErrorFromAxiosError, PolybaseError } from './errors'
+import { RequestConfig } from './request'
 import { BasicValue, Request, RequestParams, Sender, SenderResponse, Signer } from './types'
 
 export interface ClientConfig {
@@ -51,32 +52,25 @@ export class ClientRequest {
   /* Sending a request to the server. */
   send = async (withAuth?: boolean): Promise<SenderResponse> => {
     try {
-      const req = this.req as AxiosRequestConfig
+      const req = this.req as RequestConfig
       if (this.signer && withAuth) {
-        const sig = await await this.getSignature()
+        const sig = await this.getSignature()
         if (sig) {
           if (!req.headers) req.headers = {}
           req.headers['X-Polybase-Signature'] = sig
         }
       }
-      const res = await this.sender({
-        ...req,
-        headers: {
-          'X-Polybase-Client': this.config?.clientId ?? 'Polybase',
-          ...req.headers,
-        },
-        baseURL: this.config?.baseURL,
-        signal: this.aborter.signal,
-      })
+      req.baseUrl = this.config?.baseURL
+      req.clientId = this.config?.clientId ?? 'Polybase'
+      const res = await this.sender(req)
       return res
     } catch (e: unknown) {
-      if (e && typeof e === 'object' && e instanceof AxiosError) {
-        if (e.code === 'ERR_CANCELED') {
+      if (e instanceof Error) {
+        if (e.message === 'ERR_CANCELED') {
           throw createError('request/cancelled')
         }
-        throw createErrorFromAxiosError(e)
       }
-      throw e
+      throw (e)
     }
   }
 

@@ -37,7 +37,8 @@ test('query is sent to client', async () => {
 
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
-    ...defaultRequest,
+    baseUrl: undefined,
+    clientId: 'Polybase',
     url: '/collections/col1/records',
     method: 'GET',
     params: {

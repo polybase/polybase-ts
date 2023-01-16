@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Client } from './Client'
 import { Collection } from './Collection'
 import { PolybaseError, createError } from './errors'
+import { fetchSender } from './request'
 import { CollectionMeta, Sender, Signer } from './types'
 
 export interface PolybaseConfig {
@@ -16,7 +17,7 @@ export interface PolybaseConfig {
 const defaultConfig = {
   baseURL: 'https://testnet.polybase.xyz/v0',
   clientId: 'polybase@ts/client:v0',
-  sender: axios,
+  sender: fetchSender,
 }
 
 export class Polybase {
