@@ -168,7 +168,9 @@ test('.create() sends a create request', async () => {
   const result = await c.create(['id1', 20])
 
   expect(sender).toHaveBeenCalledWith({
-    ...defaultRequest,
+    baseUrl: undefined,
+    clientId: 'Polybase',
+    params: {},
     url: '/collections/col/records',
     method: 'POST',
     data: {

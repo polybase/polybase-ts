@@ -36,7 +36,9 @@ test('get request is sent to client', async () => {
 
   expect(sender).toHaveBeenCalledTimes(1)
   expect(sender).toHaveBeenCalledWith({
-    ...defaultRequest,
+    baseUrl: undefined,
+    clientId: 'Polybase',
+    params: {},
     url: '/collections/col1/records/id1',
     method: 'GET',
   })
@@ -102,7 +104,9 @@ test('.call() sends a call request', async () => {
   const result = await c.record('id1').call('setAge', [20])
 
   expect(sender).toHaveBeenCalledWith({
-    ...defaultRequest,
+    baseUrl: undefined,
+    clientId: 'Polybase',
+    params: {},
     url: '/collections/col/records/id1/call/setAge',
     method: 'POST',
     data: {
@@ -165,7 +169,9 @@ test('.call() works with boolean arguments', async () => {
   const result = await c.record('id1').call('setIsActive', [true])
 
   expect(sender).toHaveBeenCalledWith({
-    ...defaultRequest,
+    baseUrl: undefined,
+    clientId: 'Polybase',
+    params: {},
     url: '/collections/col/records/id1/call/setIsActive',
     method: 'POST',
     data: {

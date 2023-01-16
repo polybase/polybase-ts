@@ -54,22 +54,35 @@ test('creates collections from schema in namespace', async () => {
     }
   `
 
-  sender.mockRejectedValueOnce(new AxiosError(
-    'bad request',
-    'bad request',
-    {} as AxiosRequestConfig,
-    {},
+  // sender.mockRejectedValueOnce(new AxiosError(
+  //   'bad request',
+  //   'bad request',
+  //   {} as AxiosRequestConfig,
+  //   {},
+  //   {
+  //     status: 400,
+  //     data: {
+  //       error: {
+  //         reason: 'record/not-found',
+  //         code: 'not-found',
+  //         message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
+  //       },
+  //     },
+  //   } as AxiosResponse,
+  // ))
+
+  sender.mockRejectedValueOnce(
     {
-      status: 400,
-      data: {
+      body: {
         error: {
           reason: 'record/not-found',
           code: 'not-found',
           message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
         },
       },
-    } as AxiosResponse,
-  ))
+      status: 400,
+    },
+  )
 
   sender.mockResolvedValueOnce({
     status: 200,
@@ -355,22 +368,35 @@ test('applySchema re-throws a non-not-found error', async () => {
     }
   `
 
-  sender.mockRejectedValueOnce(new AxiosError(
-    'bad request',
-    'bad request',
-    {} as AxiosRequestConfig,
-    {},
-    {
-      status: 400,
-      data: {
-        error: {
-          reason: 'collection/invalid-id',
-          code: 'invalid-argument',
-          message: 'Collection@Col invalid id',
-        },
+  // sender.mockRejectedValueOnce(new AxiosError(
+  //   'bad request',
+  //   'bad request',
+  //   {} as AxiosRequestConfig,
+  //   {},
+  //   {
+  //     status: 400,
+  //     data: {
+  //       error: {
+  //         reason: 'collection/invalid-id',
+  //         code: 'invalid-argument',
+  //         message: 'Collection@Col invalid id',
+  //       },
+  //     },
+  //   } as AxiosResponse,
+  // ))
+
+  // send a fake fetch response
+  sender.mockRejectedValueOnce({
+    status: 400,
+    body: {
+      error: {
+        reason: 'collection/invalid-id',
+        code: 'invalid-argument',
+        message: 'Collection@Col invalid id',
       },
-    } as AxiosResponse,
-  ))
+    },
+  },
+  )
 
   await expect(s.applySchema(schema, namespace)).rejects.toThrow('Collection@Col invalid id')
 })

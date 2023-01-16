@@ -1,5 +1,3 @@
-
-import { AxiosError, AxiosRequestConfig } from 'axios'
 import { createError, createErrorFromAxiosError, PolybaseError } from './errors'
 import { RequestConfig } from './request'
 import { BasicValue, Request, RequestParams, Sender, SenderResponse, Signer } from './types'
@@ -64,7 +62,8 @@ export class ClientRequest {
       req.clientId = this.config?.clientId ?? 'Polybase'
       const res = await this.sender(req)
       return res
-    } catch (e: unknown) {
+    } catch (e: any) {
+      console.log(e)
       if (e instanceof Error) {
         if (e.message === 'ERR_CANCELED') {
           throw createError('request/cancelled')

@@ -1,4 +1,4 @@
-import { PolybaseError } from './errors'
+import { createError, PolybaseError } from './errors'
 import { Request, SenderResponse } from './types'
 
 export interface RequestConfig extends Request {
@@ -22,7 +22,7 @@ export async function fetchSender (config: RequestConfig): Promise<SenderRespons
   })
   if (res.status >= 400) {
     const body = await res.json()
-    throw new PolybaseError(body.reason, body.message)
+    createError(body.error.reason)
   }
   const body = await res.json()
   return {
