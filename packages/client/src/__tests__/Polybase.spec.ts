@@ -1,7 +1,7 @@
 import { Polybase } from '../Polybase'
 import { Collection } from '../Collection'
 import { defaultRequest } from './util'
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { PolybaseError } from '../errors'
 
 // const clock = FakeTimers.install()
 const baseURL = 'https://base.com/'
@@ -54,35 +54,11 @@ test('creates collections from schema in namespace', async () => {
     }
   `
 
-  // sender.mockRejectedValueOnce(new AxiosError(
-  //   'bad request',
-  //   'bad request',
-  //   {} as AxiosRequestConfig,
-  //   {},
-  //   {
-  //     status: 400,
-  //     data: {
-  //       error: {
-  //         reason: 'record/not-found',
-  //         code: 'not-found',
-  //         message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
-  //       },
-  //     },
-  //   } as AxiosResponse,
-  // ))
-
-  sender.mockRejectedValueOnce(
-    {
-      body: {
-        error: {
-          reason: 'record/not-found',
-          code: 'not-found',
-          message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
-        },
-      },
-      status: 400,
-    },
-  )
+  sender.mockRejectedValueOnce(new PolybaseError('record/not-found', {
+    message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
+    code: 'not-found',
+    statusCode: 400,
+  }))
 
   sender.mockResolvedValueOnce({
     status: 200,
@@ -129,68 +105,50 @@ test('creates collections from schema in namespace', async () => {
   expect(sender).toHaveBeenCalledTimes(6)
 
   expect(sender.mock.calls[0][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/test%2FCol',
     method: 'GET',
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[1][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/test%2FCol2',
     method: 'GET',
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[2][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/Collection',
     method: 'GET',
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[3][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/Collection',
     method: 'GET',
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[4][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records',
     method: 'POST',
     data: {
       args: ['test/Col', schema],
     },
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[5][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/test%2FCol2/call/updateCode',
     method: 'POST',
     data: {
       args: [schema],
-    },
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
     },
   })
 
@@ -215,35 +173,11 @@ test('creates collections from schema in defaultNamespace', async () => {
     }
   `
 
-  // sender.mockRejectedValueOnce(new AxiosError(
-  //   'bad request',
-  //   'bad request',
-  //   {} as AxiosRequestConfig,
-  //   {},
-  //   {
-  //     status: 400,
-  //     data: {
-  //       error: {
-  //         reason: 'record/not-found',
-  //         code: 'not-found',
-  //         message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
-  //       },
-  //     },
-  //   } as AxiosResponse,
-  // ))
-
-  // send a fake fetch response
-  sender.mockRejectedValueOnce({
-    status: 400,
-    body: {
-      error: {
-        reason: 'record/not-found',
-        code: 'not-found',
-        message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
-      },
-    },
-  },
-  )
+  sender.mockRejectedValueOnce(new PolybaseError('record/not-found', {
+    message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
+    code: 'not-found',
+    statusCode: 400,
+  }))
 
   sender.mockResolvedValueOnce({
     status: 200,
@@ -290,68 +224,50 @@ test('creates collections from schema in defaultNamespace', async () => {
   expect(sender).toHaveBeenCalledTimes(6)
 
   expect(sender.mock.calls[0][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/test%2FCol',
     method: 'GET',
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[1][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/test%2FCol2',
     method: 'GET',
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[2][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/Collection',
     method: 'GET',
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[3][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/Collection',
     method: 'GET',
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[4][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records',
     method: 'POST',
     data: {
       args: ['test/Col', schema],
     },
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
-    },
   })
 
   expect(sender.mock.calls[5][0]).toMatchObject({
-    ...defaultRequest,
-    baseURL,
+    baseUrl: baseURL,
+    clientId: 'polybase@ts/client:v0',
     url: '/collections/Collection/records/test%2FCol2/call/updateCode',
     method: 'POST',
     data: {
       args: [schema],
-    },
-    headers: {
-      'X-Polybase-Client': 'polybase@ts/client:v0',
     },
   })
 
