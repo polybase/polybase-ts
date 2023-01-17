@@ -1,4 +1,4 @@
-import { createError, createErrorFromAxiosError, PolybaseError } from './errors'
+import { PolybaseError } from './errors'
 import { RequestConfig } from './request'
 import { BasicValue, Request, RequestParams, Sender, SenderResponse, Signer } from './types'
 
