@@ -1,4 +1,3 @@
-import { createError, PolybaseError } from './errors'
 import { Request, SenderResponse } from './types'
 
 export interface RequestConfig extends Request {
@@ -18,7 +17,7 @@ export async function fetchSender (config: RequestConfig): Promise<SenderRespons
       'X-Polybase-Client-ID': clientId ?? 'Polybase',
       ...headers,
     },
-    body: data,
+    body: JSON.stringify(data),
   })
   const body = await res.json()
   const resHeaders = Object.fromEntries(res.headers.entries())
