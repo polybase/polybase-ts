@@ -30,6 +30,7 @@ export interface Request {
   method: 'GET'|'POST'|'PUT'|'DELETE'
   params?: RequestParams
   data?: any
+  headers?: Record<string, string>
 }
 
 export interface RequestParams {
@@ -49,7 +50,7 @@ export type QueryWhereOperator = '=='|'>'|'<'|'>='|'<='
 export type Sender = (config: RequestConfig) => Promise<SenderResponse>
 export interface SenderResponse {
   status: number
-  headers: Record<string, string>
+  headers: Headers
   data: any
 }
 

@@ -18,12 +18,10 @@ export interface ErrorResponseData {
   }
 }
 
-export function createErrorFromAxiosError (err: AxiosError) {
-  const data = err.response?.data as ErrorResponseData|undefined
-  const e = createError((data?.error?.reason ?? 'unknown/error') as ERROR_REASONS, {
-    message: data?.error?.message,
-    code: data?.error?.code as keyof typeof ERROR_CODES,
-    statusCode: err.response?.status,
+export function createErrorFromFetchError (err: globalThis.Error) {
+  const e = createError((err.message ?? 'unknown/error') as ERROR_REASONS, {
+    message: err.message,
+    code: err.message as keyof typeof ERROR_CODES,
     originalError: err,
   })
   return e

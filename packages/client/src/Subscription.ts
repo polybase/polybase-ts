@@ -59,7 +59,7 @@ export class Subscription<T> {
       this.aborter = req.abort
       const res = await req.send()
 
-      this.since = res.headers['x-polybase-timestamp'] ?? `${Date.now() / 1000}`
+      this.since = res.headers.get('x-polybase-timestamp') ?? `${Date.now() / 1000}`
 
       // TODO: this is not nice, we should handle proccessing resp in
       // parent record or query
@@ -76,9 +76,9 @@ export class Subscription<T> {
       // Don't error for 304
       if (statusCode !== 304) {
         // TODO: we should create a client abort error
-        if (err && typeof err === 'object' && err instanceof AxiosError) {
+        if (err && typeof err === 'object' && err instanceof Error) {
           // We cancelled the request
-          if (err.code === 'ERR_CANCELED') {
+          if (err.message === 'ERR_CANCELED') {
             return
           }
         }
