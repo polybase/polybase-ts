@@ -20,10 +20,10 @@ export async function fetchSender (config: RequestConfig): Promise<SenderRespons
     },
     body: data,
   })
-  if (res.status >= 400) {
-    const body = await res.json()
-    createError(body.error.reason)
-  }
+  //   if (res.status >= 400) {
+  //     const body = await res.json()
+  //     createError(body.error.reason, body.error.message)
+  //   }
   const body = await res.json()
   return {
     status: res.status,

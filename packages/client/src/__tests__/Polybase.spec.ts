@@ -215,22 +215,35 @@ test('creates collections from schema in defaultNamespace', async () => {
     }
   `
 
-  sender.mockRejectedValueOnce(new AxiosError(
-    'bad request',
-    'bad request',
-    {} as AxiosRequestConfig,
-    {},
-    {
-      status: 400,
-      data: {
-        error: {
-          reason: 'record/not-found',
-          code: 'not-found',
-          message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
-        },
+  // sender.mockRejectedValueOnce(new AxiosError(
+  //   'bad request',
+  //   'bad request',
+  //   {} as AxiosRequestConfig,
+  //   {},
+  //   {
+  //     status: 400,
+  //     data: {
+  //       error: {
+  //         reason: 'record/not-found',
+  //         code: 'not-found',
+  //         message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
+  //       },
+  //     },
+  //   } as AxiosResponse,
+  // ))
+
+  // send a fake fetch response
+  sender.mockRejectedValueOnce({
+    status: 400,
+    body: {
+      error: {
+        reason: 'record/not-found',
+        code: 'not-found',
+        message: 'Collection@Col not found: collection record not found: key not found: pebble: not found',
       },
-    } as AxiosResponse,
-  ))
+    },
+  },
+  )
 
   sender.mockResolvedValueOnce({
     status: 200,
@@ -367,24 +380,6 @@ test('applySchema re-throws a non-not-found error', async () => {
       name?: string;
     }
   `
-
-  // sender.mockRejectedValueOnce(new AxiosError(
-  //   'bad request',
-  //   'bad request',
-  //   {} as AxiosRequestConfig,
-  //   {},
-  //   {
-  //     status: 400,
-  //     data: {
-  //       error: {
-  //         reason: 'collection/invalid-id',
-  //         code: 'invalid-argument',
-  //         message: 'Collection@Col invalid id',
-  //       },
-  //     },
-  //   } as AxiosResponse,
-  // ))
-
   // send a fake fetch response
   sender.mockRejectedValueOnce({
     status: 400,

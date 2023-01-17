@@ -63,13 +63,11 @@ export class ClientRequest {
       const res = await this.sender(req)
       return res
     } catch (e: any) {
-      console.log(e)
-      if (e instanceof Error) {
-        if (e.message === 'ERR_CANCELED') {
-          throw createError('request/cancelled')
-        }
+      if (e.status >= 400) {
+        throw new PolybaseError(e.body.error.message)
+      } else {
+        throw e
       }
-      throw (e)
     }
   }
 
