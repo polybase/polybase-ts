@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-import { createError, createErrorFromAxiosError, PolybaseError } from './errors'
+import { PolybaseError } from './errors'
 import { RequestConfig } from './request'
 =======
 
