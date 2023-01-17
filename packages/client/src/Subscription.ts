@@ -1,6 +1,6 @@
 import { Client } from './Client'
 import { wrapError, PolybaseError } from './errors'
-import { Request } from './types'
+import { Request, SenderResponse } from './types'
 
 export type SubscriptionFn<T> = ((data: T) => void)
 export type SubscriptionErrorFn = ((err: PolybaseError) => void)
@@ -56,10 +56,9 @@ export class Subscription<T> {
         params,
       })
       this.aborter = req.abort
-      const res = await req.send()
+      const res: SenderResponse = await req.send()
 
-      this.since = res.headers.get('x-polybase-timestamp') ?? `${Date.now() / 1000}`
-
+      this.since = res.headers['x-polybase-timestamp'] ?? `${Date.now() / 1000}`
       // TODO: this is not nice, we should handle proccessing resp in
       // parent record or query
       this.data = res.data
