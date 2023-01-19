@@ -63,11 +63,7 @@ export class ClientRequest {
       const res = await this.sender(req)
       return res
     } catch (e: any) {
-      if (e.status >= 400) {
-        throw new PolybaseError(e.body.error.message)
-      } else {
-        throw e
-      }
+      throw new PolybaseError(e.reason)
     }
   }
 
@@ -93,7 +89,7 @@ export function parseParams (params?: RequestParams): Record<string, BasicValue|
   if (!params) return {}
   return {
     ...params,
-    where: params?.where ? JSON.stringify(params?.where) : undefined,
-    sort: params?.sort ? JSON.stringify(params?.sort) : undefined,
+    where: params?.where ? JSON.stringify(params?.where) : '',
+    sort: params?.sort ? JSON.stringify(params?.sort) : '',
   }
 }
