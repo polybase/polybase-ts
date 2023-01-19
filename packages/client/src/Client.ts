@@ -63,7 +63,8 @@ export class ClientRequest {
       const res = await this.sender(req)
       return res
     } catch (e: any) {
-      throw new PolybaseError(e.reason)
+      if (e.status >= 400) throw new PolybaseError(e.body.error.reason, { message: e.body.error.message, code: e.body.error.code, statusCode: e.status })
+      throw e
     }
   }
 

@@ -2,7 +2,6 @@ import { Collection } from '../Collection'
 import { CollectionRecord } from '../Record'
 import { Query } from '../Query'
 import { Client } from '../Client'
-import { defaultRequest } from './util'
 
 let sender: jest.Mock
 let signer: jest.Mock

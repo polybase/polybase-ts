@@ -43,6 +43,7 @@ test('query is sent to client', async () => {
     method: 'GET',
     params: {
       limit: 100,
+      sort: '',
       where: JSON.stringify({ name: 'Hannah', isActive: true }),
     },
   })

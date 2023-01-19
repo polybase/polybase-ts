@@ -24,14 +24,13 @@ export async function fetchSender (config: RequestConfig): Promise<SenderRespons
       'Content-Type': 'application/json',
       'X-Polybase-Client-ID': clientId ?? 'Polybase',
     },
-    body: JSON.stringify(data),
+    body: data ? JSON.stringify(data) : undefined,
   }
 
   // Make  Request
   const res = await fetch(request, init)
   const body = await res.json()
-
-  if (!res.ok) throw new PolybaseError(body.error.reason as ERROR_REASONS)
+  if (res.status >= 400) throw new PolybaseError(body.error.reason as ERROR_REASONS, { message: body.error.message, code: body.error.code, statusCode: res.status })
   const resHeaders = Object.fromEntries(res.headers.entries())
   const response: SenderResponse = {
     status: res.status,

@@ -76,9 +76,7 @@ test('subscriber does not error on 304', async () => {
   const spyErr = jest.fn()
 
   sender.mockRejectedValue({
-    response: {
-      status: 304,
-    },
+    status: 304,
   })
 
   const c = new Subscription({
