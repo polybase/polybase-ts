@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios'
 import { ERROR_CODES, ERROR_REASONS } from './constants'
 import { PolybaseError, PolybaseErrorExtra } from './PolybaseError'
 

@@ -1,5 +1,3 @@
-
-import { AxiosRequestConfig } from 'axios'
 import { CollectionRecord } from './Record'
 import { RequestConfig } from './request'
 export type BasicValue = string|number|boolean
