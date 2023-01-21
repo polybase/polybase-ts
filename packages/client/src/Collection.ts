@@ -17,8 +17,8 @@ export class Collection<T> {
   private client: Client
 
   // TODO: this will be fetched
-  constructor (id: string, client: Client) {
-    this.id = id
+  constructor (id: string?, client: Client) {
+    this.id = id ?: uuid()
     this.client = client
   }
 
