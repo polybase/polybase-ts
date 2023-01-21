@@ -1,4 +1,3 @@
-import { parse } from '@polybase/polylang'
 import { Collection } from './Collection'
 import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
 import { Client } from './Client'
@@ -22,7 +21,7 @@ export class CollectionRecord<T> {
 
   call = async (functionName: string, args: CallArgs = []): Promise<CollectionRecordResponse<T>> => {
     const meta = await this.collection.getMeta()
-    const ast = await parse(meta.code)
+    const ast = JSON.parse(meta.ast)
     validateCallParameters(this.collection.id, functionName, ast, args)
 
     const res = await this.client.request({
