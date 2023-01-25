@@ -37,6 +37,25 @@ export function getCollectionAST (id: string, ast: any): any {
   return ast.filter((n: any) => n.kind === 'collection').find((n: any) => n.name === name)
 }
 
+export function getCollectionProperties (id: string, ast: any): any {
+  return getCollectionAST(id, ast).attributes.filter((a: any) => a.kind === 'property')
+}
+
 export function getCollectionShortNameFromId (id: string) {
   return id.split('/').pop()
+}
+
+export function encodeBase64 (value: Uint8Array): string {
+  return btoa(String.fromCharCode.apply(null, value as unknown as number[]))
+}
+
+export function decodeBase64 (value: string): Uint8Array {
+  const binaryString = atob(value)
+
+  const bytes = new Uint8Array(binaryString.length)
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+
+  return bytes
 }

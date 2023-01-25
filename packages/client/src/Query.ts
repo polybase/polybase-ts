@@ -1,4 +1,6 @@
 import { Client } from './Client'
+import { Collection } from './Collection'
+import { deserializeRecord } from './Record'
 import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import {
   Request,
@@ -8,6 +10,7 @@ import {
   QueryWhereKey,
   CollectionList,
 } from './types'
+import { getCollectionProperties } from './util'
 
 export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
@@ -69,6 +72,14 @@ export class Query<T> {
 
   get = async (): Promise<CollectionList<T>> => {
     const res = await this.client.request(this.request()).send(false)
+
+    const collection = new Collection(this.id, this.client)
+    const meta = await collection.getMeta()
+    const ast = JSON.parse(meta.ast)
+    for (const record of (res.data?.data ?? [])) {
+      deserializeRecord(record.data, getCollectionProperties(this.id, ast))
+    }
+
     return {
       data: res.data?.data,
       cursor: res.data?.cursor,

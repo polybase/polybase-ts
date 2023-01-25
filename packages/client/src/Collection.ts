@@ -1,10 +1,10 @@
-import { CollectionRecord } from './Record'
+import { CollectionRecord, deserializeRecord } from './Record'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionRecordResponse, CollectionList, QueryWhereOperator, CallArgs } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
-import { validateCallParameters, getCollectionAST } from './util'
+import { validateCallParameters, getCollectionAST, encodeBase64, getCollectionProperties } from './util'
 import { createError, PolybaseError } from './errors'
 
 export class Collection<T> {
@@ -75,9 +75,14 @@ export class Collection<T> {
       url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'POST',
       data: {
-        args,
+        args: args.map(arg => {
+          if (arg instanceof Uint8Array) return encodeBase64(arg)
+          return arg
+        }),
       },
     }).send(true)
+
+    deserializeRecord(res.data.data, getCollectionProperties(this.id, ast))
 
     return res.data
   }
@@ -87,6 +92,12 @@ export class Collection<T> {
       url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'GET',
     }).send(false)
+
+    const meta = await this.getMeta()
+    const ast = JSON.parse(meta.ast)
+    for (const record of res.data.data) {
+      deserializeRecord(record.data, getCollectionProperties(this.id, ast))
+    }
 
     return res.data
   }
