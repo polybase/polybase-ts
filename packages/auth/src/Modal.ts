@@ -1,7 +1,7 @@
 export const POLYBASE_AUTH_CSS_PREFIX = 'polybase-auth-'
 export const POLYBASE_AUTH_MODAL_ID = 'polybase-auth-modal'
 export const POLYBASE_AUTH_MODAL_IFRAME_ID = `${POLYBASE_AUTH_MODAL_ID}-iframe`
-export const POLYBASE_DEFAULT_IFRAME_URL = 'https://auth.polybase.xyz'
+export const POLYBASE_DEFAULT_IFRAME_URL = 'https://auth.testnet.polybase.xyz'
 
 export class Modal {
   id: string
