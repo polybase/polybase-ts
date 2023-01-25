@@ -1,4 +1,4 @@
-import { connectToChild, Connection } from 'penpal'
+import { connectToChild, Connection, AsyncMethodReturns } from 'penpal'
 import { Modal } from './Modal'
 
 export interface AuthState {
@@ -8,25 +8,30 @@ export interface AuthState {
   publicKey?: string|null
 }
 
-export interface AuthActionRequestEthPersonalSign {
+export interface ActionRequestEthPersonalSign {
   type: 'ethPersonalSign',
   data: {
     msg: string
   }
 }
 
-export interface AuthActionRequestSignIn {
+export interface ActionRequestSignIn {
   type: 'signIn',
 }
 
-export type AuthActionRequest = AuthActionRequestEthPersonalSign|AuthActionRequestSignIn
+export type ActionRequest = ActionRequestEthPersonalSign|ActionRequestSignIn
 
 export interface AuthConfig {
   url: string
 }
 
+export interface Register {
+  domain: string
+}
+
 export interface ChildFns {
-  action: (action: AuthActionRequest) => Promise<any>
+  register: (register: Register) => Promise<void>
+  action: (action: ActionRequest) => Promise<any>
 }
 
 export type AuthListener = (state: AuthState|null, auth: Auth) => void
@@ -38,6 +43,7 @@ export class Auth {
   isAuthenticated: boolean
   state: AuthState|null
   loading: boolean
+  promise: Promise<AsyncMethodReturns<ChildFns>>
   authUpdateListeners: AuthListener[] = []
 
   constructor (config?: AuthConfig) {
@@ -69,16 +75,27 @@ export class Auth {
     this.isAuthenticated = false
     this.state = null
     this.loading = true
+    this.promise = this.init()
+  }
+
+  init = async () => {
+    console.log(window.location, window.location.origin)
+    const child = await this.connection.promise
+    await child.register({
+      domain: window.location.origin,
+    })
+    this.loading = false
+    return child
   }
 
   signIn = async () => {
-    return (await this.connection.promise).action({
+    return this.action({
       type: 'signIn',
     })
   }
 
   ethPersonalSign = async (msg: string) => {
-    return (await this.connection.promise).action({
+    return this.action({
       type: 'ethPersonalSign',
       data: {
         msg,
@@ -86,8 +103,9 @@ export class Auth {
     })
   }
 
-  // getPublicKey = async () => {
-  // }
+  action = async (action: ActionRequest) => {
+    return (await this.promise).action(action)
+  }
 
   onAuthUpdate = (listener: AuthListener) => {
     // Add listener
