@@ -79,12 +79,10 @@ export class Auth {
   }
 
   init = async () => {
-    console.log(window.location, window.location.origin)
     const child = await this.connection.promise
     await child.register({
       domain: window.location.origin,
     })
-    this.loading = false
     return child
   }
 
