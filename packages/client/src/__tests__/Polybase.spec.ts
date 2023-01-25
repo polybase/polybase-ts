@@ -2,6 +2,7 @@ import { Polybase } from '../Polybase'
 import { Collection } from '../Collection'
 import { defaultRequest } from './util'
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { parse } from '@polybase/polylang'
 
 // const clock = FakeTimers.install()
 const baseURL = 'https://base.com/'
@@ -82,6 +83,7 @@ test('creates collections from schema in namespace', async () => {
       data: {
         id: 'Collection',
         code: 'collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }',
+        ast: JSON.stringify((await parse('collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }', ''))[1]),
       },
     },
   })
@@ -92,6 +94,7 @@ test('creates collections from schema in namespace', async () => {
       data: {
         id: 'Collection',
         code: 'collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }',
+        ast: JSON.stringify((await parse('collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }', ''))[1]),
       },
     },
   })
@@ -102,6 +105,7 @@ test('creates collections from schema in namespace', async () => {
       data: {
         id: 'Collection',
         code: 'collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }',
+        ast: JSON.stringify((await parse('collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }', ''))[1]),
       },
     },
   })
@@ -230,6 +234,7 @@ test('creates collections from schema in defaultNamespace', async () => {
       data: {
         id: 'Collection',
         code: 'collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }',
+        ast: JSON.stringify((await parse('collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }', ''))[1]),
       },
     },
   })
@@ -240,6 +245,7 @@ test('creates collections from schema in defaultNamespace', async () => {
       data: {
         id: 'Collection',
         code: 'collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }',
+        ast: JSON.stringify((await parse('collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }', ''))[1]),
       },
     },
   })
@@ -250,6 +256,7 @@ test('creates collections from schema in defaultNamespace', async () => {
       data: {
         id: 'Collection',
         code: 'collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }',
+        ast: JSON.stringify((await parse('collection Collection { id: string; name?: string; lastRecordUpdated?: string; code?: string; publicKey?: string; constructor (id: string, code: string) { this.id = id; this.code = code; this.publicKey = ctx.publicKey; } updateCode (code: string) { if (this.publicKey != ctx.publicKey) { throw error(\'invalid owner\'); } this.code = code; } }', ''))[1]),
       },
     },
   })
