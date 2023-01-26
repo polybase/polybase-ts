@@ -55,7 +55,11 @@ export class Auth {
       ...defaultConfig,
       ...(config ?? {}),
     }
+
     this.modal = new Modal(`${Date.now()}`, this.config?.url)
+
+    console.log(window, document, this.modal, document.body)
+
     this.connection = connectToChild({
       // The iframe to which a connection should be made.
       iframe: this.modal.iframe,
