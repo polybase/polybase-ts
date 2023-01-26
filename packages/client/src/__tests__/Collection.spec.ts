@@ -3,6 +3,7 @@ import { CollectionRecord } from '../Record'
 import { Query } from '../Query'
 import { Client } from '../Client'
 import { defaultRequest } from './util'
+import { parse } from '@polybase/polylang'
 
 let sender: jest.Mock
 let signer: jest.Mock
@@ -39,6 +40,9 @@ test('get metadata - success', async () => {
     code: `
       collection col {}
     `,
+    ast: JSON.stringify((await parse(`
+      collection col {}
+    `, ''))[1]),
   }
 
   sender.mockResolvedValue({
@@ -60,6 +64,11 @@ test('validate valid record', async () => {
         name: string;
       }
     `,
+    ast: JSON.stringify((await parse(`
+      collection col {
+        name: string;
+      }
+    `, ''))[1]),
   }
 
   sender.mockResolvedValue({
@@ -81,6 +90,11 @@ test('validate invalid record', async () => {
         age: number;
       }  
     `,
+    ast: JSON.stringify((await parse(`
+      collection col {
+        age: number;
+      }
+    `, ''))[1]),
   }
 
   sender.mockResolvedValue({
@@ -134,6 +148,17 @@ test('.create() sends a create request', async () => {
         }
       }
     `,
+    ast: JSON.stringify((await parse(`
+      collection col {
+        id: string;
+        age?: number;
+
+        function constructor(id: string, age: number) {
+          this.id = id;
+          this.age = age;
+        }
+      }
+    `, ''))[1]),
   }
 
   sender.mockResolvedValueOnce({

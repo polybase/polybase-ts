@@ -20,6 +20,7 @@ export interface CollectionList<T> {
 export interface CollectionMeta {
   id: string
   code: string
+  ast: string
   lastRecordUpdated?: string
   publicKey?: string
 }
