@@ -30,13 +30,16 @@
     }
   </style>
   <script>
+    // const POLYBASE_API = 'https://localhost:8080/v0'
+    // const POLYBASE_AUTH_URL = 'http://localhost:3000'
+    const POLYBASE_API = "https://testnet.polybase.xyz/v0"
+    const POLYBASE_AUTH_URL = "https://auth.testnet.polybase.xyz"
+
     const client = new polybase.Polybase({
-      baseURL: 'http://localhost:8080/v0'
+      baseURL: POLYBASE_API,
     })
 
-    const auth = new polybase_auth.Auth({
-      url: 'http://localhost:3000'
-    })
+    const auth = new polybase_auth.Auth()
 
     auth.onAuthUpdate((auth) => {
       console.log('auth', auth)
