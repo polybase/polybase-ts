@@ -36,6 +36,10 @@ export interface ChildFns {
 
 export type AuthListener = (state: AuthState|null, auth: Auth) => void
 
+export const defaultConfig = {
+  url: 'https://auth.testnet.polybase.xyz',
+}
+
 export class Auth {
   config?: AuthConfig
   modal: Modal
@@ -47,7 +51,10 @@ export class Auth {
   authUpdateListeners: AuthListener[] = []
 
   constructor (config?: AuthConfig) {
-    this.config = config
+    this.config = {
+      ...defaultConfig,
+      ...(config ?? {}),
+    }
     this.modal = new Modal(`${Date.now()}`, this.config?.url)
     this.connection = connectToChild({
       // The iframe to which a connection should be made.
