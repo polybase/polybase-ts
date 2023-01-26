@@ -1,8 +1,13 @@
-import { decodeFromString, encodeToString } from '../../util'
+import {
+  decodeFromString,
+  encodeToString,
+} from '../../util'
 import {
   generateSecretKey,
   symmetricEncrypt,
   symmetricDecrypt,
+  symmetricEncryptToEncoding,
+  symmetricDecryptFromEncoding,
   importKey,
 } from '../aes-cbc'
 
@@ -25,5 +30,21 @@ describe('symmetric', () => {
     const encrypted = await symmetricEncrypt(key, buffer)
     const decrypted = await symmetricDecrypt(key, encrypted)
     expect(encodeToString(decrypted, 'utf8')).toEqual(str)
+  })
+
+  test('decrypt/encrypt from hex encoding', async function () {
+    const key = await generateSecretKey()
+    const str = 'hello world'
+    const encrypted = await symmetricEncryptToEncoding(key, str, 'hex')
+    const decrypted = await symmetricDecryptFromEncoding(key, encrypted, 'hex')
+    expect(decrypted).toEqual(str)
+  })
+
+  test('decrypt/encrypt from hex with buffer', async function () {
+    const key = await generateSecretKey()
+    const str = encodeToString(await generateSecretKey(), 'hex')
+    const encrypted = await symmetricEncryptToEncoding(key, str, 'hex')
+    const decrypted = await symmetricDecryptFromEncoding(key, encrypted, 'hex')
+    expect(decrypted).toEqual(str)
   })
 })
