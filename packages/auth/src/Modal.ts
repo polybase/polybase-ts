@@ -18,9 +18,13 @@ export class Modal {
     }
 
     // Append to document
-    document.addEventListener('DOMContentLoaded', () => {
+    if (['interactive', 'complete'].indexOf(document.readyState) > -1) {
       createModal(this.modal, this.iframe, src)
-    })
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        createModal(this.modal, this.iframe, src)
+      })
+    }
   }
 
   show = (url?: string) => {
