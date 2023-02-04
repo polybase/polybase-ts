@@ -2,6 +2,7 @@ import { CollectionRecord } from '../Record'
 import { Collection } from '../Collection'
 import { Client } from '../Client'
 import { defaultRequest } from './util'
+import { parse } from '@polybase/polylang'
 
 let sender: jest.Mock
 let signer: jest.Mock
@@ -68,6 +69,15 @@ test('.call() sends a call request', async () => {
         }
       }
     `,
+    ast: JSON.stringify((await parse(`
+      collection col {
+        age: number;
+
+        function setAge(age: number) {
+          this.age = age;
+        }
+      }
+    `, ''))[1]),
   }
 
   sender.mockResolvedValueOnce({
@@ -131,6 +141,15 @@ test('.call() works with boolean arguments', async () => {
         }
       }
     `,
+    ast: JSON.stringify((await parse(`
+      collection col {
+        isActive: boolean;
+
+        function setIsActive(isActive: boolean) {
+          this.isActive = isActive;
+        }
+      }
+    `, ''))[1]),
   }
 
   sender.mockResolvedValueOnce({

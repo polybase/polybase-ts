@@ -1762,10 +1762,10 @@
   dependencies:
     esquery "^1.0.1"
 
-"@polybase/polylang@0.4.4":
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.4.4.tgz#d5a02621af9d1716ca63cab358618cde7519c8e1"
-  integrity sha512-FADipju/wlBKdEeS4xcf85fcW0U+9OwehdYVkq7xNIjEz3DClaT0bQqQoVqmUGn1wMxmXqA1wSvsk9/aEuwzAQ==
+"@polybase/polylang@^0.4.5":
+  version "0.4.5"
+  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.4.5.tgz#2191f1bbfb34891bab77ed3be3f69d7d51c4af73"
+  integrity sha512-CRatgyh5GbI/ATNUGp7eU1DEPWz2WTc6wIDrPID/katnT1r8PDdbHZB5hl22FoyBBWaMkzNhvxlheJIAc0Sk3Q==
 
 "@sinclair/typebox@^0.24.1":
   version "0.24.51"
@@ -7047,6 +7047,11 @@ pbkdf2@^3.0.17, pbkdf2@^3.0.3:
     ripemd160 "^2.0.1"
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
+
+penpal@^6.2.2:
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/penpal/-/penpal-6.2.2.tgz#20a0a0592881a959e8c87116d854f9528b1aa601"
+  integrity sha512-RQD7hTx14/LY7QoS3tQYO3/fzVtwvZI+JeS5udgsu7FPaEDjlvfK9HBcme9/ipzSPKnrxSgacI9PI7154W62YQ==
 
 picocolors@^1.0.0:
   version "1.0.0"

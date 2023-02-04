@@ -1,34 +1,40 @@
-import { Program, Collection } from '@polybase/polylang'
 import { CollectionRecord } from './Record'
 import type { CallArgs } from './types'
 
-export function validateCallParameters (collectionId: string, functionName: string, ast: Program, args: CallArgs) {
-  const funcAST = getCollectionAST(collectionId, ast).items.find((f: any) => f?.Function?.name === functionName)?.Function
+export function validateCallParameters (collectionId: string, functionName: string, ast: any, args: CallArgs) {
+  const funcAST = getCollectionAST(collectionId, ast).attributes.find((f: any) => f.kind === 'method' && f.name === functionName)
   if (!funcAST) throw new Error('Function not found')
 
-  for (const param in funcAST.parameters) {
-    const ourArg = args[param as any]
-    const expectedType = funcAST.parameters[param as any].type_
-    switch (expectedType) {
-      case 'String':
-        if (typeof ourArg !== 'string') throw new Error(`Argument ${param} must be a string`)
+  let i = 0
+  for (const attr of funcAST.attributes) {
+    if (attr.kind !== 'parameter') continue
+    const param = i++
+
+    const ourArg = args[param]
+    const expectedType = attr.type
+    switch (expectedType.kind) {
+      case 'primitive':
+        switch (expectedType.value) {
+          case 'string':
+            if (typeof ourArg !== 'string') throw new Error(`Argument ${param} must be a string`)
+            break
+          case 'number':
+            if (typeof ourArg !== 'number') throw new Error(`Argument ${param} must be a number`)
+            break
+          case 'boolean':
+            if (typeof ourArg !== 'boolean') throw new Error(`Argument ${param} must be a boolean`)
+        }
         break
-      case 'Number':
-        if (typeof ourArg !== 'number') throw new Error(`Argument ${param} must be a number`)
-        break
-      case 'Boolean':
-        if (typeof ourArg !== 'boolean') throw new Error(`Argument ${param} must be a boolean`)
-        break
-      case 'Record':
+      case 'record':
         if (!(ourArg && typeof ourArg === 'object' && ourArg instanceof CollectionRecord)) throw new Error(`Argument ${param} must be a record`)
         break
     }
   }
 }
 
-export function getCollectionAST (id: string, ast: Program): Collection {
+export function getCollectionAST (id: string, ast: any): any {
   const name = getCollectionShortNameFromId(id)
-  return ast.nodes.find(c => c.Collection?.name === name)?.Collection
+  return ast.filter((n: any) => n.kind === 'collection').find((n: any) => n.name === name)
 }
 
 export function getCollectionShortNameFromId (id: string) {

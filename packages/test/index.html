@@ -1,0 +1,101 @@
+<html>
+  <script src="../auth/dist/bundle.min.js"></script>
+  <script src="../client/dist/bundle.min.js"></script>
+  <title>Combined Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    h3 {
+      margin: 0;
+      padding-bottom: 3px;
+    }
+
+    div {
+      margin-bottom: 15px;
+    }
+
+    code {
+      margin-top: 10px;
+      border-radius: 5px;
+      padding: 5px;
+      background: #eaeaea;
+      display: block;
+      overflow-x: auto;
+    }
+
+    pre {
+      margin: 0;
+    }
+  </style>
+  <script>
+    const POLYBASE_API = 'https://localhost:8080/v0'
+    const POLYBASE_AUTH_URL = 'http://localhost:3000'
+
+    const client = new polybase.Polybase({
+      baseURL: POLYBASE_API,
+    })
+
+    const auth = new polybase_auth.Auth({
+      url: POLYBASE_AUTH_URL,
+    })
+
+    auth.onAuthUpdate((auth) => {
+      console.log('auth', auth)
+      if (!document.getElementById('auth')) return
+      document.getElementById('auth').innerText = 'Auth: ' + auth?.type ?? 'No auth'
+    })
+
+    async function login () {  
+      const res = await auth.signIn()
+      client.signer(async (data) => {
+        console.log(data)
+        return { h: 'eth-personal-sign', sig: await auth.ethPersonalSign(data) }
+      })
+      console.log('login', res)
+    }
+
+    async function sign () {
+      const signed = await auth.ethPersonalSign(document.getElementById('input').value)
+      document.getElementById('signed').innerText = 'Signed: ' + signed
+    }
+
+    async function add () {
+      document.getElementById('add').innerText = 'Loading...'
+      const res = await client.collection('another/test').create([`${Date.now()}`])
+      document.getElementById('add').innerText = JSON.stringify(res.data, null, 2)
+    }
+
+    async function update () {
+      document.getElementById('update').innerText = 'Loading...'
+      const res = await client.collection('another/test').record(document.getElementById('record').value).call('setName', [document.getElementById('name').value])
+      document.getElementById('update').innerText = JSON.stringify(res.data, null, 2)
+    }
+  </script>
+  <body>
+    <div>
+      <h3>Sign In</h3>
+      <button onclick="login()">Login</button>
+      <div id="auth">Auth: </div>
+    </div>
+    <div>
+      <h3>Ethereum Personal Sign</h3>
+      <input id="input" value="Hello World" />
+      <button onclick="sign()">Sign</button>
+      <code><pre id="signed"></pre></code>
+    </div>
+    <div>
+      <h3>Add Record</h3>
+      <button onclick="add()">Add</button>
+      <code><pre id="add"></pre></code>
+    </div>
+    <div>
+      <h3>Update Record</h3>
+      <input id="record" value="" placeholder="record id" />
+      <input id="name" value="" placeholder="name" />
+      <button onclick="update()">Update</button>
+      <code><pre id="update"></pre></code>
+    </div>
+  </body>
+</html>
