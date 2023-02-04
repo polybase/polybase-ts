@@ -10,7 +10,6 @@
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "skipLibCheck": true,     
-    "allowJs": true
   },
   "exclude": ["e2e", "**/__tests__/*"],
   "include": ["src/**/*"]

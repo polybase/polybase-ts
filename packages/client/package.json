@@ -20,17 +20,13 @@
     "fix": "yarn eslint \"./src/**/*.{ts,tsx}\" --fix"
   },
   "jest": {
-    "preset": "ts-jest/presets/js-with-ts",
+    "preset": "ts-jest",
     "roots": [
       "<rootDir>/src",
       "<rootDir>/e2e"
     ],
     "testMatch": [
       "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
-    ],
-    "testEnvironment": "node",
-    "transformIgnorePatterns": [
-      "node_modules/(?!\\@vespaiach\\/axios-fetch-adapter/.*)"
     ]
   },
   "devDependencies": {

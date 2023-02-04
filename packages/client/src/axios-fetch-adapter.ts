@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 // Originally copied from https://raw.githubusercontent.com/Mailbutler/axios-fetch-adapter/54e6b00de7176df723632c738e1625a4eaa31b89/index.js
+// TODO: Remove this when we fully move to using fetch instead of axios.
 
 import axios from 'axios'
 import settle from 'axios/lib/core/settle'
