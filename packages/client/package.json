@@ -20,7 +20,7 @@
     "fix": "yarn eslint \"./src/**/*.{ts,tsx}\" --fix"
   },
   "jest": {
-    "preset": "ts-jest",
+    "preset": "ts-jest/presets/js-with-ts",
     "roots": [
       "<rootDir>/src",
       "<rootDir>/e2e"
@@ -28,7 +28,10 @@
     "testMatch": [
       "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "transformIgnorePatterns": [
+      "node_modules/(?!\\@vespaiach\\/axios-fetch-adapter/.*)"
+    ]
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "^10.0.2",
@@ -54,6 +57,7 @@
   "dependencies": {
     "@polybase/eth": "^0.3.23",
     "@polybase/polylang": "0.4.4",
+    "@vespaiach/axios-fetch-adapter": "^0.3.1",
     "axios": "0.27.2"
   }
 }
