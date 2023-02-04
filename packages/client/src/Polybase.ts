@@ -1,6 +1,6 @@
 import { parse } from '@polybase/polylang'
 import axios from 'axios'
-import fetchAdapter from '@vespaiach/axios-fetch-adapter'
+import fetchAdapter from './axios-fetch-adapter'
 import { Client } from './Client'
 import { Collection } from './Collection'
 import { PolybaseError, createError } from './errors'
@@ -18,9 +18,7 @@ const defaultConfig = {
   baseURL: 'https://testnet.polybase.xyz/v0',
   clientId: 'polybase@ts/client:v0',
   sender: 'fetch' in global
-    ? axios.create({
-      adapter: fetchAdapter,
-    })
+    ? axios.create({ adapter: fetchAdapter as any })
     : axios,
 }
 
