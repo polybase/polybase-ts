@@ -27,8 +27,7 @@
     ],
     "testMatch": [
       "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
-    ],
-    "testEnvironment": "node"
+    ]
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "^10.0.2",
