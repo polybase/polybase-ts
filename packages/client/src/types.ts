@@ -1,12 +1,11 @@
 
 import { AxiosRequestConfig } from 'axios'
 import { CollectionRecord } from './Record'
-export type BasicValue = string|number|boolean
+export type BasicValue = string | number | boolean
 
 export interface CollectionRecordResponse<T> {
   block: string
   data: T
-  publicKeys: string[]
 }
 
 export interface CollectionList<T> {
@@ -19,15 +18,16 @@ export interface CollectionList<T> {
 
 export interface CollectionMeta {
   id: string
+  name: string
   code: string
   ast: string
   lastRecordUpdated?: string
-  publicKey?: string
+  publicKey?: PublicKey
 }
 
 export interface Request {
   url: string
-  method: 'GET'|'POST'|'PUT'|'DELETE'
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE'
   params?: RequestParams
   data?: any
 }
@@ -39,12 +39,12 @@ export interface RequestParams {
   since?: string
   waitFor?: string
   where?: Record<string, QueryWhereValue>
-  sort?: [string, 'asc'|'desc'][]
+  sort?: [string, 'asc' | 'desc'][]
 }
 
-export type QueryWhereValue = BasicValue|Record<QueryWhereKey, BasicValue>
-export type QueryWhereKey = '$lt'|'$gt'|'$gte'|'$lte'|'$eq'
-export type QueryWhereOperator = '=='|'>'|'<'|'>='|'<='
+export type QueryWhereValue = BasicValue | Record<QueryWhereKey, BasicValue>
+export type QueryWhereKey = '$lt' | '$gt' | '$gte' | '$lte' | '$eq'
+export type QueryWhereOperator = '==' | '>' | '<' | '>=' | '<='
 
 export type Sender = (config: AxiosRequestConfig) => Promise<SenderResponse>
 export interface SenderResponse {
@@ -53,7 +53,7 @@ export interface SenderResponse {
   data: any
 }
 
-export type Signer = (data: string, req: Request) => Promise<SignerResponse|null>|SignerResponse|null
+export type Signer = (data: string, req: Request) => Promise<SignerResponse | null> | SignerResponse | null
 
 export interface SignerResponse {
   h: 'eth-personal-sign'
@@ -77,3 +77,10 @@ type FieldTypes =
 export type CallArg = FieldTypes | CollectionRecord<any>
 
 export type CallArgs = CallArg[]
+
+export interface PublicKey {
+  alg: string,
+  crv: string
+  x: string
+  y: string
+}

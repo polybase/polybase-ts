@@ -16,7 +16,7 @@ export class Collection<T> {
   private client: Client
 
   // TODO: this will be fetched
-  constructor (id: string, client: Client) {
+  constructor(id: string, client: Client) {
     this.id = id
     this.client = client
   }
@@ -106,7 +106,7 @@ export class Collection<T> {
     return this.createQuery().where(field, op, value)
   }
 
-  sort = (field: string, direction?: 'asc'|'desc'): Query<T> => {
+  sort = (field: string, direction?: 'asc' | 'desc'): Query<T> => {
     return this.createQuery().sort(field, direction)
   }
 
@@ -130,7 +130,7 @@ export class Collection<T> {
     return `collection:${this.id}`
   }
 
-  private createQuery () {
+  private createQuery() {
     return new Query<T>(this.id, this.client, this.onQuerySnapshotRegister)
   }
 
