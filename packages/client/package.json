@@ -1,7 +1,7 @@
 {
   "name": "@polybase/client",
   "description": "Client (browser/node) for Polybase",
-  "version": "0.3.23",
+  "version": "0.3.24-beta.1",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "homepage": "https://github.com/polybase/polybase-ts/tree/main/packages/client",
@@ -27,8 +27,7 @@
     ],
     "testMatch": [
       "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
-    ],
-    "testEnvironment": "node"
+    ]
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "^10.0.2",
