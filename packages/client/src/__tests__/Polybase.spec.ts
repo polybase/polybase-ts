@@ -43,6 +43,10 @@ test('collection is reused', () => {
 
 test('creates collections from schema in namespace', async () => {
   const s = new Polybase({ sender, baseURL })
+  s.signer(() => ({
+    h: 'eth-personal-sign',
+    sig: 'string',
+  }))
   const namespace = 'test'
   const schema = `
     collection Col {
@@ -169,6 +173,7 @@ test('creates collections from schema in namespace', async () => {
     },
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',
+      'X-Polybase-Signature': expect.any(String),
     },
   })
 
@@ -182,6 +187,7 @@ test('creates collections from schema in namespace', async () => {
     },
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',
+      'X-Polybase-Signature': expect.any(String),
     },
   })
 
