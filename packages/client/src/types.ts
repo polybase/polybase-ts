@@ -6,7 +6,6 @@ export type BasicValue = string | number | boolean
 export interface CollectionRecordResponse<T> {
   block: string
   data: T
-  publicKeys: string[]
 }
 
 export interface CollectionList<T> {
@@ -19,10 +18,11 @@ export interface CollectionList<T> {
 
 export interface CollectionMeta {
   id: string
+  name: string
   code: string
   ast: string
   lastRecordUpdated?: string
-  publicKey?: string
+  publicKey?: PublicKey
 }
 
 export interface Request {
@@ -77,3 +77,10 @@ type FieldTypes =
 export type CallArg = FieldTypes | CollectionRecord<any>
 
 export type CallArgs = CallArg[]
+
+export interface PublicKey {
+  alg: string,
+  crv: string
+  x: string
+  y: string
+}
