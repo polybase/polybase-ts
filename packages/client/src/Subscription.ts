@@ -36,7 +36,7 @@ export class Subscription<T> {
   private timer?: number
   private id = 0
 
-  constructor (req: Request, client: Client, options?: Partial<SubscriptionOptions>) {
+  constructor(req: Request, client: Client, options?: Partial<SubscriptionOptions>) {
     this.req = req
     this.client = client
     this._listeners = []
@@ -71,7 +71,7 @@ export class Subscription<T> {
     } catch (err: any) {
       // Get the status code from the error
       const statusCode = err.statusCode ?? err.status ??
-          err.code ?? err.response?.status
+        err.code ?? err.response?.status
 
       // Don't error for 304
       if (statusCode !== 304) {
@@ -161,11 +161,11 @@ export class Subscription<T> {
     if (this.aborter) this.aborter()
   }
 
-  get listeners () {
+  get listeners() {
     return this._listeners
   }
 
-  get stopped () {
+  get stopped() {
     return this._stopped
   }
 }

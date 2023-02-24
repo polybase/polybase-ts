@@ -14,7 +14,7 @@ import { isUndefined, isStandardBrowserEnv, isFormData } from 'axios/lib/utils'
  * - Get response body
  * - Check if timeout
  */
-export default async function fetchAdapter (config) {
+export default async function fetchAdapter(config) {
   const request = createRequest(config)
   const promiseChain = [getResponse(request, config)]
 
@@ -47,7 +47,7 @@ export default async function fetchAdapter (config) {
  * Fetch API stage two is to get response body. This funtion tries to retrieve
  * response body based on response's type
  */
-async function getResponse (request, config) {
+async function getResponse(request, config) {
   let stageOne
   try {
     stageOne = await fetch(request)
@@ -90,7 +90,7 @@ async function getResponse (request, config) {
 /**
  * This function will create a Request object based on configuration's axios
  */
-function createRequest (config) {
+function createRequest(config) {
   const headers = new Headers(config.headers)
 
   // HTTP basic authentication
@@ -159,7 +159,7 @@ function createRequest (config) {
  * @param {Object} [response] The response.
  * @returns {Error} The created error.
  */
-function createError (message, config, code, request, response) {
+function createError(message, config, code, request, response) {
   if (axios.AxiosError && typeof axios.AxiosError === 'function') {
     return new axios.AxiosError(message, axios.AxiosError[code], config, request, response)
   }
@@ -184,7 +184,7 @@ function createError (message, config, code, request, response) {
  * @param {Object} [response] The response.
  * @returns {Error} The error.
  */
-function enhanceError (error, config, code, request, response) {
+function enhanceError(error, config, code, request, response) {
   error.config = config
   if (code) {
     error.code = code
@@ -194,7 +194,7 @@ function enhanceError (error, config, code, request, response) {
   error.response = response
   error.isAxiosError = true
 
-  error.toJSON = function toJSON () {
+  error.toJSON = function toJSON() {
     return {
       // Standard
       message: this.message,

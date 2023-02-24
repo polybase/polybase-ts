@@ -25,14 +25,14 @@ export class Query<T> {
   private client: Client
   private onSnapshotRegister: QuerySnapshotRegister<T>
 
-  constructor (id: string, client: Client, onSnapshotRegister: QuerySnapshotRegister<T>) {
+  constructor(id: string, client: Client, onSnapshotRegister: QuerySnapshotRegister<T>) {
     this.id = id
     this.params = {}
     this.client = client
     this.onSnapshotRegister = onSnapshotRegister
   }
 
-  sort = (field: string, direction?: 'asc'|'desc') => {
+  sort = (field: string, direction?: 'asc' | 'desc') => {
     const q = this.clone()
 
     if (!q.params.sort) q.params.sort = []
@@ -57,7 +57,7 @@ export class Query<T> {
     return this
   }
 
-  where = (field: string, op: QueryWhereOperator, value: string|number|boolean) => {
+  where = (field: string, op: QueryWhereOperator, value: string | number | boolean) => {
     const q = this.clone()
 
     if (!q.params.where) q.params.where = {}
@@ -76,7 +76,7 @@ export class Query<T> {
   }
 
   // TODO: validate query has required indexes
-  validate = () => {}
+  validate = () => { }
 
   key = () => {
     return `query:${this.id}?${JSON.stringify(this.params)}`
@@ -94,7 +94,7 @@ export class Query<T> {
     }
   }
 
-  private clone = (): Query<T> => {
+  clone = (): Query<T> => {
     const q = new Query<T>(this.id, this.client, this.onSnapshotRegister)
     q.params = {
       ...this.params,

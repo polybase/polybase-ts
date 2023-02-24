@@ -13,7 +13,7 @@ export class Client {
   signer?: Signer
   private config?: ClientConfig
 
-  constructor (sender: Sender, signer?: Signer, config?: ClientConfig) {
+  constructor(sender: Sender, signer?: Signer, config?: ClientConfig) {
     this.sender = sender
     this.signer = signer
     this.config = config
@@ -36,7 +36,7 @@ export class ClientRequest {
   private signer?: Signer
   private config?: ClientConfig
 
-  constructor (sender: Sender, req: Request, signer?: Signer, config?: ClientConfig) {
+  constructor(sender: Sender, req: Request, signer?: Signer, config?: ClientConfig) {
     this.aborter = new AbortController()
     this.req = req
     this.sender = sender
@@ -98,7 +98,7 @@ export class ClientRequest {
   }
 }
 
-export function parseParams (params?: RequestParams): Record<string, BasicValue|undefined> {
+export function parseParams(params?: RequestParams): Record<string, BasicValue | undefined> {
   if (!params) return {}
   return {
     ...params,
