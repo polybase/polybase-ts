@@ -81,6 +81,8 @@ export type CallArgs = CallArg[]
 export interface PublicKey {
   alg: string,
   crv: string
+  kty: string,
+  use: string,
   x: string
   y: string
 }
