@@ -93,6 +93,7 @@ export class Polybase {
 
       collections.push(polybaseWithoutNamespace.setCollectionCode({
         id: ns + '/' + node.Collection.name,
+        name: node.Collection.name,
         code: schema,
       }))
     }
