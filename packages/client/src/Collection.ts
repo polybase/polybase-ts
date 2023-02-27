@@ -3,6 +3,7 @@ import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionRecordResponse, CollectionList, QueryWhereOperator, CallArgs } from './types'
+import { parse } from '@polybase/polylang'
 import { validateSet } from '@polybase/polylang/dist/validator'
 import { validateCallParameters, getCollectionAST } from './util'
 import { createError, PolybaseError } from './errors'
@@ -48,7 +49,7 @@ export class Collection<T> {
   private getValidator = async (): Promise<(data: Partial<T>) => Promise<boolean>> => {
     if (this.validator) return this.validator
     const meta = await this.getMeta()
-    const ast = JSON.parse(meta.ast)
+    const ast = await parse(meta.code)
     this.validator = async (data: Partial<T>) => {
       try {
         await validateSet(getCollectionAST(this.id, ast), data)
@@ -68,7 +69,7 @@ export class Collection<T> {
 
   create = async (args: CallArgs): Promise<CollectionRecordResponse<T>> => {
     const meta = await this.getMeta()
-    const ast = JSON.parse(meta.ast)
+    const ast = await parse(meta.code)
     validateCallParameters(this.id, 'constructor', ast, args)
 
     const res = await this.client.request({
