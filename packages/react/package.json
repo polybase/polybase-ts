@@ -1,7 +1,7 @@
 {
   "name": "@polybase/react",
   "description": "React wrapper for @polybase/client",
-  "version": "0.3.24",
+  "version": "0.3.25",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/polybase/polybase-ts/tree/main/packages/react",

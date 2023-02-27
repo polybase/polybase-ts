@@ -1,7 +1,7 @@
 {
   "name": "@polybase/client",
   "description": "Client (browser/node) for Polybase",
-  "version": "0.3.24",
+  "version": "0.3.25",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "homepage": "https://github.com/polybase/polybase-ts/tree/main/packages/client",
@@ -51,8 +51,8 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "@polybase/eth": "^0.3.24",
-    "@polybase/polylang": "^0.4.5",
+    "@polybase/eth": "^0.3.25",
+    "@polybase/polylang": "0.4.4",
     "axios": "0.27.2"
   }
 }
