@@ -8,62 +8,56 @@ jest.setTimeout(10000)
 const BASE_API_URL = process.env.E2E_API_URL ?? 'http://localhost:8080'
 const API_URL = `${BASE_API_URL}/v0`
 const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })
+const createCollection = async (s: Polybase, namespace: string, extraFields?: string) => {
+  const collections = await s.applySchema(`
+    collection Col {
+      id: string;
+      name: string;
+      info: {
+        age: number;
+      };
+      aliases: string[];
+      balances: map<string, number>;
+      publicKey: string;
+      ${extraFields ?? ''}
 
-const defaultSchema = (extraFields?: string) => `
-@public
-collection Col {
-  id: string;
-  name: string;
-  info: {
-    age: number;
-  };
-  aliases: string[];
-  balances: map<string, number>;
-  publicKey: string;
-  ${extraFields ?? ''}
+      @index(name);
 
-  @index(name);
+      function constructor (id: string, name: string, age: number, aliases: string[], balances: map<string, number>) {
+        this.id = id;
+        this.name = name;
+        this.info = { age: age };
+        this.aliases = aliases;
+        this.balances = balances;
+        this.publicKey = ctx.publicKey;
+      }
 
-  function constructor (id: string, name: string, age: number, aliases: string[], balances: map<string, number>) {
-    this.id = id;
-    this.name = name;
-    this.info = { age: age };
-    this.aliases = aliases;
-    this.balances = balances;
-    if (ctx.publicKey) this.publicKey = ctx.publicKey.toHex();
-    else this.publicKey = '';
-  }
+      function setName (name: string) {
+        this.name = name;
+      }
 
-  function setName (name: string) {
-    this.name = name;
-  }
+      function setNameWithAuth (name: string) {
+        if (this.publicKey != ctx.publicKey) {
+          error('you do not own this record');
+        }
+        this.name = name;
+      }
 
-  function setNameWithAuth (name: string) {
-    if (this.publicKey != ctx.publicKey.toHex()) {
-      error('you do not own this record');
+      function takeOtherCol(otherCol: OtherCol) {}
+
+      function destroy () {
+        selfdestruct();
+      }
     }
-    this.name = name;
-  }
 
-  function takeOtherCol(otherCol: OtherCol) {}
+    collection OtherCol {
+      id: string;
 
-  function destroy () {
-    selfdestruct();
-  }
-}
-
-@public
-collection OtherCol {
-  id: string;
-
-  function constructor (id: string) {
-    this.id = id;
-  }
-}
-`
-
-const createCollection = async (s: Polybase, namespace: string, schema?: string) => {
-  const collections = await s.applySchema(schema || defaultSchema(), namespace)
+      function constructor (id: string) {
+        this.id = id;
+      }
+    }
+  `, namespace)
 
   return collections[0]
 }
@@ -487,14 +481,7 @@ test('signing', async () => {
   const c = await createCollection(s, namespace)
 
   const col = await s.collection('Collection').record(`${namespace}/Col`).get()
-  expect(col.data.publicKey).toEqual({
-    kty: 'EC',
-    crv: 'secp256k1',
-    alg: 'ES256K',
-    use: 'sig',
-    x: expect.any(String),
-    y: expect.any(String),
-  })
+  expect(col.data.publicKey).toEqual(expect.stringContaining('0x'))
 
   await c.create(['id1', 'Calum2', 20, [], {}])
 

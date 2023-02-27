@@ -50,7 +50,7 @@ export class Polybase {
     return this.config.defaultNamespace ? `${this.config.defaultNamespace}/${path}` : path
   }
 
-  private setCollectionCode = async <T>(data: Pick<CollectionMeta, 'id' | 'code'>): Promise<Collection<T>> => {
+  private setCollectionCode = async <T>(data: CollectionMeta): Promise<Collection<T>> => {
     const id = data.id
     const col = this.collection('Collection')
 
@@ -74,12 +74,12 @@ export class Polybase {
   /* Applies the given schema to the database, creating new collections and adding existing collections  */
   applySchema = async (schema: string, namespace?: string): Promise<Collection<any>[]> => {
     const collections = []
+    const ast = await parse(schema)
+
     const ns = (namespace ?? this.config.defaultNamespace)
     if (!ns) {
       throw createError('collection/invalid-id', { message: 'Namespace is missing' })
     }
-
-    const [, root] = await parse(schema, ns)
 
     // We already manually prepend the namespace to the collection name,
     // so we need a client without a default namespace.
@@ -88,11 +88,12 @@ export class Polybase {
       defaultNamespace: undefined,
     })
 
-    for (const node of root) {
-      if (node.kind !== 'collection') continue
+    for (const node of ast.nodes) {
+      if (!node.Collection) continue
 
       collections.push(polybaseWithoutNamespace.setCollectionCode({
-        id: ns + '/' + node.name,
+        id: ns + '/' + node.Collection.name,
+        name: node.Collection.name,
         code: schema,
       }))
     }
