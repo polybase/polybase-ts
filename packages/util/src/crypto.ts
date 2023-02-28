@@ -1,3 +1,1 @@
-import { Crypto } from '@peculiar/webcrypto'
-
-export const crypto = new Crypto()
+export const crypto = globalThis.crypto
