@@ -127,7 +127,7 @@ export async function asymmetricDecrypt (privateKey: Uint8Array, data: Encrypted
       hash = new Uint8Array(await crypto.subtle.digest('SHA-512', px))
       macKey = hash.slice(32)
       break
-      // In v1, the hash is SHA256, macKey is a 32-byte array of all zeros.
+    // In v1, the hash was SHA256, macKey was a 32-byte array of all zeros.
     case 'secp256k1/asymmetric':
       hash = new Uint8Array(await crypto.subtle.digest('SHA-256', px))
       macKey = new Uint8Array(32)

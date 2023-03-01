@@ -43,6 +43,8 @@
     "@typescript-eslint/quotes": [
       "error",
       "single"
-    ]
+    ],
+    // Already covered by Typescript
+    "no-undef": "off"
   }
 }
