@@ -11,3 +11,5 @@ jobs:
       - run: yarn
       - name: Run client unit tests
         run: cd packages/client && yarn test
+      - name: Run util unit tests
+        run: cd packages/util && yarn test
