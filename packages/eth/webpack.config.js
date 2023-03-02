@@ -12,10 +12,6 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'], // resolve TypeScript and JavaScript files
-    fallback: {
-      crypto: require.resolve('crypto-browserify'),
-      stream: require.resolve('stream-browserify'),
-    },
   },
   module: {
     rules: [
