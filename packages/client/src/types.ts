@@ -20,6 +20,7 @@ export interface CollectionMeta {
   id: string
   name: string
   code: string
+  ast: string
   lastRecordUpdated?: string
   publicKey?: PublicKey
 }
