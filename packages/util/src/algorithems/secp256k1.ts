@@ -88,7 +88,7 @@ export async function asymmetricEncrypt (publicKey: Uint8Array, data: Uint8Array
   const ephemPublicKey = new Uint8Array(ec.keyFromPrivate(ephemPrivateKey).getPublic('array'))
 
   const px = await derive(ephemPrivateKey, publicKeyTo)
-  const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', px))
+  const hash = new Uint8Array(await crypto.subtle.digest('SHA-512', px))
 
   const iv = randomBytes(16)
   const macKey = hash.slice(32)
@@ -103,7 +103,7 @@ export async function asymmetricEncrypt (publicKey: Uint8Array, data: Uint8Array
   const mac = await signHmac(macKey, dataToMac)
 
   return {
-    version: 'secp256k1/asymmetric',
+    version: 'secp256k1/asymmetric/v2',
     nonce: iv,
     ciphertext,
     ephemPublicKey,
@@ -117,10 +117,27 @@ export async function asymmetricEncrypt (publicKey: Uint8Array, data: Uint8Array
  * @returns decrypted bytes
  */
 export async function asymmetricDecrypt (privateKey: Uint8Array, data: EncryptedDataSecp256k1): Promise<Uint8Array> {
-  const { ephemPublicKey, mac, nonce, ciphertext } = data
+  const { version, ephemPublicKey, mac, nonce, ciphertext } = data
   const px = await derive(privateKey, ephemPublicKey)
-  const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', px))
-  const macKey = hash.slice(32)
+
+  let hash: Uint8Array
+  let macKey: Uint8Array
+  switch (version) {
+    case 'secp256k1/asymmetric/v2':
+      hash = new Uint8Array(await crypto.subtle.digest('SHA-512', px))
+      macKey = hash.slice(32)
+      break
+    // In v1, the hash was SHA256, macKey was a 32-byte array of all zeros.
+    case 'secp256k1/asymmetric':
+      hash = new Uint8Array(await crypto.subtle.digest('SHA-256', px))
+      macKey = new Uint8Array(32)
+      break
+  }
+
+  // This is not in `default` case so that we get a Typescript error
+  // if we add a new version.
+  if (!hash) throw new Error('Unsupported version: ' + version)
+
   const dataToMac = concat([nonce, ephemPublicKey, ciphertext])
 
   const valid = await verifyHmac(macKey, mac, dataToMac)

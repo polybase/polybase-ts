@@ -8,7 +8,7 @@ export interface EncryptedDataBase {
 }
 
 export interface EncryptedDataSecp256k1 extends EncryptedDataBase {
-  version: 'secp256k1/asymmetric'
+  version: 'secp256k1/asymmetric' | 'secp256k1/asymmetric/v2'
   ephemPublicKey: Uint8Array
   mac: Uint8Array
 }
