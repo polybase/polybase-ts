@@ -4,12 +4,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
         with:
           node-version: 16.x
-      - run: yarn
+
+      - name: Install packages
+        run: yarn
+
       - name: Run client unit tests
         run: cd packages/client && yarn test
+
       - name: Run util unit tests
         run: cd packages/util && yarn test
