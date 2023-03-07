@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@polybase/eth": "^0.3.25",
-    "@polybase/polylang": "0.4.4",
+    "@polybase/polylang": "^0.4.5",
     "axios": "0.27.2"
   }
 }
