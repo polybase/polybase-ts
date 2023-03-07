@@ -1,7 +1,7 @@
 {
   "name": "@polybase/util",
   "description": "Utility functions for Polybase",
-  "version": "0.3.25",
+  "version": "0.3.27",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/polybase/polybase-ts/tree/main/packages/util",
@@ -26,11 +26,14 @@
       "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
     ],
     "transform": {
-      "^.+\\.(ts|tsx)$": ["ts-jest", {
-        "tsconfig": {
-          "target": "es2020"
+      "^.+\\.(ts|tsx)$": [
+        "ts-jest",
+        {
+          "tsconfig": {
+            "target": "es2020"
+          }
         }
-      }]
+      ]
     }
   },
   "devDependencies": {
