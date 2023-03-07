@@ -15,7 +15,7 @@ const ec = new EC('secp256k1')
  *
  * @returns public/private key pair
  */
-export function generatePrivateKey (): Uint8Array {
+export function generatePrivateKey(): Uint8Array {
   return randomBytes(32)
 }
 
@@ -24,10 +24,10 @@ export function generatePrivateKey (): Uint8Array {
  *
  * @returns public/private key pair
  */
-export async function generateKeyPair () {
+export async function generateKeyPair() {
   const privateKey = generatePrivateKey()
   return {
-    version: 'x25519-xsalsa20-poly1305/asymmetric',
+    version: 'secp256k1/asymmetric',
     privateKey,
     publicKey: secp256k1.publicKeyCreate(privateKey),
   }
@@ -38,7 +38,7 @@ export async function generateKeyPair () {
  *
  * @returns public key
  */
-export function getPublicKey (privateKey: Uint8Array): Uint8Array {
+export function getPublicKey(privateKey: Uint8Array): Uint8Array {
   return secp256k1.publicKeyCreate(privateKey, false)
 }
 
@@ -47,11 +47,11 @@ export function getPublicKey (privateKey: Uint8Array): Uint8Array {
  *
  * @returns public key
  */
-export function getPublicCompressed (privateKey: Uint8Array): Uint8Array {
+export function getPublicCompressed(privateKey: Uint8Array): Uint8Array {
   return secp256k1.publicKeyCreate(privateKey, true)
 }
 
-export function compressPublicKey (publicKey: Uint8Array): Uint8Array {
+export function compressPublicKey(publicKey: Uint8Array): Uint8Array {
   if (publicKey.byteLength === 65) return secp256k1.publicKeyConvert(publicKey, true)
   if (publicKey.byteLength === 64) return secp256k1.publicKeyConvert(addPublicKeyPrefix(publicKey), true)
   return publicKey
@@ -62,7 +62,7 @@ export function compressPublicKey (publicKey: Uint8Array): Uint8Array {
  *
  * @returns shared key
  */
-export async function derive (privateKeyA: Uint8Array, publicKeyB: Uint8Array) {
+export async function derive(privateKeyA: Uint8Array, publicKeyB: Uint8Array) {
   assert(privateKeyA.length === 32, 'Bad private key length, expected 32 got ' + privateKeyA.length)
   assert(
     publicKeyB.length === 65 || publicKeyB.length === 33,
@@ -82,7 +82,7 @@ export async function derive (privateKeyA: Uint8Array, publicKeyB: Uint8Array) {
  *
  * @returns encrypted data
  */
-export async function asymmetricEncrypt (publicKey: Uint8Array, data: Uint8Array): Promise<EncryptedDataSecp256k1> {
+export async function asymmetricEncrypt(publicKey: Uint8Array, data: Uint8Array): Promise<EncryptedDataSecp256k1> {
   const publicKeyTo = addPublicKeyPrefix(publicKey)
   const ephemPrivateKey = generatePrivateKey()
   const ephemPublicKey = new Uint8Array(ec.keyFromPrivate(ephemPrivateKey).getPublic('array'))
@@ -116,7 +116,7 @@ export async function asymmetricEncrypt (publicKey: Uint8Array, data: Uint8Array
  *
  * @returns decrypted bytes
  */
-export async function asymmetricDecrypt (privateKey: Uint8Array, data: EncryptedDataSecp256k1): Promise<Uint8Array> {
+export async function asymmetricDecrypt(privateKey: Uint8Array, data: EncryptedDataSecp256k1): Promise<Uint8Array> {
   const { version, ephemPublicKey, mac, nonce, ciphertext } = data
   const px = await derive(privateKey, ephemPublicKey)
 
@@ -156,14 +156,14 @@ export async function asymmetricDecrypt (privateKey: Uint8Array, data: Encrypted
 /**
  * Sign bytes
  */
-export function sign (privateKey: BytesLike, d: BytesLike): string {
+export function sign(privateKey: BytesLike, d: BytesLike): string {
   const signingKey = new SigningKey(privateKey)
   const signature = signingKey.signDigest(d)
   const sig = joinSignature(signature)
   return sig
 }
 
-async function signHmac (key: Uint8Array, data: Uint8Array) {
+async function signHmac(key: Uint8Array, data: Uint8Array) {
   const hmacKey = await importHmacKey(key)
   const sig = await crypto.subtle.sign(
     'HMAC',
@@ -174,7 +174,7 @@ async function signHmac (key: Uint8Array, data: Uint8Array) {
   return new Uint8Array(sig)
 }
 
-async function verifyHmac (key: Uint8Array, sig: Uint8Array, data: Uint8Array) {
+async function verifyHmac(key: Uint8Array, sig: Uint8Array, data: Uint8Array) {
   const hmacKey = await importHmacKey(key)
   return crypto.subtle.verify(
     'HMAC',
@@ -184,7 +184,7 @@ async function verifyHmac (key: Uint8Array, sig: Uint8Array, data: Uint8Array) {
   )
 }
 
-async function importHmacKey (key: Uint8Array) {
+async function importHmacKey(key: Uint8Array) {
   return crypto.subtle.importKey(
     'raw',
     key,
@@ -194,7 +194,7 @@ async function importHmacKey (key: Uint8Array) {
   )
 }
 
-async function importAesCbcKey (key: Uint8Array) {
+async function importAesCbcKey(key: Uint8Array) {
   return crypto.subtle.importKey(
     'raw',
     key,
@@ -209,7 +209,7 @@ async function importAesCbcKey (key: Uint8Array) {
  *
  * @returns encrypted data as hex
  */
-export async function asymmetricEncryptToEncoding (publicKey: Uint8Array, data: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
+export async function asymmetricEncryptToEncoding(publicKey: Uint8Array, data: string, encoding: 'base64' | 'hex' = 'base64'): Promise<string> {
   const e = await asymmetricEncrypt(publicKey, decodeFromString(data, 'utf8'))
   return stringifyEncryptedData(e, encoding)
 }
@@ -219,7 +219,7 @@ export async function asymmetricEncryptToEncoding (publicKey: Uint8Array, data: 
  *
  * @returns decrypted string
  */
-export async function asymmetricDecryptFromEncoding (privateKey: Uint8Array, hex: string, encoding: 'base64'|'hex' = 'base64'): Promise<string> {
+export async function asymmetricDecryptFromEncoding(privateKey: Uint8Array, hex: string, encoding: 'base64' | 'hex' = 'base64'): Promise<string> {
   const e = parseEncrypedData(hex, encoding)
   const res = await asymmetricDecrypt(privateKey, e)
   return encodeToString(res, 'utf8')
