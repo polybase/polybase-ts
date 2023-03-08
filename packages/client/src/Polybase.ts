@@ -24,7 +24,7 @@ export class Polybase {
   private client: Client
   private collections: Record<string, Collection<any>> = {}
 
-  constructor (config?: Partial<PolybaseConfig>) {
+  constructor(config?: Partial<PolybaseConfig>) {
     this.config = Object.assign({}, defaultConfig, config)
     const { clientId, baseURL } = this.config
     this.client = new Client(
@@ -34,7 +34,7 @@ export class Polybase {
     )
   }
 
-  collection<T=any> (path: string): Collection<T> {
+  collection<T = any>(path: string): Collection<T> {
     const rp = this.getResolvedPath(path)
     if (this.collections[rp]) return this.collections[rp]
     const c = new Collection<T>(rp, this.client)
@@ -56,8 +56,8 @@ export class Polybase {
       await col.record(id).call('updateCode', [data.code])
     } catch (e: any) {
       if (e && typeof e === 'object' &&
-            e instanceof PolybaseError &&
-            (e.reason === 'collection/not-found' || e.reason === 'record/not-found')
+        e instanceof PolybaseError &&
+        (e.reason === 'collection/not-found' || e.reason === 'record/not-found')
       ) {
         await this.collection('Collection').create([id, data.code])
       } else {
@@ -99,5 +99,6 @@ export class Polybase {
 
   signer = (fn: Signer) => {
     this.client.signer = fn
+    this.config.signer = fn
   }
 }

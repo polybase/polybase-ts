@@ -7,7 +7,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'), // output directory
     filename: 'bundle.min.js', // output file name (minified)
-    library: 'polybase_util', // name of the global variable that will contain your library
+    library: 'polybase_auth', // name of the global variable that will contain your library
     libraryTarget: 'umd', // format of the bundle (UMD supports both CommonJS and AMD module systems)
   },
   resolve: {

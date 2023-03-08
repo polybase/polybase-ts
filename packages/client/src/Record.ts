@@ -12,7 +12,7 @@ export class CollectionRecord<T> {
   private client: Client
   private onSnapshotRegister: CollectionRecordSnapshotRegister<T>
 
-  constructor (id: string, collection: Collection<T>, client: Client, onSnapshotRegister: CollectionRecordSnapshotRegister<T>) {
+  constructor(id: string, collection: Collection<T>, client: Client, onSnapshotRegister: CollectionRecordSnapshotRegister<T>) {
     this.id = id
     this.collection = collection
     this.client = client
