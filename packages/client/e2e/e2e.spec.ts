@@ -507,6 +507,12 @@ collection PrivateCol {
     x: expect.any(String),
     y: expect.any(String),
   })
+
+  s.signer((d: string) => {
+    throw new Error('Signer should not be called')
+  })
+  const record2 = await c.record('id1').get()
+  expect(record2.data.id).toEqual('id1')
 })
 
 test('signing', async () => {
