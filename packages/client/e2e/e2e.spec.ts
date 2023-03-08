@@ -1,6 +1,6 @@
 import { encodeToString, secp256k1, stripPublicKeyPrefix } from '@polybase/util'
 import { ethPersonalSign } from '@polybase/eth'
-import { Polybase, Collection } from '../src'
+import { Polybase, Collection, PublicKey } from '../src'
 import { getPublicKey } from '@polybase/util/dist/algorithems/secp256k1'
 
 jest.setTimeout(10000)
@@ -465,6 +465,54 @@ test('list data with cursor', async () => {
       },
     }],
   })
+})
+
+test('read access', async () => {
+  const namespace = `${prefix}-read-access`
+  const pv = await secp256k1.generatePrivateKey()
+
+  s = new Polybase({
+    baseURL: API_URL,
+    signer: async (d: string) => {
+      const sig = ethPersonalSign(pv, d)
+      return {
+        sig,
+        h: 'eth-personal-sign',
+      }
+    },
+  })
+
+  const c: Collection<{ id: string, publicKey: PublicKey }> = await createCollection(s, namespace, `
+collection PrivateCol {
+  id: string;
+  @read
+  publicKey: PublicKey;
+
+  function constructor (id: string) {
+    this.id = id;
+    this.publicKey = ctx.publicKey;
+  }
+}
+  `)
+
+  await c.create(['id1'])
+
+  const record = await c.record('id1').get()
+  expect(record.data.id).toEqual('id1')
+  expect(record.data.publicKey).toEqual({
+    kty: 'EC',
+    crv: 'secp256k1',
+    alg: 'ES256K',
+    use: 'sig',
+    x: expect.any(String),
+    y: expect.any(String),
+  })
+
+  s.signer((d: string) => {
+    throw new Error('Signer should not be called')
+  })
+  const record2 = await c.record('id1').get()
+  expect(record2.data.id).toEqual('id1')
 })
 
 test('signing', async () => {
