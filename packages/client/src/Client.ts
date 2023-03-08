@@ -88,8 +88,8 @@ export class ClientRequest {
 
   private getSignature = async (extraTimeMs: number) => {
     if (!this.signer) return ''
-    let t
 
+    let t: number
     let sig: SignerResponse
 
     const jsonBody = this.req.data ? JSON.stringify(this.req.data) : ''
