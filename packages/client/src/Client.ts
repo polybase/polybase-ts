@@ -94,10 +94,7 @@ export class ClientRequest {
 
     const jsonBody = this.req.data ? JSON.stringify(this.req.data) : ''
     const cachedSignature = this.signatureCache[jsonBody]
-    // It takes time to send a request,
-    // so we want the signature to be valid at least 30s from now.
-    const cacheTimeTolerance = 30 * 1000
-    if (cachedSignature && cachedSignature.timeMs > Date.now() + cacheTimeTolerance) {
+    if (cachedSignature && cachedSignature.timeMs > Date.now()) {
       t = cachedSignature.timeMs
       sig = cachedSignature.sig
     } else {
