@@ -110,6 +110,38 @@ test('validate invalid record', async () => {
 })
 
 test('get collection', async () => {
+  const meta = {
+    code: `
+      collection col {
+        id: string;
+        age?: number;
+
+        function constructor(id: string, age: number) {
+          this.id = id;
+          this.age = age;
+        }
+      }
+    `,
+    ast: JSON.stringify((await parse(`
+      collection col {
+        id: string;
+        age?: number;
+
+        function constructor(id: string, age: number) {
+          this.id = id;
+          this.age = age;
+        }
+      }
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
   const want = {
     id: 'id1',
     name: 'Calum',

@@ -109,10 +109,14 @@ export class Collection<T> {
   }
 
   get = async (): Promise<CollectionList<T>> => {
+    const isPubliclyAccessible = await this.isPubliclyAccessible()
+    const needsAuth = !isPubliclyAccessible
+    const sixtyMinutes = 60 * 60 * 1000
+
     const res = await this.client.request({
       url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'GET',
-    }).send(false)
+    }).send(needsAuth, sixtyMinutes)
 
     return res.data
   }
@@ -157,7 +161,7 @@ export class Collection<T> {
   }
 
   private createQuery() {
-    return new Query<T>(this.id, this.client, this.onQuerySnapshotRegister)
+    return new Query<T>(this, this.client, this.onQuerySnapshotRegister)
   }
 
   private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {

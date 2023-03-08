@@ -513,6 +513,12 @@ collection PrivateCol {
   })
   const record2 = await c.record('id1').get()
   expect(record2.data.id).toEqual('id1')
+
+  const list = await c.get()
+  expect(list.data[0].data.id).toEqual('id1')
+
+  const queryList = await c.where('id', '==', 'id1').get()
+  expect(queryList.data[0].data.id).toEqual('id1')
 })
 
 test('signing', async () => {
