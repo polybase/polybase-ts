@@ -14,6 +14,7 @@ export class Collection<T> {
   private meta?: CollectionMeta
   private validator?: (data: Partial<T>) => Promise<boolean>
   private client: Client
+  private isPubliclyAccessibleCached?: boolean
 
   // TODO: this will be fetched
   constructor(id: string, client: Client) {
@@ -45,6 +46,16 @@ export class Collection<T> {
     }
   }
 
+  private name(): string {
+    return this.id.split('/').pop() as string // there is always at least one element from split
+  }
+
+  private getCollectionAST = async (): Promise<any> => {
+    const meta = await this.getMeta()
+    const ast = JSON.parse(meta.ast)
+    return ast.find((node: any) => node.kind === 'collection' && node.name === this.name())
+  }
+
   private getValidator = async (): Promise<(data: Partial<T>) => Promise<boolean>> => {
     if (this.validator) return this.validator
     const meta = await this.getMeta()
@@ -64,6 +75,21 @@ export class Collection<T> {
   validate = async (data: Partial<T>) => {
     const validator = await this.getValidator()
     return await validator(data)
+  }
+
+  isPubliclyAccessible = async (): Promise<boolean> => {
+    // Without this, we would recursively call this function
+    if (this.id === 'Collection') return true
+
+    if (typeof this.isPubliclyAccessibleCached === 'boolean') return this.isPubliclyAccessibleCached
+
+    const colAST = await this.getCollectionAST()
+    const hasPublicDirective = !!colAST.attributes.find((attr: any) => attr.kind === 'directive' && attr.name === 'public')
+    const hasReadAnyDirective = !!colAST.attributes.find((attr: any) => attr.kind === 'directive' && attr.name === 'read' && attr.arguments?.length === 0)
+
+    this.isPubliclyAccessibleCached = hasPublicDirective || hasReadAnyDirective
+
+    return this.isPubliclyAccessibleCached as boolean
   }
 
   create = async (args: CallArgs): Promise<CollectionRecordResponse<T>> => {

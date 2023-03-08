@@ -24,10 +24,28 @@ test('record is instance of CollectionRecord', () => {
 })
 
 test('get request is sent to client', async () => {
+  const meta = {
+    code: `
+      @public
+      collection col1 {}
+    `,
+    ast: JSON.stringify((await parse(`
+      @public
+      collection col1 {}
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
   const data = {
     id: 'id1',
   }
-  sender.mockResolvedValue({
+  sender.mockResolvedValueOnce({
     data: {
       data,
     },
@@ -35,7 +53,7 @@ test('get request is sent to client', async () => {
   const d = new CollectionRecord('id1', collection, client, register)
   await d.get()
 
-  expect(sender).toHaveBeenCalledTimes(1)
+  expect(sender).toHaveBeenCalledTimes(2)
   expect(sender).toHaveBeenCalledWith({
     ...defaultRequest,
     url: '/collections/col1/records/id1',

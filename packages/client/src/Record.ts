@@ -42,7 +42,9 @@ export class CollectionRecord<T> {
   }
 
   get = async (): Promise<CollectionRecordResponse<T>> => {
-    const res = await this.client.request(this.request()).send(false)
+    const doesNotNeedAuth = await this.collection.isPubliclyAccessible()
+    const needsAuth = !doesNotNeedAuth
+    const res = await this.client.request(this.request()).send(needsAuth)
     return res.data
   }
 
