@@ -1,4 +1,5 @@
 import { Client } from './Client'
+import { Collection } from './Collection'
 import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import {
   Request,
@@ -20,14 +21,14 @@ export const QueryWhereOperatorMap: Record<QueryWhereOperator, QueryWhereKey> = 
 }
 
 export class Query<T> {
-  private id: string
   private params: RequestParams
+  private collection: Collection<T>
   private client: Client
   private onSnapshotRegister: QuerySnapshotRegister<T>
 
-  constructor(id: string, client: Client, onSnapshotRegister: QuerySnapshotRegister<T>) {
-    this.id = id
+  constructor(collection: Collection<T>, client: Client, onSnapshotRegister: QuerySnapshotRegister<T>) {
     this.params = {}
+    this.collection = collection
     this.client = client
     this.onSnapshotRegister = onSnapshotRegister
   }
@@ -68,7 +69,11 @@ export class Query<T> {
   }
 
   get = async (): Promise<CollectionList<T>> => {
-    const res = await this.client.request(this.request()).send(false)
+    const isPubliclyAccessible = await this.collection.isPubliclyAccessible()
+    const needsAuth = !isPubliclyAccessible
+    const sixtyMinutes = 60 * 60 * 1000
+
+    const res = await this.client.request(this.request()).send(needsAuth, sixtyMinutes)
     return {
       data: res.data?.data,
       cursor: res.data?.cursor,
@@ -79,7 +84,7 @@ export class Query<T> {
   validate = () => { }
 
   key = () => {
-    return `query:${this.id}?${JSON.stringify(this.params)}`
+    return `query:${this.collection.id}?${JSON.stringify(this.params)}`
   }
 
   onSnapshot = (fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {
@@ -88,14 +93,14 @@ export class Query<T> {
 
   request = (): Request => {
     return {
-      url: `/collections/${encodeURIComponent(this.id)}/records`,
+      url: `/collections/${encodeURIComponent(this.collection.id)}/records`,
       method: 'GET',
       params: this.params,
     }
   }
 
   clone = (): Query<T> => {
-    const q = new Query<T>(this.id, this.client, this.onSnapshotRegister)
+    const q = new Query<T>(this.collection, this.client, this.onSnapshotRegister)
     q.params = {
       ...this.params,
       sort: this.params.sort ? [...this.params.sort] : undefined,
