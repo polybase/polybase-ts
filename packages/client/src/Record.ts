@@ -42,8 +42,8 @@ export class CollectionRecord<T> {
   }
 
   get = async (): Promise<CollectionRecordResponse<T>> => {
-    const doesNotNeedAuth = await this.collection.isPubliclyAccessible()
-    const needsAuth = !doesNotNeedAuth
+    const isPubliclyAccessible = await this.collection.isPubliclyAccessible()
+    const needsAuth = !isPubliclyAccessible
     const sixtyMinutes = 60 * 60 * 1000
     const res = await this.client.request(this.request()).send(needsAuth, sixtyMinutes)
     return res.data
