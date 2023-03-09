@@ -110,6 +110,38 @@ test('validate invalid record', async () => {
 })
 
 test('get collection', async () => {
+  const meta = {
+    code: `
+      collection col {
+        id: string;
+        age?: number;
+
+        function constructor(id: string, age: number) {
+          this.id = id;
+          this.age = age;
+        }
+      }
+    `,
+    ast: JSON.stringify((await parse(`
+      collection col {
+        id: string;
+        age?: number;
+
+        function constructor(id: string, age: number) {
+          this.id = id;
+          this.age = age;
+        }
+      }
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
   const want = {
     id: 'id1',
     name: 'Calum',
@@ -205,4 +237,74 @@ test('.create() sends a create request', async () => {
   })
 
   expect(result.data).toEqual({ id: 'id1', age: 30 })
+})
+
+test('.isPubliclyAccessible() returns true if collection is @public', async () => {
+  const meta = {
+    code: `
+      @public
+      collection col {}
+    `,
+    ast: JSON.stringify((await parse(`
+      @public
+      collection col {}
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValue({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  const c = new Collection('col', client)
+  expect(await c.isPubliclyAccessible()).toBe(true)
+  expect(sender).toHaveBeenCalledTimes(1)
+})
+
+test('.isPubliclyAccessible() returns true if collection is @read', async () => {
+  const meta = {
+    code: `
+      @read
+      collection col {}
+    `,
+    ast: JSON.stringify((await parse(`
+      @read
+      collection col {}
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValue({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  const c = new Collection('col', client)
+  expect(await c.isPubliclyAccessible()).toBe(true)
+  expect(sender).toHaveBeenCalledTimes(1)
+})
+
+test('.isPubliclyAccessible() returns false if collection is not @public or @read', async () => {
+  const meta = {
+    code: `
+      collection col {}
+    `,
+    ast: JSON.stringify((await parse(`
+      collection col {}
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValue({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  const c = new Collection('col', client)
+  expect(await c.isPubliclyAccessible()).toBe(false)
+  expect(sender).toHaveBeenCalledTimes(1)
 })

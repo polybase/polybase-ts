@@ -25,6 +25,24 @@ test('record is instance of CollectionRecord', () => {
 })
 
 test('get request is sent to client', async () => {
+  const meta = {
+    code: `
+      @public
+      collection col1 {}
+    `,
+    ast: JSON.stringify((await parse(`
+      @public
+      collection col1 {}
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
   const data = {
     id: 'id1',
   }
