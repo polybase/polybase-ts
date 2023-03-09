@@ -65,7 +65,7 @@ interface Map {
   [k: string | number]: FieldTypes
 }
 
-type FieldTypes =
+export type FieldTypes =
   string
   | number
   | boolean
