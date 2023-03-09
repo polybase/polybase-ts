@@ -4,7 +4,7 @@ import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscriptio
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionRecordResponse, CollectionList, QueryWhereOperator, CallArgs } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
-import { validateCallParameters, getCollectionAST } from './util'
+import { validateCallParameters, getCollectionAST, referenceArg } from './util'
 import { createError, PolybaseError } from './errors'
 
 export class Collection<T> {
@@ -101,7 +101,7 @@ export class Collection<T> {
       url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'POST',
       data: {
-        args,
+        args: args.map(referenceArg),
       },
     }).send(true)
 
