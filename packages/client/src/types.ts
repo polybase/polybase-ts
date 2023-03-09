@@ -69,12 +69,10 @@ type FieldTypes =
   string
   | number
   | boolean
-  | string[]
-  | number[]
-  | boolean[]
   | Map
+  | FieldTypes[]
 
-export type CallArg = FieldTypes | CollectionRecord<any>
+export type CallArg = FieldTypes | CollectionRecord<any> | CollectionRecord<any>[]
 
 export type CallArgs = CallArg[]
 
