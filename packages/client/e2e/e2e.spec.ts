@@ -659,3 +659,64 @@ test('delete', async () => {
 
   await expect(c.record('id1').get()).rejects.toThrow()
 })
+
+test('bytes', async () => {
+  const namespace = `${prefix}-bytes`
+
+  const c = await createCollection(s, namespace, `
+    @public
+    collection Col {
+      id: string;
+      name: string;
+      data: bytes;
+
+      constructor (id: string, data: bytes) {
+        this.id = id;
+        this.name = id;
+        this.data = data;
+      }
+
+      updateData (data: bytes) {
+        this.data = data;
+      }
+    }
+  `)
+
+  const rec1 = await c.create(['rec1', new Uint8Array([0, 1, 2])])
+  expect(rec1.data).toEqual({
+    id: 'rec1',
+    name: 'rec1',
+    data: new Uint8Array([0, 1, 2]),
+  })
+
+  const rec1Updated = await c.record('rec1').call('updateData', [new Uint8Array([3, 4, 5])])
+  expect(rec1Updated.data).toEqual({
+    id: 'rec1',
+    name: 'rec1',
+    data: new Uint8Array([3, 4, 5]),
+  })
+
+  const list = await c.get()
+  expect(list.data).toEqual([{
+    data: {
+      id: 'rec1',
+      name: 'rec1',
+      data: new Uint8Array([3, 4, 5]),
+    },
+    block: {
+      hash: expect.stringMatching(/^./),
+    },
+  }])
+
+  const listWhere = await c.where('name', '==', 'rec1').get()
+  expect(listWhere.data).toEqual([{
+    data: {
+      id: 'rec1',
+      name: 'rec1',
+      data: new Uint8Array([3, 4, 5]),
+    },
+    block: {
+      hash: expect.stringMatching(/^./),
+    },
+  }])
+})

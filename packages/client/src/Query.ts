@@ -1,5 +1,6 @@
 import { Client } from './Client'
 import { Collection } from './Collection'
+import { deserializeRecord } from './Record'
 import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import {
   Request,
@@ -9,6 +10,7 @@ import {
   QueryWhereKey,
   CollectionList,
 } from './types'
+import { getCollectionProperties } from './util'
 
 export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
@@ -74,6 +76,13 @@ export class Query<T> {
     const sixtyMinutes = 60 * 60 * 1000
 
     const res = await this.client.request(this.request()).send(needsAuth, sixtyMinutes)
+
+    const meta = await this.collection.getMeta()
+    const ast = JSON.parse(meta.ast)
+    for (const record of (res.data?.data ?? [])) {
+      deserializeRecord(record.data, getCollectionProperties(this.collection.id, ast))
+    }
+
     return {
       data: res.data?.data,
       cursor: res.data?.cursor,

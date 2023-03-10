@@ -70,6 +70,7 @@ export type FieldTypes =
   | number
   | boolean
   | Map
+  | Uint8Array
   | FieldTypes[]
 
 export type CallArg = FieldTypes | CollectionRecord<any> | CollectionRecord<any>[]
