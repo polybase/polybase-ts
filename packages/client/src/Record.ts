@@ -2,7 +2,7 @@ import { Collection } from './Collection'
 import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
 import { Client } from './Client'
 import { Request, CollectionRecordResponse, CallArgs } from './types'
-import { decodeBase64, encodeBase64, getCollectionProperties, validateCallParameters } from './util'
+import { decodeBase64, getCollectionProperties, serializeValue, validateCallParameters } from './util'
 
 export type CollectionRecordSnapshotRegister<T> = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
@@ -28,17 +28,7 @@ export class CollectionRecord<T> {
       url: `/collections/${encodeURIComponent(this.collection.id)}/records/${encodeURIComponent(this.id)}/call/${encodeURIComponent(functionName)}`,
       method: 'POST',
       data: {
-        args: args.map(arg => {
-          if (arg && typeof arg === 'object' && arg instanceof CollectionRecord) {
-            return { collectionId: arg.collection.id, id: arg.id }
-          }
-
-          if (arg && typeof arg === 'object' && arg instanceof Uint8Array) {
-            return encodeBase64(arg)
-          }
-
-          return arg
-        }),
+        args: args.map(serializeValue),
       },
     }).send(true)
 
@@ -62,6 +52,11 @@ export class CollectionRecord<T> {
 
     return res.data
   }
+
+  reference = (): { collectionId: string, id: string } => ({
+    collectionId: this.collection.id,
+    id: this.id,
+  })
 
   key = () => {
     return `record:${this.collection.id}/${this.id}`

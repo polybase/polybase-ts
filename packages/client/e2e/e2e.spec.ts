@@ -1,6 +1,6 @@
 import { encodeToString, secp256k1, stripPublicKeyPrefix } from '@polybase/util'
 import { ethPersonalSign } from '@polybase/eth'
-import { Polybase, Collection, PublicKey } from '../src'
+import { Polybase, Collection, PublicKey, Signer } from '../src'
 import { getPublicKey } from '@polybase/util/dist/algorithems/secp256k1'
 
 jest.setTimeout(10000)
@@ -469,7 +469,7 @@ test('list data with cursor', async () => {
 
 test('read access', async () => {
   const namespace = `${prefix}-read-access`
-  const pv = await secp256k1.generatePrivateKey()
+  const pv = secp256k1.generatePrivateKey()
 
   s = new Polybase({
     baseURL: API_URL,
@@ -519,6 +519,63 @@ collection PrivateCol {
 
   const queryList = await c.where('id', '==', 'id1').get()
   expect(queryList.data[0].data.id).toEqual('id1')
+})
+
+test('array delegate access', async() => {
+  const namespace = `${prefix}-array-delegate-access`
+  const pv = secp256k1.generatePrivateKey()
+
+  s = new Polybase({
+    baseURL: API_URL,
+    signer: async (d: string) => {
+      const sig = ethPersonalSign(pv, d)
+      return {
+        sig,
+        h: 'eth-personal-sign',
+      }
+    },
+  })
+
+  const c: Collection<any> = await createCollection(s, namespace, `
+collection User {
+  id: string;
+  @delegate
+  publicKey: PublicKey;
+
+  constructor (id: string) {
+    this.id = id;
+    this.publicKey = ctx.publicKey;
+  }
+}
+
+collection BankAccount {
+  id: string;
+  @read
+  owners: User[];
+
+  constructor (id: string, owners: User[]) {
+    this.id = id;
+    this.owners = owners;
+  }
+}
+`)
+
+  await c.create(['id1'])
+  await c.create(['id2'])
+
+  const bankCol = s.collection(`${namespace}/BankAccount`)
+  await bankCol.create(['id1', [c.record('id1'), c.record('id2')]])
+
+  const record = await bankCol.record('id1').get()
+  expect(record.data.id).toEqual('id1')
+  expect(record.data.owners).toEqual([
+    { collectionId: `${namespace}/User`, id: 'id1' },
+    { collectionId: `${namespace}/User`, id: 'id2' },
+  ])
+
+  s.signer(null as any as Signer)
+  // Fails without auth
+  return expect(bankCol.record('id1').get()).rejects.toThrow()
 })
 
 test('signing', async () => {

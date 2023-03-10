@@ -1,5 +1,5 @@
 import { CollectionRecord } from './Record'
-import type { CallArgs } from './types'
+import type { CallArg, CallArgs, FieldTypes } from './types'
 
 export function validateCallParameters (collectionId: string, functionName: string, ast: any, args: CallArgs) {
   const funcAST = getCollectionAST(collectionId, ast).attributes.find((f: any) => f.kind === 'method' && f.name === functionName)
@@ -58,4 +58,24 @@ export function decodeBase64 (value: string): Uint8Array {
   }
 
   return bytes
+}
+
+export function referenceArg (arg: CallArg): CallArg {
+  if (arg instanceof CollectionRecord) return arg.reference()
+
+  if (Array.isArray(arg)) {
+    for (const i in arg) {
+      arg[i] = referenceArg(arg[i]) as FieldTypes
+    }
+  }
+
+  return arg
+}
+
+export function serializeValue (arg: CallArg): CallArg {
+  if (arg instanceof Uint8Array) return encodeBase64(arg)
+
+  arg = referenceArg(arg)
+
+  return arg
 }
