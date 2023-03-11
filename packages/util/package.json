@@ -1,7 +1,7 @@
 {
   "name": "@polybase/util",
   "description": "Utility functions for Polybase",
-  "version": "0.3.31",
+  "version": "0.3.32",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/polybase/polybase-ts/tree/main/packages/util",
