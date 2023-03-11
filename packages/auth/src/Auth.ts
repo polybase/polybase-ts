@@ -22,7 +22,7 @@ export interface ActionRequestSignIn {
 export type ActionRequest = ActionRequestEthPersonalSign | ActionRequestSignIn
 
 export interface AuthConfig {
-  domain?: string,
+  origin?: string,
   url: string
 }
 
@@ -91,7 +91,7 @@ export class Auth {
   init = async () => {
     const child = await this.connection.promise
     await child.register({
-      domain: this.config?.domain ?? window.location.origin,
+      domain: this.config?.origin ?? window.location.origin,
     })
     return child
   }
