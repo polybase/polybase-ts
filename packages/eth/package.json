@@ -14,7 +14,7 @@
     "clean": "rimraf dist/* &",
     "build": "yarn clean && tsc && webpack",
     "prepare": "yarn build",
-    "release": "npx np",
+    "test": "yarn build && jest ./src",
     "fix": "yarn eslint \"./src/**/*.{ts,tsx}\" --fix"
   },
   "jest": {

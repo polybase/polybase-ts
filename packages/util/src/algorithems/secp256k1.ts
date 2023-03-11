@@ -6,6 +6,7 @@ import { randomBytes } from '../randombytes'
 import { addPublicKeyPrefix, assert, encodeToString, decodeFromString, stringifyEncryptedData, parseEncrypedData } from '../util'
 import { crypto } from '../crypto'
 import { EncryptedDataSecp256k1 } from '../types'
+export { recoverPublicKey } from '@ethersproject/signing-key'
 
 const EC = elliptic.ec
 const ec = new EC('secp256k1')
