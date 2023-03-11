@@ -2,10 +2,10 @@ import { connectToChild, Connection, AsyncMethodReturns } from 'penpal'
 import { Modal } from './Modal'
 
 export interface AuthState {
-  type: 'metamask'|'email'
-  email?: string|null
-  userId?: string|null
-  publicKey?: string|null
+  type: 'metamask' | 'email'
+  email?: string | null
+  userId?: string | null
+  publicKey?: string | null
 }
 
 export interface ActionRequestEthPersonalSign {
@@ -19,9 +19,10 @@ export interface ActionRequestSignIn {
   type: 'signIn',
 }
 
-export type ActionRequest = ActionRequestEthPersonalSign|ActionRequestSignIn
+export type ActionRequest = ActionRequestEthPersonalSign | ActionRequestSignIn
 
 export interface AuthConfig {
+  origin?: string,
   url: string
 }
 
@@ -34,7 +35,7 @@ export interface ChildFns {
   action: (action: ActionRequest) => Promise<any>
 }
 
-export type AuthListener = (state: AuthState|null, auth: Auth) => void
+export type AuthListener = (state: AuthState | null, auth: Auth) => void
 
 export const defaultConfig = {
   url: 'https://auth.testnet.polybase.xyz',
@@ -45,12 +46,12 @@ export class Auth {
   modal: Modal
   connection: Connection<ChildFns>
   isAuthenticated: boolean
-  state: AuthState|null
+  state: AuthState | null
   loading: boolean
   promise: Promise<AsyncMethodReturns<ChildFns>>
   authUpdateListeners: AuthListener[] = []
 
-  constructor (config?: AuthConfig) {
+  constructor(config?: AuthConfig) {
     this.config = {
       ...defaultConfig,
       ...(config ?? {}),
@@ -63,7 +64,7 @@ export class Auth {
       iframe: this.modal.iframe,
       // Methods the parent is exposing to the child.
       methods: {
-        onAuthUpdate: (auth: AuthState|null) => {
+        onAuthUpdate: (auth: AuthState | null) => {
           this.loading = false
           this.isAuthenticated = !!auth
           if (!isEqual(this.state, auth)) {
@@ -90,7 +91,7 @@ export class Auth {
   init = async () => {
     const child = await this.connection.promise
     await child.register({
-      domain: window.location.origin,
+      domain: this.config?.origin ?? window.location.origin,
     })
     return child
   }
@@ -127,7 +128,7 @@ export class Auth {
   }
 }
 
-function isEqual (obj1: any, obj2: any) {
+function isEqual(obj1: any, obj2: any) {
   if (obj1 === obj2) return true
   if (obj1 === null || obj2 === null) return false
   const obj1Keys = Object.keys(obj1)
