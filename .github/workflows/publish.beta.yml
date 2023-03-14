@@ -30,4 +30,4 @@ jobs:
         run: yarn lerna run build
 
       - name: "Publish"
-        run: yarn lerna publish --canary --preid beta --dist-tag beta --tag-version-prefix beta --yes
+        run: yarn lerna publish prepatch --preid beta --dist-tag beta --yes
