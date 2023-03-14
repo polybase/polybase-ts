@@ -36,6 +36,7 @@ export interface ChildFns {
 }
 
 export type AuthListener = (state: AuthState | null, auth: Auth) => void
+export type AuthUnsubscribeListener = () => void
 
 export const defaultConfig = {
   url: 'https://auth.testnet.polybase.xyz',
@@ -43,13 +44,13 @@ export const defaultConfig = {
 
 export class Auth {
   config?: AuthConfig
-  modal: Modal
-  connection: Connection<ChildFns>
   isAuthenticated: boolean
   state: AuthState | null
   loading: boolean
-  promise: Promise<AsyncMethodReturns<ChildFns>>
-  authUpdateListeners: AuthListener[] = []
+  private authUpdateListeners: AuthListener[] = []
+  private modal: Modal
+  private connection: Connection<ChildFns>
+  private promise: Promise<AsyncMethodReturns<ChildFns>>
 
   constructor(config?: AuthConfig) {
     this.config = {
@@ -88,21 +89,14 @@ export class Auth {
     this.promise = this.init()
   }
 
-  init = async () => {
-    const child = await this.connection.promise
-    await child.register({
-      domain: this.config?.origin ?? window.location.origin,
-    })
-    return child
-  }
-
-  signIn = async () => {
-    return this.action({
+  signIn = async (): Promise<AuthState | null> => {
+    await this.action({
       type: 'signIn',
     })
+    return this.state
   }
 
-  ethPersonalSign = async (msg: string) => {
+  ethPersonalSign = async (msg: string): Promise<string> => {
     return this.action({
       type: 'ethPersonalSign',
       data: {
@@ -111,11 +105,7 @@ export class Auth {
     })
   }
 
-  action = async (action: ActionRequest) => {
-    return (await this.promise).action(action)
-  }
-
-  onAuthUpdate = (listener: AuthListener) => {
+  onAuthUpdate = (listener: AuthListener): AuthUnsubscribeListener => {
     // Add listener
     this.authUpdateListeners.push(listener)
     // Call listener
@@ -125,6 +115,18 @@ export class Auth {
       const index = this.authUpdateListeners.indexOf(listener)
       this.authUpdateListeners.splice(index, 1)
     }
+  }
+
+  private init = async () => {
+    const child = await this.connection.promise
+    await child.register({
+      domain: this.config?.origin ?? window.location.origin,
+    })
+    return child
+  }
+
+  private action = async (action: ActionRequest): Promise<any> => {
+    return (await this.promise).action(action)
   }
 }
 
