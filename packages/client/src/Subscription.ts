@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios'
 import { Client } from './Client'
 import { wrapError, PolybaseError } from './errors'
 import { Request } from './types'
@@ -73,16 +72,11 @@ export class Subscription<T> {
       const statusCode = err.statusCode ?? err.status ??
         err.code ?? err.response?.status
 
-      // Don't error for 304
-      if (statusCode !== 304) {
-        // TODO: we should create a client abort error
-        if (err && typeof err === 'object' && err instanceof AxiosError) {
-          // We cancelled the request
-          if (err.code === 'ERR_CANCELED') {
-            return
-          }
-        }
+      const isCancelledError = err && typeof err === 'object' &&
+        err instanceof PolybaseError && err.reason === 'request/cancelled'
 
+      // Don't error for 304
+      if (statusCode !== 304 && !isCancelledError) {
         let e = err
         if (!(err instanceof PolybaseError)) {
           e = wrapError(err)
