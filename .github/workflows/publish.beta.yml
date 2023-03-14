@@ -12,6 +12,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: main
+          token: ${{ secrets.ADMIN_TOKEN }}
+
+      - run: git config --global user.email "hello@polybase.xyz"
+      - run: git config --global user.name "Polybase CI"
 
       - uses: actions/setup-node@v3
         with:
