@@ -8,7 +8,7 @@ export class Modal {
   iframe: HTMLIFrameElement
   modal: HTMLDivElement
 
-  constructor (id: string, src?: string) {
+  constructor(id: string, src?: string) {
     this.id = id
     this.iframe = document.createElement('iframe')
     this.iframe.src = src ?? POLYBASE_DEFAULT_IFRAME_URL
@@ -39,7 +39,7 @@ export class Modal {
   }
 }
 
-export function createModal (modal: HTMLDivElement, iframe: HTMLIFrameElement, url?: string) {
+export function createModal(modal: HTMLDivElement, iframe: HTMLIFrameElement, url?: string) {
   // Create the modal element
   modal.id = 'polybase-auth-modal'
   modal.style.display = 'none'
@@ -73,7 +73,7 @@ export function createModal (modal: HTMLDivElement, iframe: HTMLIFrameElement, u
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.75);
-      z-index: 1;
+      z-index: 2147483647;
       display: flex;
       align-items: center;
       justify-content: center;
