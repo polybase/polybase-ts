@@ -41,19 +41,26 @@
     url: POLYBASE_AUTH_URL,
   })
 
-  auth.onAuthUpdate((auth) => {
-    console.log('auth', auth)
-    if (!document.getElementById('auth')) return
-    document.getElementById('auth').innerText = 'Auth: ' + auth?.type ?? 'No auth'
-  })
+  window.onload = () => {
+    auth.onAuthUpdate((auth) => {
+      console.log('auth', auth)
+      if (!document.getElementById('auth')) return
+      document.getElementById('auth').innerText = 'Auth: ' + (auth ? auth?.type : 'null')
+    })
+  }
 
-  async function login() {
-    const res = await auth.signIn()
+  async function signIn(force) {
+    const res = await auth.signIn({ force })
     client.signer(async (data) => {
       console.log(data)
       return { h: 'eth-personal-sign', sig: await auth.ethPersonalSign(data) }
     })
-    console.log('login', res)
+    console.log('signIn', res)
+  }
+
+  async function signOut() {
+    const res = await auth.signOut()
+    console.log('signOut', res)
   }
 
   async function sign() {
@@ -77,8 +84,10 @@
 <body>
   <div>
     <h3>Sign In</h3>
-    <button onclick="login()">Login</button>
-    <div id="auth">Auth: </div>
+    <button onclick="signIn()">Sign In</button>
+    <button onclick="signIn(true)">Sign In (Force)</button>
+    <button onclick="signOut()">Sign Out</button>
+    <div id="auth">Auth: loading...</div>
   </div>
   <div>
     <h3>Ethereum Personal Sign</h3>
