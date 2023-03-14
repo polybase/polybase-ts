@@ -2,6 +2,7 @@ import FakeTimers from '@sinonjs/fake-timers'
 import { Subscription } from '../Subscription'
 import { Client } from '../Client'
 import { wait } from './util'
+import { createError } from '../errors'
 
 const clock = FakeTimers.install()
 
@@ -230,4 +231,27 @@ test('subscription options are merged with default options', () => {
 
   expect(c).toHaveProperty('options.timeout', 100)
   expect(c).toHaveProperty('options.maxErrorTimeout', 1)
+})
+
+test('ignore cancelled error', async () => {
+  const c = new Subscription({
+    url: '/collections/col/records/id',
+    method: 'GET',
+    params: {},
+  }, client)
+
+  client.request = () => {
+    throw createError('request/cancelled')
+  }
+
+  const spy = jest.fn()
+  const error = jest.fn()
+
+  const unsub = c.subscribe(spy, error)
+
+  await clock.tickAsync(200)
+
+  expect(error).toHaveBeenCalledTimes(0)
+
+  unsub()
 })

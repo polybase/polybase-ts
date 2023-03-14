@@ -521,7 +521,7 @@ collection PrivateCol {
   expect(queryList.data[0].data.id).toEqual('id1')
 })
 
-test('array delegate access', async() => {
+test('array delegate access', async () => {
   const namespace = `${prefix}-array-delegate-access`
   const pv = secp256k1.generatePrivateKey()
 
