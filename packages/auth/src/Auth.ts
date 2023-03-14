@@ -17,9 +17,17 @@ export interface ActionRequestEthPersonalSign {
 
 export interface ActionRequestSignIn {
   type: 'signIn',
+  data: {
+    // Force sign in modal to show, even if already signed in
+    force?: boolean
+  }
 }
 
-export type ActionRequest = ActionRequestEthPersonalSign | ActionRequestSignIn
+export interface ActionRequestSignOut {
+  type: 'signOut',
+}
+
+export type ActionRequest = ActionRequestEthPersonalSign | ActionRequestSignIn | ActionRequestSignOut
 
 export interface AuthConfig {
   origin?: string,
@@ -37,6 +45,9 @@ export interface ChildFns {
 
 export type AuthListener = (state: AuthState | null, auth: Auth) => void
 export type AuthUnsubscribeListener = () => void
+export interface SignInParameters {
+  force?: boolean
+}
 
 export const defaultConfig = {
   url: 'https://auth.testnet.polybase.xyz',
@@ -89,11 +100,24 @@ export class Auth {
     this.promise = this.init()
   }
 
-  signIn = async (): Promise<AuthState | null> => {
-    await this.action({
-      type: 'signIn',
-    })
+  signIn = async (params?: SignInParameters): Promise<AuthState | null> => {
+    const { force } = params ?? {}
+    if (force || !this.isAuthenticated) {
+      await this.action({
+        type: 'signIn',
+        data: {
+          force,
+        },
+      })
+    }
     return this.state
+  }
+
+  signOut = async (): Promise<AuthState | null> => {
+    await this.action({
+      type: 'signOut',
+    })
+    return null
   }
 
   ethPersonalSign = async (msg: string): Promise<string> => {
