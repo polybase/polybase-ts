@@ -1,7 +1,7 @@
 
 import { AxiosRequestConfig } from 'axios'
-import { CollectionRecord } from './Record'
-export type BasicValue = string | number | boolean
+import { CollectionRecord, CollectionRecordReference } from './Record'
+export type QueryValue = string | number | boolean | PublicKey | CollectionRecord<any> | CollectionRecordReference
 
 export interface CollectionRecordResponse<T> {
   block: string
@@ -42,7 +42,7 @@ export interface RequestParams {
   sort?: [string, 'asc' | 'desc'][]
 }
 
-export type QueryWhereValue = BasicValue | Record<QueryWhereKey, BasicValue>
+export type QueryWhereValue = QueryValue | Record<QueryWhereKey, QueryValue>
 export type QueryWhereKey = '$lt' | '$gt' | '$gte' | '$lte' | '$eq'
 export type QueryWhereOperator = '==' | '>' | '<' | '>=' | '<='
 
