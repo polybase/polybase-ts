@@ -1,36 +1,5 @@
 import { CollectionRecord } from './Record'
-import type { CallArg, CallArgs, FieldTypes } from './types'
-
-export function validateCallParameters (collectionId: string, functionName: string, ast: any, args: CallArgs) {
-  const funcAST = getCollectionAST(collectionId, ast).attributes.find((f: any) => f.kind === 'method' && f.name === functionName)
-  if (!funcAST) throw new Error('Function not found')
-
-  let i = 0
-  for (const attr of funcAST.attributes) {
-    if (attr.kind !== 'parameter') continue
-    const param = i++
-
-    const ourArg = args[param]
-    const expectedType = attr.type
-    switch (expectedType.kind) {
-      case 'primitive':
-        switch (expectedType.value) {
-          case 'string':
-            if (typeof ourArg !== 'string') throw new Error(`Argument ${param} must be a string`)
-            break
-          case 'number':
-            if (typeof ourArg !== 'number') throw new Error(`Argument ${param} must be a number`)
-            break
-          case 'boolean':
-            if (typeof ourArg !== 'boolean') throw new Error(`Argument ${param} must be a boolean`)
-        }
-        break
-      case 'record':
-        if (!(ourArg && typeof ourArg === 'object' && ourArg instanceof CollectionRecord)) throw new Error(`Argument ${param} must be a record`)
-        break
-    }
-  }
-}
+import type { CallArg, FieldTypes } from './types'
 
 export function getCollectionAST (id: string, ast: any): any {
   const name = getCollectionShortNameFromId(id)

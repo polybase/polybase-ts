@@ -2,7 +2,7 @@ import { Collection } from './Collection'
 import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
 import { Client } from './Client'
 import { Request, CollectionRecordResponse, CallArgs } from './types'
-import { decodeBase64, getCollectionProperties, serializeValue, validateCallParameters } from './util'
+import { decodeBase64, getCollectionProperties, serializeValue } from './util'
 
 export type CollectionRecordSnapshotRegister<T> = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
@@ -22,7 +22,6 @@ export class CollectionRecord<T> {
   call = async (functionName: string, args: CallArgs = []): Promise<CollectionRecordResponse<T>> => {
     const meta = await this.collection.getMeta()
     const ast = JSON.parse(meta.ast)
-    validateCallParameters(this.collection.id, functionName, ast, args)
 
     const res = await this.client.request({
       url: `/collections/${encodeURIComponent(this.collection.id)}/records/${encodeURIComponent(this.id)}/call/${encodeURIComponent(functionName)}`,
