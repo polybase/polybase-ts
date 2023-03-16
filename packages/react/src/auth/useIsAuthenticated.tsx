@@ -8,7 +8,7 @@ import { Auth } from './types'
  *
  * @returns [isLoggedIn, loading]
  */
-export function useIsLoggedIn<T extends Auth = Auth>(): [boolean, boolean] {
+export function useIsAuthenticated<T extends Auth = Auth>(): [boolean, boolean] {
   const AuthContext = createAuthContext<T>()
   const auth = useContext(AuthContext)
   return [!!auth.state, auth.loading]

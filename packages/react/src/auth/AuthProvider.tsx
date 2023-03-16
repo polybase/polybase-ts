@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useMemo } from 'react'
 import { Polybase } from '@polybase/client'
 import type { AuthState } from '@polybase/auth'
-import { Auth, AuthBase } from './types'
+import { Auth, AuthBase, PolybaseBase } from './types'
 
 export interface AuthContextValue<T extends AuthBase> {
   auth: T,
@@ -13,7 +13,7 @@ export function createAuthContext<T extends AuthBase = Auth>() {
   return createContext<AuthContextValue<T>>({
     auth: {} as T,
     state: null,
-    loading: false,
+    loading: true,
   })
 }
 
@@ -28,13 +28,13 @@ export function createAuthContext<T extends AuthBase = Auth>() {
 //   state: null,
 // })
 
-export interface AuthProviderProps<T> {
+export interface AuthProviderProps<T, P> {
   children: React.ReactNode
-  polybase: Polybase
+  polybase: P
   auth: T
 }
 
-export function AuthProvider<T extends AuthBase = Auth>({ children, auth, polybase }: AuthProviderProps<T>) {
+export function AuthProvider<T extends AuthBase = Auth, P extends PolybaseBase = Polybase>({ children, auth, polybase }: AuthProviderProps<T, P>) {
   const [authState, setAuthState] = useState<AuthState | null>(null)
   const [loading, setLoading] = useState(true)
   const AuthContext = createAuthContext<T>()
