@@ -13,6 +13,9 @@ jobs:
       - name: Install packages
         run: yarn
 
+      - name: Link packages
+        run: yarn link
+
       - name: Run client unit tests
         run: cd packages/client && yarn test
 
