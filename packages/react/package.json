@@ -28,6 +28,8 @@
     "testEnvironment": "node"
   },
   "devDependencies": {
+    "@polybase/auth": "^0.3.35",
+    "@polybase/client": "^0.3.35",
     "@sinonjs/fake-timers": "^10.0.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
