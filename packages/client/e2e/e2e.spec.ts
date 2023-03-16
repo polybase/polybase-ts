@@ -720,3 +720,34 @@ test('bytes', async () => {
     },
   }])
 })
+
+test('calls to functions with optional parameters', async () => {
+  const namespace = `${prefix}-optional-params`
+
+  const c = await createCollection(s, namespace, `
+    @public
+    collection Col {
+      id: string;
+      age?: number;
+
+      constructor (id: string, age?: number) {
+        this.id = id;
+        this.age = age;
+      }
+    }
+  `)
+
+  const rec1 = await c.create(['rec1', 20])
+  expect(rec1.data).toEqual({
+    id: 'rec1',
+    age: 20,
+  })
+
+  const rec2 = await c.create(['rec2'])
+  expect(rec2.data).toEqual({
+    id: 'rec2',
+  })
+
+  await expect(c.create([])).rejects.toThrow('incorrect number of arguments, expected 1, got 0')
+  await expect(c.create(['rec3', 20, 30])).rejects.toThrow('incorrect number of arguments, expected 2, got 3')
+})

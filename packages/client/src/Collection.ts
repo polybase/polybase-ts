@@ -4,7 +4,7 @@ import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscriptio
 import { Client } from './Client'
 import { BasicValue, CollectionMeta, CollectionRecordResponse, CollectionList, QueryWhereOperator, CallArgs } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
-import { validateCallParameters, getCollectionAST, getCollectionProperties, serializeValue } from './util'
+import { getCollectionAST, getCollectionProperties, serializeValue } from './util'
 import { createError, PolybaseError } from './errors'
 
 export class Collection<T> {
@@ -95,7 +95,6 @@ export class Collection<T> {
   create = async (args: CallArgs): Promise<CollectionRecordResponse<T>> => {
     const meta = await this.getMeta()
     const ast = JSON.parse(meta.ast)
-    validateCallParameters(this.id, 'constructor', ast, args)
 
     const res = await this.client.request({
       url: `/collections/${encodeURIComponent(this.id)}/records`,
