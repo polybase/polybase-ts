@@ -49,5 +49,8 @@
   "peerDependencies": {
     "@polybase/client": "*",
     "react": ">=16.8"
+  },
+  "dependencies": {
+    "@polybase/auth": "^0.3.33"
   }
 }
