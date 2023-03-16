@@ -5,7 +5,7 @@ import { AuthProvider } from '../AuthProvider'
 import { useAuth } from '../useAuth'
 import { Signer } from '@polybase/client'
 import { Auth, PolybaseBase } from '../types'
-import type { AuthState } from '@polybase/auth'
+import { Auth as PolybaseAuth, AuthState } from '@polybase/auth'
 
 let auth: Auth
 let polybase: PolybaseBase
@@ -52,6 +52,23 @@ test('should load signed in auth state', () => {
 })
 
 test('should load not signed in auth state', () => {
+  const wrapper: React.FC = ({ children }: any) => (
+    <AuthProvider auth={auth} polybase={polybase}>
+      {children}
+    </AuthProvider>
+  )
+  const { result } = renderHook(() => useAuth(), { wrapper })
+
+  act(() => {
+    fn(null)
+  })
+
+  expect(result.current.loading).toBe(false)
+  expect(result.current.state).toEqual(null)
+})
+
+test('should work with @polybase/auth', () => {
+  auth = new PolybaseAuth()
   const wrapper: React.FC = ({ children }: any) => (
     <AuthProvider auth={auth} polybase={polybase}>
       {children}

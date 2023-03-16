@@ -25,7 +25,7 @@
     "testMatch": [
       "<rootDir>/**/*.spec.{js,jsx,ts,tsx}"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "jsdom"
   },
   "devDependencies": {
     "@polybase/auth": "^0.3.35",

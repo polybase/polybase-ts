@@ -6,7 +6,7 @@ export interface SignInParameters {
 }
 
 export interface Auth extends AuthBase {
-  signIn: (params?: SignInParameters) => Promise<AuthState>
+  signIn: (params?: SignInParameters) => Promise<AuthState | null>
   signOut: () => Promise<void>
 }
 

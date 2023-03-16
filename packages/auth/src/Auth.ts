@@ -113,11 +113,10 @@ export class Auth {
     return this.state
   }
 
-  signOut = async (): Promise<AuthState | null> => {
+  signOut = async (): Promise<void> => {
     await this.action({
       type: 'signOut',
     })
-    return null
   }
 
   ethPersonalSign = async (msg: string): Promise<string> => {
