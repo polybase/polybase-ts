@@ -13,8 +13,8 @@ jobs:
       - name: Install packages
         run: yarn
 
-      - name: Link packages
-        run: yarn link
+      - name: Build packages
+        run: yarn lerna run build && yarn lerna link
 
       - name: Run client unit tests
         run: cd packages/client && yarn test
