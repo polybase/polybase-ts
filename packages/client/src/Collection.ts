@@ -2,7 +2,7 @@ import { CollectionRecord, deserializeRecord } from './Record'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
-import { BasicValue, CollectionMeta, CollectionRecordResponse, CollectionList, QueryWhereOperator, CallArgs } from './types'
+import { QueryValue, CollectionMeta, CollectionRecordResponse, CollectionList, QueryWhereOperator, CallArgs } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
 import { getCollectionAST, getCollectionProperties, serializeValue } from './util'
 import { createError, PolybaseError } from './errors'
@@ -139,7 +139,7 @@ export class Collection<T> {
     return this.record(id)
   }
 
-  where = (field: string, op: QueryWhereOperator, value: BasicValue): Query<T> => {
+  where = (field: string, op: QueryWhereOperator, value: QueryValue): Query<T> => {
     return this.createQuery().where(field, op, value)
   }
 

@@ -1,11 +1,11 @@
 import { Client } from './Client'
 import { Collection } from './Collection'
-import { deserializeRecord } from './Record'
+import { CollectionRecord, deserializeRecord } from './Record'
 import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import {
   Request,
   RequestParams,
-  BasicValue,
+  QueryValue,
   QueryWhereOperator,
   QueryWhereKey,
   CollectionList,
@@ -60,13 +60,18 @@ export class Query<T> {
     return this
   }
 
-  where = (field: string, op: QueryWhereOperator, value: string | number | boolean) => {
+  where = (field: string, op: QueryWhereOperator, value: QueryValue) => {
     const q = this.clone()
+
+    const referencedValue =
+      value instanceof CollectionRecord
+        ? value.reference()
+        : value
 
     if (!q.params.where) q.params.where = {}
     q.params.where[field] = op === '=='
-      ? value
-      : { [QueryWhereOperatorMap[op]]: value } as Record<QueryWhereKey, BasicValue>
+      ? referencedValue
+      : { [QueryWhereOperatorMap[op]]: referencedValue } as Record<QueryWhereKey, QueryValue>
     return q
   }
 

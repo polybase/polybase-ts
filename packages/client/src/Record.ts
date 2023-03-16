@@ -6,6 +6,11 @@ import { decodeBase64, getCollectionProperties, serializeValue } from './util'
 
 export type CollectionRecordSnapshotRegister<T> = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
+export type CollectionRecordReference = {
+  collectionId: string
+  id: string
+}
+
 export class CollectionRecord<T> {
   id: string
   private collection: Collection<T>
@@ -52,7 +57,7 @@ export class CollectionRecord<T> {
     return res.data
   }
 
-  reference = (): { collectionId: string, id: string } => ({
+  reference = (): CollectionRecordReference => ({
     collectionId: this.collection.id,
     id: this.id,
   })

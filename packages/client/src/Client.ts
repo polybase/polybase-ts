@@ -1,7 +1,7 @@
 
 import { AxiosError, AxiosRequestConfig } from 'axios'
 import { createError, createErrorFromAxiosError } from './errors'
-import { BasicValue, Request, RequestParams, Sender, SenderResponse, Signer, SignerResponse } from './types'
+import { QueryValue, Request, RequestParams, Sender, SenderResponse, Signer, SignerResponse } from './types'
 
 export interface ClientConfig {
   clientId: string
@@ -125,7 +125,7 @@ export class ClientRequest {
   }
 }
 
-export function parseParams(params?: RequestParams): Record<string, BasicValue | undefined> {
+export function parseParams(params?: RequestParams): Record<string, QueryValue | undefined> {
   if (!params) return {}
   return {
     ...params,

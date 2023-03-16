@@ -1,6 +1,6 @@
 import { encodeToString, secp256k1, stripPublicKeyPrefix } from '@polybase/util'
 import { ethPersonalSign } from '@polybase/eth'
-import { Polybase, Collection, PublicKey, Signer } from '../src'
+import { Polybase, Collection, PublicKey, Signer, CollectionRecordReference } from '../src'
 import { getPublicKey } from '@polybase/util/dist/algorithems/secp256k1'
 
 jest.setTimeout(10000)
@@ -463,6 +463,86 @@ test('list data with cursor', async () => {
       block: {
         hash: expect.stringMatching(/^./),
       },
+    }],
+  })
+})
+
+test('list data with where on collection record field', async () => {
+  const namespace = `${prefix}-record-ref-index`
+  const accountCol: Collection<{ id: string, user: CollectionRecordReference }> = await createCollection(s, namespace, `
+@public
+collection Account {
+  id: string;
+  user?: User;
+
+  @index(user);
+
+  constructor (id: string, user?: User) {
+    this.id = id;
+    this.user = user;
+  }
+}
+
+@public
+collection User {
+  id: string;
+
+  constructor (id: string) {
+    this.id = id;
+  }
+}
+  `)
+
+  const userCol = s.collection<{ id: string }>(namespace + '/User')
+
+  const { data: user } = await userCol.create(['0'])
+  const { data: user2 } = await userCol.create(['1'])
+
+  const { data: account } = await accountCol.create(['0', {
+    collectionId: userCol.id,
+    id: user.id,
+  }])
+
+  const { data: account2 } = await accountCol.create(['1', {
+    collectionId: userCol.id,
+    id: user2.id,
+  }])
+
+  await accountCol.create(['2'])
+
+  const list = await accountCol.where('user', '==', {
+    collectionId: userCol.id,
+    id: user.id,
+  }).get()
+
+  expect(list).toEqual({
+    cursor: {
+      after: expect.stringMatching(/^./),
+      before: expect.stringMatching(/^./),
+    },
+    data: [{
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+      data: account,
+    }],
+  })
+
+  const list2 = await accountCol.where('user', '==', {
+    collectionId: userCol.id,
+    id: user2.id,
+  }).get()
+
+  expect(list2).toEqual({
+    cursor: {
+      after: expect.stringMatching(/^./),
+      before: expect.stringMatching(/^./),
+    },
+    data: [{
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+      data: account2,
     }],
   })
 })

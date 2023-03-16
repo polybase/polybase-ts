@@ -122,3 +122,11 @@ test('sort/where/limit... methods return a new instance', () => {
   const q4 = q3.limit(100)
   expect(q3).not.toBe(q4)
 })
+
+test('records are valid query values', async () => {
+  const collection = new Collection('col1', client)
+  const userCollection = new Collection('user', client)
+
+  const q = collection.where('user', '==', userCollection.record('id1'))
+  expect(q.key()).toBe('query:col1?{"where":{"user":{"collectionId":"user","id":"id1"}}}')
+})
