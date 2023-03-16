@@ -1,6 +1,5 @@
 import { useContext } from 'react'
-import { createAuthContext } from './AuthProvider'
-import { Auth } from './types'
+import { AuthContext } from './AuthProvider'
 
 /**
  * Returns the current auth state and loading state. Requires to be a child of
@@ -8,8 +7,7 @@ import { Auth } from './types'
  *
  * @returns [isLoggedIn, loading]
  */
-export function useIsAuthenticated<T extends Auth = Auth>(): [boolean, boolean] {
-  const AuthContext = createAuthContext<T>()
+export function useIsAuthenticated(): [null | boolean, boolean] {
   const auth = useContext(AuthContext)
-  return [!!auth.state, auth.loading]
+  return [auth.loading ? null : !!auth.state, auth.loading]
 }

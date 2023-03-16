@@ -9,24 +9,16 @@ export interface AuthContextValue<T extends AuthBase> {
   loading: boolean
 }
 
-export function createAuthContext<T extends AuthBase = Auth>() {
-  return createContext<AuthContextValue<T>>({
-    auth: {} as T,
-    state: null,
-    loading: true,
-  })
-}
-
-// export const AuthContext = createContext<AuthContextValue<Auth>>({
-//   auth: {
-//     signIn: async () => { throw new Error('signIn: Not implemented') },
-//     signOut: async () => { throw new Error('signOut: Not implemented') },
-//     ethPersonalSign: async () => { throw new Error('ethPersonalSign: Not implemented') },
-//     onAuthUpdate: (cb) => { throw new Error('onAuthUpdate: Not implemented') },
-//   },
-//   loading: true,
-//   state: null,
-// })
+export const AuthContext = createContext<AuthContextValue<Auth>>({
+  auth: {
+    signIn: async () => { throw new Error('signIn: Not implemented') },
+    signOut: async () => { throw new Error('signOut: Not implemented') },
+    ethPersonalSign: async () => { throw new Error('ethPersonalSign: Not implemented') },
+    onAuthUpdate: (cb) => { throw new Error('onAuthUpdate: Not implemented') },
+  },
+  loading: true,
+  state: null,
+})
 
 export interface AuthProviderProps<T, P> {
   children: React.ReactNode
@@ -34,10 +26,9 @@ export interface AuthProviderProps<T, P> {
   auth: T
 }
 
-export function AuthProvider<T extends AuthBase = Auth, P extends PolybaseBase = Polybase>({ children, auth, polybase }: AuthProviderProps<T, P>) {
+export function AuthProvider<T extends Auth = Auth, P extends PolybaseBase = Polybase>({ children, auth, polybase }: AuthProviderProps<T, P>) {
   const [authState, setAuthState] = useState<AuthState | null>(null)
   const [loading, setLoading] = useState(true)
-  const AuthContext = createAuthContext<T>()
 
   useEffect(() => {
     if (!auth) return

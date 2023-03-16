@@ -2,7 +2,7 @@ import React from 'react'
 import { renderHook, act } from '@testing-library/react-hooks'
 import '@testing-library/jest-dom/extend-expect'
 import { AuthProvider } from '../AuthProvider'
-import { useAuth } from '../useAuth'
+import { useIsAuthenticated } from '../useIsAuthenticated'
 import { Signer } from '@polybase/client'
 import { Auth, PolybaseBase } from '../types'
 import type { AuthState } from '@polybase/auth'
@@ -30,9 +30,9 @@ test('should be set to loading on init', () => {
       {children}
     </AuthProvider>
   )
-  const { result } = renderHook(() => useAuth(), { wrapper })
+  const { result } = renderHook(() => useIsAuthenticated(), { wrapper })
 
-  expect(result.current.loading).toBe(true)
+  expect(result.current).toEqual([null, true])
 })
 
 test('should load signed in auth state', () => {
@@ -41,14 +41,13 @@ test('should load signed in auth state', () => {
       {children}
     </AuthProvider>
   )
-  const { result } = renderHook(() => useAuth(), { wrapper })
+  const { result } = renderHook(() => useIsAuthenticated(), { wrapper })
 
   act(() => {
     fn({ userId: '0x123', type: 'metamask' })
   })
 
-  expect(result.current.loading).toBe(false)
-  expect(result.current.state).toEqual({ userId: '0x123', type: 'metamask' })
+  expect(result.current).toEqual([true, false])
 })
 
 test('should load not signed in auth state', () => {
@@ -57,12 +56,11 @@ test('should load not signed in auth state', () => {
       {children}
     </AuthProvider>
   )
-  const { result } = renderHook(() => useAuth(), { wrapper })
+  const { result } = renderHook(() => useIsAuthenticated(), { wrapper })
 
   act(() => {
     fn(null)
   })
 
-  expect(result.current.loading).toBe(false)
-  expect(result.current.state).toEqual(null)
+  expect(result.current).toEqual([false, false])
 })
