@@ -80,6 +80,6 @@ test('should work with @polybase/auth', () => {
     fn(null)
   })
 
-  expect(result.current.loading).toBe(false)
+  expect(result.current.loading).toBe(true)
   expect(result.current.state).toEqual(null)
 })

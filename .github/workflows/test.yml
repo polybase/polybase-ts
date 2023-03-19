@@ -27,3 +27,6 @@ jobs:
 
       - name: Run react unit tests
         run: cd packages/react && yarn test
+
+      - name: Run auth unit tests
+        run: cd packages/auth && yarn test
