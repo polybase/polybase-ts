@@ -77,9 +77,10 @@ export class Auth {
       // Methods the parent is exposing to the child.
       methods: {
         onAuthUpdate: (auth: AuthState | null) => {
+          const loading = this.loading
           this.loading = false
           this.isAuthenticated = !!auth
-          if (!isEqual(this.state, auth)) {
+          if (loading || !isEqual(this.state, auth)) {
             this.authUpdateListeners.forEach((fn) => {
               fn(auth, this)
             })
