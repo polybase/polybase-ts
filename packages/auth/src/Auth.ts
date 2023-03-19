@@ -131,8 +131,10 @@ export class Auth {
   onAuthUpdate = (listener: AuthListener): AuthUnsubscribeListener => {
     // Add listener
     this.authUpdateListeners.push(listener)
-    // Call listener
-    listener(this.state, this)
+    // Call listener, if not loading
+    if (!this.loading) {
+      listener(this.state, this)
+    }
     return () => {
       // Remove listener
       const index = this.authUpdateListeners.indexOf(listener)

@@ -45,7 +45,9 @@
     auth.onAuthUpdate((auth) => {
       console.log('auth', auth)
       if (!document.getElementById('auth')) return
-      document.getElementById('auth').innerText = 'Auth: ' + (auth ? auth?.type : 'null')
+      document.getElementById("auth").innerText = auth
+        ? JSON.stringify(auth, null, 2)
+        : "null";
     })
   }
 
@@ -87,7 +89,7 @@
     <button onclick="signIn()">Sign In</button>
     <button onclick="signIn(true)">Sign In (Force)</button>
     <button onclick="signOut()">Sign Out</button>
-    <div id="auth">Auth: loading...</div>
+    <code><pre id="auth">Auth: loading...</pre></code>
   </div>
   <div>
     <h3>Ethereum Personal Sign</h3>
