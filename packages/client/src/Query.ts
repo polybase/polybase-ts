@@ -23,8 +23,8 @@ export const QueryWhereOperatorMap: Record<QueryWhereOperator, QueryWhereKey> = 
 }
 
 export class Query<T> {
+  collection: Collection<T>
   private params: RequestParams
-  private collection: Collection<T>
   private client: Client
   private onSnapshotRegister: QuerySnapshotRegister<T>
 
@@ -76,11 +76,10 @@ export class Query<T> {
   }
 
   get = async (): Promise<CollectionList<T>> => {
-    const isPubliclyAccessible = await this.collection.isPubliclyAccessible()
-    const needsAuth = !isPubliclyAccessible
+    const isReadPubliclyAccessible = await this.collection.isReadPubliclyAccessible()
     const sixtyMinutes = 60 * 60 * 1000
 
-    const res = await this.client.request(this.request()).send(needsAuth, sixtyMinutes)
+    const res = await this.client.request(this.request()).send(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
 
     const meta = await this.collection.getMeta()
     const ast = JSON.parse(meta.ast)

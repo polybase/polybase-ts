@@ -21,7 +21,7 @@ test('sub is instance of Subscription', () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client)
+  }, client, Promise.resolve(true))
   expect(c).toBeInstanceOf(Subscription)
 })
 
@@ -46,7 +46,7 @@ test('start/stop subscriber', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client)
+  }, client, Promise.resolve(true))
 
   c.subscribe(spy)
 
@@ -86,7 +86,7 @@ test('subscriber does not error on 304', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client)
+  }, client, Promise.resolve(true))
 
   const unsub = c.subscribe(spyOk, spyErr)
 
@@ -113,7 +113,7 @@ test('subscriber errors on error', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client)
+  }, client, Promise.resolve(true))
 
   const unsub = c.subscribe(spyOk, spyErr)
 
@@ -131,7 +131,7 @@ test('subscriber closes on unsub', () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client)
+  }, client, Promise.resolve(true))
 
   c.stop = jest.fn(c.stop)
 
@@ -146,7 +146,7 @@ test('subscriber adds/removes multiple subs', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client)
+  }, client, Promise.resolve(true))
 
   sender.mockImplementation(async () => {
     await wait(100)
@@ -183,7 +183,7 @@ test('data is cached through reset', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client)
+  }, client, Promise.resolve(true))
 
   const rec = {
     id: '123',
@@ -227,7 +227,7 @@ test('subscription options are merged with default options', () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, options)
+  }, client, Promise.resolve(true), options)
 
   expect(c).toHaveProperty('options.timeout', 100)
   expect(c).toHaveProperty('options.maxErrorTimeout', 1)
@@ -238,7 +238,7 @@ test('ignore cancelled error', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client)
+  }, client, Promise.resolve(true))
 
   client.request = () => {
     throw createError('request/cancelled')

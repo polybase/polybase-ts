@@ -34,10 +34,12 @@ export class Subscription<T> {
   private data?: T
   private timer?: number
   private id = 0
+  private isPublicallyAccessible: Promise<boolean>
 
-  constructor(req: Request, client: Client, options?: Partial<SubscriptionOptions>) {
+  constructor(req: Request, client: Client, isPublicallyAccessible: Promise<boolean>, options?: Partial<SubscriptionOptions>) {
     this.req = req
     this.client = client
+    this.isPublicallyAccessible = isPublicallyAccessible ?? false
     this._listeners = []
     this.options = Object.assign({}, defaultOptions, options)
   }
@@ -56,7 +58,11 @@ export class Subscription<T> {
         params,
       })
       this.aborter = req.abort
-      const res = await req.send()
+
+      // TODO: refactor this
+      const sixtyMinutes = 60 * 60 * 1000
+      const isPubliclyAccessible = await this.isPublicallyAccessible
+      const res = await req.send(isPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
 
       this.since = res.headers['x-polybase-timestamp'] ?? `${Date.now() / 1000}`
 

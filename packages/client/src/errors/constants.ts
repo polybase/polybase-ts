@@ -27,7 +27,9 @@ export type ERROR_REASONS =
   | 'collection/invalid-schema'
 
   // Local
+  | 'collection/invalid-ast'
   | 'collection/missing-namespace'
   | 'collection/not-found'
   | 'unknown/error'
   | 'request/cancelled'
+  | 'request/no-signer'

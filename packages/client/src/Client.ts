@@ -55,16 +55,29 @@ export class ClientRequest {
   }
 
   /* Sending a request to the server. */
-  send = async (withAuth?: boolean, sigExtraTimeMs?: number): Promise<SenderResponse> => {
+  send = async (withAuth: 'none' | 'optional' | 'required', sigExtraTimeMs?: number): Promise<SenderResponse> => {
     try {
       const req = this.req as AxiosRequestConfig
-      if (this.signer && withAuth) {
+      // Error if we require a signer and its not set
+      if (!this.signer && withAuth === 'required') {
+        throw createError('request/no-signer', {
+          message: 'You must add a .signer() to sign permissioned requests, see: https://polybase.xyz/docs/authentication',
+        })
+      }
+
+      // Warn if signer is optional, as a signer is recommended
+      if (!this.signer && withAuth === 'optional' && process.env.NODE_ENV !== 'production') {
+        console.error('Add .signer() to populate ctx.publicKey, see: https://polybase.xyz/docs/authentication')
+      }
+
+      if (withAuth !== 'none' && this.signer) {
         const sig = await this.getSignature(sigExtraTimeMs || 0)
         if (sig) {
           if (!req.headers) req.headers = {}
           req.headers['X-Polybase-Signature'] = sig
         }
       }
+
       const res = await this.sender({
         ...req,
         headers: {
