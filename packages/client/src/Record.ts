@@ -27,6 +27,7 @@ export class CollectionRecord<T> {
   call = async (functionName: string, args: CallArgs = []): Promise<CollectionRecordResponse<T>> => {
     const meta = await this.collection.getMeta()
     const ast = JSON.parse(meta.ast)
+    const isCallPubliclyAccessible = await this.collection.isCallPubliclyAccessible(functionName)
 
     const res = await this.client.request({
       url: `/collections/${encodeURIComponent(this.collection.id)}/records/${encodeURIComponent(this.id)}/call/${encodeURIComponent(functionName)}`,
@@ -34,7 +35,7 @@ export class CollectionRecord<T> {
       data: {
         args: args.map(serializeValue),
       },
-    }).send(true)
+    }).send(isCallPubliclyAccessible ? 'optional' : 'required')
 
     deserializeRecord(res.data.data, getCollectionProperties(this.collection.id, ast))
 
@@ -42,10 +43,9 @@ export class CollectionRecord<T> {
   }
 
   get = async (): Promise<CollectionRecordResponse<T>> => {
-    const isPubliclyAccessible = await this.collection.isPubliclyAccessible()
-    const needsAuth = !isPubliclyAccessible
+    const isReadPubliclyAccessible = await this.collection.isReadPubliclyAccessible()
     const sixtyMinutes = 60 * 60 * 1000
-    const res = await this.client.request(this.request()).send(needsAuth, sixtyMinutes)
+    const res = await this.client.request(this.request()).send(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
 
     // Without this, we would be infinitely recursing, trying to get the meta of Collection
     if (this.collection.id !== 'Collection') {
@@ -81,7 +81,7 @@ export class CollectionRecord<T> {
  */
 export const Doc = CollectionRecord
 
-export function deserializeRecord (data: Record<string, any>, properties: { name: string, type: any; fields?: any }[]) {
+export function deserializeRecord(data: Record<string, any>, properties: { name: string, type: any; fields?: any }[]) {
   if (!data) return
 
   for (const property of properties) {

@@ -239,7 +239,7 @@ test('.create() sends a create request', async () => {
   expect(result.data).toEqual({ id: 'id1', age: 30 })
 })
 
-test('.isPubliclyAccessible() returns true if collection is @public', async () => {
+test('.isReadPubliclyAccessible() returns true if collection is @public', async () => {
   const meta = {
     code: `
       @public
@@ -259,11 +259,11 @@ test('.isPubliclyAccessible() returns true if collection is @public', async () =
   })
 
   const c = new Collection('col', client)
-  expect(await c.isPubliclyAccessible()).toBe(true)
+  expect(await c.isReadPubliclyAccessible()).toBe(true)
   expect(sender).toHaveBeenCalledTimes(1)
 })
 
-test('.isPubliclyAccessible() returns true if collection is @read', async () => {
+test('.isReadPubliclyAccessible() returns true if collection is @read', async () => {
   const meta = {
     code: `
       @read
@@ -283,11 +283,11 @@ test('.isPubliclyAccessible() returns true if collection is @read', async () => 
   })
 
   const c = new Collection('col', client)
-  expect(await c.isPubliclyAccessible()).toBe(true)
+  expect(await c.isReadPubliclyAccessible()).toBe(true)
   expect(sender).toHaveBeenCalledTimes(1)
 })
 
-test('.isPubliclyAccessible() returns false if collection is not @public or @read', async () => {
+test('.isReadPubliclyAccessible() returns false if collection is not @public or @read', async () => {
   const meta = {
     code: `
       collection col {}
@@ -305,6 +305,120 @@ test('.isPubliclyAccessible() returns false if collection is not @public or @rea
   })
 
   const c = new Collection('col', client)
-  expect(await c.isPubliclyAccessible()).toBe(false)
+  expect(await c.isReadPubliclyAccessible()).toBe(false)
+  expect(sender).toHaveBeenCalledTimes(1)
+})
+
+test('.isCallPubliclyAccessible() returns true if collection is @public', async () => {
+  const meta = {
+    code: `
+      @public
+      collection col {
+        foo () {}
+      }
+    `,
+    ast: JSON.stringify((await parse(`
+      @public
+      collection col {
+        foo () {}
+      }
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValue({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  const c = new Collection('col', client)
+  expect(await c.isCallPubliclyAccessible('foo')).toBe(true)
+  expect(sender).toHaveBeenCalledTimes(1)
+})
+
+test('.isCallPubliclyAccessible() returns true if collection is @call', async () => {
+  const meta = {
+    code: `
+      @call
+      collection col {
+        foo () {}
+      }
+    `,
+    ast: JSON.stringify((await parse(`
+      @call
+      collection col {
+        foo () {}
+      }
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValue({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  const c = new Collection('col', client)
+  expect(await c.isCallPubliclyAccessible('foo')).toBe(true)
+  expect(sender).toHaveBeenCalledTimes(1)
+})
+
+test('.isCallPubliclyAccessible() returns true if method is @call', async () => {
+  const meta = {
+    code: `
+      collection col {
+        @call
+        foo () {}
+      }
+    `,
+    ast: JSON.stringify((await parse(`
+      collection col {
+        @call
+        foo () {}
+      }
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValue({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  const c = new Collection('col', client)
+  expect(await c.isCallPubliclyAccessible('foo')).toBe(true)
+  expect(sender).toHaveBeenCalledTimes(1)
+})
+
+test('.isCallPubliclyAccessible() returns false if method has @call args', async () => {
+  const meta = {
+    code: `
+      @public
+      collection col {
+        @call(id1)
+        foo () {}
+      }
+    `,
+    ast: JSON.stringify((await parse(`
+      @public
+      collection col {
+        @call(id1)
+        foo () {}
+      }
+    `, ''))[1]),
+  }
+
+  sender.mockResolvedValue({
+    status: 200,
+    data: {
+      data: meta,
+    },
+  })
+
+  const c = new Collection('col', client)
+  expect(await c.isCallPubliclyAccessible('foo')).toBe(false)
   expect(sender).toHaveBeenCalledTimes(1)
 })
