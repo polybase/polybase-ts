@@ -114,8 +114,8 @@ export class Collection<T> {
   private isCollectionPubliclyAccessible = async (type: 'call' | 'read'): Promise<boolean> => {
     const colAST = await this.getCollectionAST()
     const hasPublicDirective = colAST.attributes.some((attr) => attr.kind === 'directive' && attr.name === 'public')
-    const hasReadAnyDirective = colAST.attributes.some((attr) => attr.kind === 'directive' && attr.name === type && attr.arguments?.length === 0)
-    return hasPublicDirective || hasReadAnyDirective
+    const hasTypeDirective = colAST.attributes.some((attr) => attr.kind === 'directive' && attr.name === type && attr.arguments?.length === 0)
+    return hasPublicDirective || hasTypeDirective
   }
 
   create = async (args: CallArgs): Promise<CollectionRecordResponse<T>> => {
