@@ -545,6 +545,21 @@ collection User {
       data: account2,
     }],
   })
+
+  const list3 = await accountCol.where('user', '==', s.collection(userCol.id).record(user2.id)).get()
+
+  expect(list3).toEqual({
+    cursor: {
+      after: expect.stringMatching(/^./),
+      before: expect.stringMatching(/^./),
+    },
+    data: [{
+      block: {
+        hash: expect.stringMatching(/^./),
+      },
+      data: account2,
+    }],
+  })
 })
 
 test('read access', async () => {
