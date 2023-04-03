@@ -70,6 +70,14 @@
     document.getElementById('signed').innerText = 'Signed: ' + signed
   }
 
+  async function multiSign() {
+    const signed = await Promise.all([
+      auth.ethPersonalSign(document.getElementById('input').value),
+      auth.ethPersonalSign(document.getElementById('input').value),
+    ])
+    document.getElementById('signed').innerText = 'Signed A: ' + signed[0] + '\nSigned B: ' + signed[1]
+  }
+
   async function add() {
     document.getElementById('add').innerText = 'Loading...'
     const res = await client.collection('another/test').create([`${Date.now()}`])
@@ -95,6 +103,7 @@
     <h3>Ethereum Personal Sign</h3>
     <input id="input" value="Hello World" />
     <button onclick="sign()">Sign</button>
+    <button onclick="multiSign()">Multi Sign</button>
     <code><pre id="signed"></pre></code>
   </div>
   <div>
