@@ -1213,10 +1213,10 @@
   dependencies:
     esquery "^1.0.1"
 
-"@polybase/polylang@0.4.9":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.4.9.tgz#35d54aeb053de2dc43d8e17b68fe61fe6c69edde"
-  integrity sha512-qE84YdFGiqkY/uHyXmYIpUb2Dt5iSjVhGilbzv/to7Fc8hbGnzyfmoU8tgrbwVYdX9o8opnDmXJ1DSBBBg+bzQ==
+"@polybase/polylang@0.4.10":
+  version "0.4.10"
+  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.4.10.tgz#0ebbba8862ee982237055f3544065e8da81ed459"
+  integrity sha512-CcBGLPXdbIkpdLEblH1ylyfZ82PbjnQc8vz8YPXkrC78U2kMcAeelel812b/eDv3v3uYVPrsCGfqSuUmtXiPOA==
 
 "@sideway/address@^4.1.3":
   version "4.1.4"
