@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - eng-644-fix-polybase-ts-ci
 
 jobs:
   publish:
