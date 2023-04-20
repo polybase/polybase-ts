@@ -36,4 +36,4 @@ jobs:
         run: yarn lerna run build
 
       - name: "Publish"
-        run: yarn lerna publish ${{ github.ref_name }} --force-git-tag --yes --force-publish
+        run: yarn lerna publish v${{ github.ref_name }} --force-git-tag --yes --tag-version-prefix=''
