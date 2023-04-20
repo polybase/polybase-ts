@@ -1,7 +1,7 @@
 {
   "name": "@polybase/react",
   "description": "React wrapper for @polybase/client",
-  "version": "0.3.39",
+  "version": "0.5.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/polybase/polybase-ts/tree/main/packages/react",
@@ -28,8 +28,8 @@
     "testEnvironment": "jsdom"
   },
   "devDependencies": {
-    "@polybase/auth": "^0.3.39",
-    "@polybase/client": "^0.3.39",
+    "@polybase/auth": "^0.5.0",
+    "@polybase/client": "^0.5.0",
     "@sinonjs/fake-timers": "^10.0.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
