@@ -142,23 +142,25 @@ test('get collection', async () => {
     },
   })
 
-  const want = {
-    id: 'id1',
-    name: 'Calum',
-  }
+  const want = [{
+    block: null,
+    data: {
+      id: 'id1',
+      name: 'Calum',
+    },
+  }]
 
   sender.mockResolvedValue({
     status: 200,
     data: {
+      cursor: {},
       data: want,
     },
   })
 
   const c = new Collection('col', client)
   const got = await c.get()
-  expect(got).toEqual({
-    data: want,
-  })
+  expect(got.data[0].data).toEqual(want[0].data)
 })
 
 test('collection key is correct', () => {

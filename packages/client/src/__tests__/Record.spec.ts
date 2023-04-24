@@ -164,11 +164,9 @@ test('.call() sends a call request', async () => {
     },
   })
 
-  expect(result).toEqual({
-    data: {
-      id: 'id1',
-      age: 20,
-    },
+  expect(result.data).toEqual({
+    id: 'id1',
+    age: 20,
   })
 })
 
@@ -236,11 +234,9 @@ test('.call() works with boolean arguments', async () => {
     },
   })
 
-  expect(result).toEqual({
-    data: {
-      id: 'id1',
-      isActive: true,
-    },
+  expect(result.data).toEqual({
+    id: 'id1',
+    isActive: true,
   })
 })
 

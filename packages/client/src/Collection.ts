@@ -2,7 +2,7 @@ import { CollectionRecord, deserializeRecord, CollectionRecordResponse } from '.
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
-import { QueryValue, CollectionMeta, CollectionList, QueryWhereOperator, CallArgs } from './types'
+import { QueryValue, CollectionMeta, CollectionList, QueryWhereOperator, CallArgs, SenderRawListResponse, SenderRawRecordResponse } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
 import { getCollectionAST, getCollectionProperties, serializeValue } from './util'
 import { createError, PolybaseError } from './errors'
@@ -29,11 +29,11 @@ export class Collection<T> {
     ])
   }
 
-  getMeta = async () => {
+  getMeta = async (): Promise<CollectionMeta> => {
     if (this.meta) return this.meta
     const col = new Collection<CollectionMeta>('Collection', this.client)
     const res = await col.record(this.id).get()
-    if (!res.data) {
+    if (!res.exists()) {
       throw new PolybaseError('collection/not-found', {
         message: `Collection ${this.id} does not exist`,
       })
@@ -123,11 +123,11 @@ export class Collection<T> {
       data: {
         args: args.map(serializeValue),
       },
-    }).send('optional')
+    }).send<SenderRawRecordResponse<T>>('optional')
 
-    deserializeRecord(res.data.data, getCollectionProperties(this.id, ast))
+    deserializeRecord(res.data.data as Record<string, any>, getCollectionProperties(this.id, ast))
 
-    return res.data
+    return new CollectionRecordResponse(this.id, res.data.data, res.data.block, this, this.client, this.onCollectionRecordSnapshotRegister)
   }
 
   get = async (): Promise<CollectionList<T>> => {
@@ -138,15 +138,19 @@ export class Collection<T> {
     const res = await this.client.request({
       url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'GET',
-    }).send(needsAuth ? 'required' : 'none', sixtyMinutes)
+    }).send<SenderRawListResponse<T>>(needsAuth ? 'required' : 'none', sixtyMinutes)
 
+    const { data, cursor } = res.data
     const meta = await this.getMeta()
     const ast = JSON.parse(meta.ast)
-    for (const record of res.data.data) {
-      deserializeRecord(record.data, getCollectionProperties(this.id, ast))
-    }
 
-    return res.data
+    return {
+      cursor,
+      data: data.map((record) => {
+        deserializeRecord(record.data as any, getCollectionProperties(this.id, ast))
+        return new CollectionRecordResponse(this.id, record.data, record.block, this, this.client, this.onCollectionRecordSnapshotRegister)
+      }),
+    }
   }
 
   record = (id: string): CollectionRecord<T> => {
@@ -189,7 +193,7 @@ export class Collection<T> {
   }
 
   private createQuery() {
-    return new Query<T>(this, this.client, this.onQuerySnapshotRegister)
+    return new Query<T>(this, this.client, this.onQuerySnapshotRegister, this.onCollectionRecordSnapshotRegister)
   }
 
   private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {

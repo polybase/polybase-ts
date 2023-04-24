@@ -6,18 +6,20 @@ import { parse } from '@polybase/polylang'
 
 let sender: jest.Mock
 let signer: jest.Mock
-let register: jest.Mock
+let queryRegister: jest.Mock
+let recordRegister: jest.Mock
 let client: Client
 
 beforeEach(() => {
   sender = jest.fn()
   signer = jest.fn()
-  register = jest.fn()
+  queryRegister = jest.fn()
+  recordRegister = jest.fn()
   client = new Client(sender, signer)
 })
 
 test('query is instance of Query', () => {
-  const q = new Query(null as any as Collection<any>, client, register)
+  const q = new Query(null as any as Collection<any>, client, queryRegister, recordRegister)
   expect(q).toBeInstanceOf(Query)
 })
 
@@ -68,7 +70,7 @@ test('query is sent to client', async () => {
       data,
     },
   })
-  const q = new Query(collection, client, register)
+  const q = new Query(collection, client, queryRegister, recordRegister)
   await q
     .limit(100)
     .where('name', '==', 'Hannah')
@@ -92,18 +94,18 @@ test('registers snapshot', () => {
 
   const collection = new Collection('col1', client)
 
-  let q = new Query<any>(collection, client, register)
+  let q = new Query<any>(collection, client, queryRegister, recordRegister)
 
   q = q.limit(100).where('name', '==', 'Hannah')
   q.onSnapshot(listener)
 
-  expect(register).toHaveBeenCalledWith(q, listener, undefined)
+  expect(queryRegister).toHaveBeenCalledWith(q, listener, undefined)
 })
 
 test('query key is correct', () => {
   const collection = new Collection('col1', client)
 
-  const q = new Query<any>(collection, client, register)
+  const q = new Query<any>(collection, client, queryRegister, recordRegister)
   const key = q.key()
   expect(key).toBe('query:col1?{}')
 })
@@ -111,7 +113,7 @@ test('query key is correct', () => {
 test('sort/where/limit... methods return a new instance', () => {
   const collection = new Collection('col1', client)
 
-  const q = new Query<any>(collection, client, register)
+  const q = new Query<any>(collection, client, queryRegister, recordRegister)
 
   const q2 = q.sort('name')
   expect(q).not.toBe(q2)
