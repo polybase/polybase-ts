@@ -676,7 +676,6 @@ collection BankAccount {
 test('signing', async () => {
   const namespace = `${prefix}-signing`
   const pv = await secp256k1.generatePrivateKey()
-  // console.log(getPublicKey(pv))
   const pk = encodeToString(stripPublicKeyPrefix(getPublicKey(pv)), 'hex')
 
   s = new Polybase({

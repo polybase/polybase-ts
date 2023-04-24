@@ -1,8 +1,8 @@
-import { CollectionRecord, deserializeRecord } from './Record'
+import { CollectionRecord, deserializeRecord, CollectionRecordResponse } from './Record'
 import { Query } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import { Client } from './Client'
-import { QueryValue, CollectionMeta, CollectionRecordResponse, CollectionList, QueryWhereOperator, CallArgs } from './types'
+import { QueryValue, CollectionMeta, CollectionList, QueryWhereOperator, CallArgs } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
 import { getCollectionAST, getCollectionProperties, serializeValue } from './util'
 import { createError, PolybaseError } from './errors'
@@ -30,21 +30,16 @@ export class Collection<T> {
   }
 
   getMeta = async () => {
-    try {
-      if (this.meta) return this.meta
-      const col = new Collection<CollectionMeta>('Collection', this.client)
-      const res = await col.record(this.id).get()
-      this.meta = res.data
-      return this.meta
-    } catch (e: any) {
-      if (e && typeof e === 'object' && e instanceof PolybaseError) {
-        if (e.reason === 'record/not-found') {
-          throw createError('collection/not-found')
-        }
-        throw e
-      }
-      throw createError('unknown/error', { originalError: e })
+    if (this.meta) return this.meta
+    const col = new Collection<CollectionMeta>('Collection', this.client)
+    const res = await col.record(this.id).get()
+    if (!res.data) {
+      throw new PolybaseError('collection/not-found', {
+        message: `Collection ${this.id} does not exist`,
+      })
     }
+    this.meta = res.data
+    return this.meta
   }
 
   private name(): string {
@@ -159,8 +154,8 @@ export class Collection<T> {
   }
 
   /**
-   * @deprecated use .record(id: string)
-   */
+ * @deprecated use .record(id: string)
+ */
   doc = (id: string): CollectionRecord<T> => {
     return this.record(id)
   }

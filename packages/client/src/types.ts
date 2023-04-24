@@ -1,12 +1,10 @@
 
 import { AxiosRequestConfig } from 'axios'
-import { CollectionRecord, CollectionRecordReference } from './Record'
+import { CollectionRecord, CollectionRecordReference, CollectionRecordResponse } from './Record'
+import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 export type QueryValue = string | number | boolean | PublicKey | CollectionRecord<any> | CollectionRecordReference
 
-export interface CollectionRecordResponse<T> {
-  block: string
-  data: T
-}
+export type CollectionRecordSnapshotRegister<T> = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export interface CollectionList<T> {
   data: CollectionRecordResponse<T>[]

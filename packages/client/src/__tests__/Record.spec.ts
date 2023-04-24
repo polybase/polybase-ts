@@ -70,7 +70,7 @@ test('get request is sent to client', async () => {
   })
 
   const d = new CollectionRecord('id1', collection, client, register)
-  expect(await d.get()).toEqual({ data })
+  expect((await d.get()).data).toEqual(data)
 
   expect(sender).toHaveBeenCalledTimes(2)
   expect(sender).toHaveBeenCalledWith({

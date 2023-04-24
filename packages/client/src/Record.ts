@@ -1,10 +1,9 @@
 import { Collection } from './Collection'
 import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
+import { CollectionRecordSnapshotRegister, Request, CallArgs } from './types'
 import { Client } from './Client'
-import { Request, CollectionRecordResponse, CallArgs } from './types'
+import { PolybaseError } from './errors'
 import { decodeBase64, getCollectionProperties, serializeValue } from './util'
-
-export type CollectionRecordSnapshotRegister<T> = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export type CollectionRecordReference = {
   collectionId: string
@@ -45,16 +44,25 @@ export class CollectionRecord<T> {
   get = async (): Promise<CollectionRecordResponse<T>> => {
     const isReadPubliclyAccessible = await this.collection.isReadPubliclyAccessible()
     const sixtyMinutes = 60 * 60 * 1000
-    const res = await this.client.request(this.request()).send(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
 
-    // Without this, we would be infinitely recursing, trying to get the meta of Collection
-    if (this.collection.id !== 'Collection') {
-      const meta = await this.collection.getMeta()
-      const ast = JSON.parse(meta.ast)
-      deserializeRecord(res.data.data, getCollectionProperties(this.collection.id, ast))
+    try {
+      const res = await this.client.request(this.request()).send(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
+
+      // Without this, we would be infinitely recursing, trying to get the meta of Collection
+      if (this.collection.id !== 'Collection') {
+        const meta = await this.collection.getMeta()
+        const ast = JSON.parse(meta.ast)
+        deserializeRecord(res.data.data, getCollectionProperties(this.collection.id, ast))
+      }
+
+      return new CollectionRecordResponse(this.id, res.data.data, this.collection, this.client, this.onSnapshotRegister)
+    } catch (err) {
+      if (err instanceof PolybaseError && err.reason === 'record/not-found') {
+        return new CollectionRecordResponse(this.id, null, this.collection, this.client, this.onSnapshotRegister)
+      }
+
+      throw err
     }
-
-    return res.data
   }
 
   reference = (): CollectionRecordReference => ({
@@ -74,6 +82,23 @@ export class CollectionRecord<T> {
     url: `/collections/${encodeURIComponent(this.collection.id)}/records/${encodeURIComponent(this.id)}`,
     method: 'GET',
   })
+}
+
+export class CollectionRecordResponse<T> extends CollectionRecord<T> {
+  data: T | null
+  block: {
+    hash: string
+  } | null
+
+  constructor(id: string, data: T | null, collection: Collection<T>, client: Client, onSnapshotRegister: CollectionRecordSnapshotRegister<T>) {
+    super(id, collection, client, onSnapshotRegister)
+    this.data = data
+    this.block = null
+  }
+
+  exists = (): boolean => {
+    return !!this.data
+  }
 }
 
 /**
