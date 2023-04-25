@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { CollectionRecord } from '@polybase/client'
 import { UseRecordReturnValue } from './useRecord'
 
-export function useRecordOnce<T=any> (record?: CollectionRecord<T>|null): UseRecordReturnValue<T> {
-  const [res, setResult] = useState<UseRecordReturnValue<T>>({ error: null, data: null, loading: true })
+export function useRecordOnce<T = any>(record?: CollectionRecord<T> | null): UseRecordReturnValue<T, T | null> {
+  const [res, setResult] = useState<UseRecordReturnValue<T, T | null>>({ error: null, data: null, loading: true })
   const key = record?.key()
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export function useRecordOnce<T=any> (record?: CollectionRecord<T>|null): UseRec
     }).catch((e) => {
       setResult({ ...res, error: e, loading: false })
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])
 
   return res
