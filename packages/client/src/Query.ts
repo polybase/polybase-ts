@@ -1,5 +1,5 @@
 import { Client } from './Client'
-import { Collection } from './Collection'
+import { Collection, QuerySnapshotRegister } from './Collection'
 import { CollectionRecord, CollectionRecordResponse, deserializeRecord } from './Record'
 import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import {
@@ -13,8 +13,6 @@ import {
   SenderRawListResponse,
 } from './types'
 import { getCollectionProperties } from './util'
-
-export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export const QueryWhereOperatorMap: Record<QueryWhereOperator, QueryWhereKey> = {
   '>': '$gt',

@@ -1,12 +1,14 @@
 import { CollectionRecord, deserializeRecord, CollectionRecordResponse } from './Record'
 import { Query } from './Query'
-import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
+import { Subscription, SubscriptionFn, SubscriptionErrorFn, UnsubscribeFn } from './Subscription'
 import { Client } from './Client'
 import { QueryValue, CollectionMeta, CollectionList, QueryWhereOperator, CallArgs, SenderRawListResponse, SenderRawRecordResponse } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
 import { getCollectionAST, getCollectionProperties, serializeValue } from './util'
 import { createError, PolybaseError } from './errors'
 import { Root as ASTRoot, Collection as ASTCollection, Method as ASTMethod, Directive as ASTDirective } from './ast'
+
+export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export class Collection<T> {
   id: string
@@ -196,18 +198,37 @@ export class Collection<T> {
     return new Query<T>(this, this.client, this.onQuerySnapshotRegister, this.onRecordSnapshotRegister)
   }
 
-  private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {
+  private onQuerySnapshotRegister: QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn): UnsubscribeFn => {
     const k = q.key()
     if (!this.querySubs[k]) {
-      this.querySubs[k] = new Subscription<CollectionList<T>>(q.request(), this.client, this.isReadPubliclyAccessible(), (res) => res.data)
+      this.querySubs[k] = new Subscription<CollectionList<T>, SenderRawListResponse<T>>(q.request(), this.client, this.isReadPubliclyAccessible(), async (res) => {
+        const { data, cursor } = res.data
+        const meta = await this.getMeta()
+        const ast = JSON.parse(meta.ast)
+
+        const list: CollectionList<T> = {
+          cursor,
+          data: data.map((record) => {
+            deserializeRecord(record.data as any, getCollectionProperties(this.id, ast))
+            return new CollectionRecordResponse(this.id, record.data, record.block, this, this.client, this.onRecordSnapshotRegister)
+          }),
+        }
+
+        return list
+      })
     }
     return this.querySubs[k].subscribe(fn, errFn)
   }
 
-  private onRecordSnapshotRegister = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => {
+  private onRecordSnapshotRegister = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn): UnsubscribeFn => {
     const k = d.key()
     if (!this.recordSubs[k]) {
-      this.recordSubs[k] = new Subscription<CollectionRecordResponse<T>>(d.request(), this.client, this.isReadPubliclyAccessible(), (res) => res.data)
+      this.recordSubs[k] = new Subscription<CollectionRecordResponse<T>>(
+        d.request(),
+        this.client,
+        this.isReadPubliclyAccessible(),
+        (res) => new CollectionRecordResponse<T>(this.id, res.data.data, res.data.block, this, this.client, this.onRecordSnapshotRegister),
+      )
     }
     return this.recordSubs[k].subscribe(fn, errFn)
   }

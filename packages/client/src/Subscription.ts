@@ -4,6 +4,7 @@ import { Request, SenderResponse } from './types'
 
 export type SubscriptionFn<T> = ((data: T) => void)
 export type SubscriptionErrorFn = ((err: PolybaseError) => void)
+export type UnsubscribeFn = (() => void)
 
 export interface SubscriptionOptions {
   // Default timeout between long poll requests
@@ -22,7 +23,9 @@ export interface Listener<T> {
   errFn?: SubscriptionErrorFn
 }
 
-export class Subscription<T> {
+export type TransformerFn<T, R = any> = (res: SenderResponse<R>) => Promise<T> | T
+
+export class Subscription<T, R = any> {
   private _listeners: Listener<T>[]
   private req: Request
   private client: Client
@@ -35,9 +38,9 @@ export class Subscription<T> {
   private timer?: number
   private id = 0
   private isPublicallyAccessible: Promise<boolean>
-  private transformer: (res: SenderResponse<any>) => T
+  private transformer: TransformerFn<T, R>
 
-  constructor(req: Request, client: Client, isPublicallyAccessible: Promise<boolean>, transformer: (res: SenderResponse<any>) => T, options?: Partial<SubscriptionOptions>) {
+  constructor(req: Request, client: Client, isPublicallyAccessible: Promise<boolean>, transformer: TransformerFn<T, R>, options?: Partial<SubscriptionOptions>) {
     this.req = req
     this.client = client
     this.isPublicallyAccessible = isPublicallyAccessible ?? false
@@ -67,7 +70,7 @@ export class Subscription<T> {
 
       this.since = res.headers['x-polybase-timestamp'] ?? `${Date.now() / 1000}`
 
-      this.data = this.transformer(res)
+      this.data = await this.transformer(res)
 
       this._listeners.forEach(({ fn }) => {
         if (this.data) fn(this.data)

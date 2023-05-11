@@ -363,10 +363,10 @@ test('list data with snapshot', async () => {
   await wait(2000)
 
   expect(spy).toHaveBeenCalledTimes(1)
-  expect(spy).toHaveBeenCalledWith(expect.objectContaining({
+  expect(spy.mock.calls[0][0]).toMatchObject({
     cursor: {
-      after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
+      after: expect.stringMatching(/^./),
     },
     data: [{
       data: {
@@ -383,7 +383,7 @@ test('list data with snapshot', async () => {
         hash: expect.stringMatching(/^./),
       },
     }],
-  }))
+  })
 
   await c.create(['id4', 'Calum', 20, [], {}])
 
