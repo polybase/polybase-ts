@@ -1,6 +1,6 @@
 import { Client } from './Client'
 import { wrapError, PolybaseError } from './errors'
-import { Request } from './types'
+import { Request, SenderResponse } from './types'
 
 export type SubscriptionFn<T> = ((data: T) => void)
 export type SubscriptionErrorFn = ((err: PolybaseError) => void)
@@ -35,11 +35,13 @@ export class Subscription<T> {
   private timer?: number
   private id = 0
   private isPublicallyAccessible: Promise<boolean>
+  private transformer: (res: SenderResponse<any>) => T
 
-  constructor(req: Request, client: Client, isPublicallyAccessible: Promise<boolean>, options?: Partial<SubscriptionOptions>) {
+  constructor(req: Request, client: Client, isPublicallyAccessible: Promise<boolean>, transformer: (res: SenderResponse<any>) => T, options?: Partial<SubscriptionOptions>) {
     this.req = req
     this.client = client
     this.isPublicallyAccessible = isPublicallyAccessible ?? false
+    this.transformer = transformer
     this._listeners = []
     this.options = Object.assign({}, defaultOptions, options)
   }
@@ -59,16 +61,13 @@ export class Subscription<T> {
       })
       this.aborter = req.abort
 
-      // TODO: refactor this
       const sixtyMinutes = 60 * 60 * 1000
       const isPubliclyAccessible = await this.isPublicallyAccessible
       const res = await req.send(isPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
 
       this.since = res.headers['x-polybase-timestamp'] ?? `${Date.now() / 1000}`
 
-      // TODO: this is not nice, we should handle proccessing resp in
-      // parent record or query
-      this.data = res.data
+      this.data = this.transformer(res)
 
       this._listeners.forEach(({ fn }) => {
         if (this.data) fn(this.data)

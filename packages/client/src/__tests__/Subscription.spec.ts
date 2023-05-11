@@ -8,11 +8,13 @@ const clock = FakeTimers.install()
 
 let sender: jest.Mock
 let signer: jest.Mock
+let transformer: jest.Mock
 let client: Client
 
 beforeEach(() => {
   sender = jest.fn()
   signer = jest.fn()
+  transformer = jest.fn((res) => res.data)
   client = new Client(sender, signer)
 })
 
@@ -21,7 +23,7 @@ test('sub is instance of Subscription', () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, Promise.resolve(true))
+  }, client, Promise.resolve(true), transformer)
   expect(c).toBeInstanceOf(Subscription)
 })
 
@@ -46,7 +48,7 @@ test('start/stop subscriber', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, Promise.resolve(true))
+  }, client, Promise.resolve(true), transformer)
 
   c.subscribe(spy)
 
@@ -86,7 +88,7 @@ test('subscriber does not error on 304', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, Promise.resolve(true))
+  }, client, Promise.resolve(true), transformer)
 
   const unsub = c.subscribe(spyOk, spyErr)
 
@@ -113,7 +115,7 @@ test('subscriber errors on error', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, Promise.resolve(true))
+  }, client, Promise.resolve(true), transformer)
 
   const unsub = c.subscribe(spyOk, spyErr)
 
@@ -131,7 +133,7 @@ test('subscriber closes on unsub', () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, Promise.resolve(true))
+  }, client, Promise.resolve(true), transformer)
 
   c.stop = jest.fn(c.stop)
 
@@ -146,7 +148,7 @@ test('subscriber adds/removes multiple subs', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, Promise.resolve(true))
+  }, client, Promise.resolve(true), transformer)
 
   sender.mockImplementation(async () => {
     await wait(100)
@@ -183,7 +185,7 @@ test('data is cached through reset', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, Promise.resolve(true))
+  }, client, Promise.resolve(true), transformer)
 
   const rec = {
     id: '123',
@@ -227,7 +229,7 @@ test('subscription options are merged with default options', () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, Promise.resolve(true), options)
+  }, client, Promise.resolve(true), transformer, options)
 
   expect(c).toHaveProperty('options.timeout', 100)
   expect(c).toHaveProperty('options.maxErrorTimeout', 1)
@@ -238,7 +240,7 @@ test('ignore cancelled error', async () => {
     url: '/collections/col/records/id',
     method: 'GET',
     params: {},
-  }, client, Promise.resolve(true))
+  }, client, Promise.resolve(true), transformer)
 
   client.request = () => {
     throw createError('request/cancelled')

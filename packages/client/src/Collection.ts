@@ -127,7 +127,7 @@ export class Collection<T> {
 
     deserializeRecord(res.data.data as Record<string, any>, getCollectionProperties(this.id, ast))
 
-    return new CollectionRecordResponse(this.id, res.data.data, res.data.block, this, this.client, this.onCollectionRecordSnapshotRegister)
+    return new CollectionRecordResponse(this.id, res.data.data, res.data.block, this, this.client, this.onRecordSnapshotRegister)
   }
 
   get = async (): Promise<CollectionList<T>> => {
@@ -148,13 +148,13 @@ export class Collection<T> {
       cursor,
       data: data.map((record) => {
         deserializeRecord(record.data as any, getCollectionProperties(this.id, ast))
-        return new CollectionRecordResponse(this.id, record.data, record.block, this, this.client, this.onCollectionRecordSnapshotRegister)
+        return new CollectionRecordResponse(this.id, record.data, record.block, this, this.client, this.onRecordSnapshotRegister)
       }),
     }
   }
 
   record = (id: string): CollectionRecord<T> => {
-    return new CollectionRecord<T>(id, this, this.client, this.onCollectionRecordSnapshotRegister)
+    return new CollectionRecord<T>(id, this, this.client, this.onRecordSnapshotRegister)
   }
 
   /**
@@ -193,21 +193,21 @@ export class Collection<T> {
   }
 
   private createQuery() {
-    return new Query<T>(this, this.client, this.onQuerySnapshotRegister, this.onCollectionRecordSnapshotRegister)
+    return new Query<T>(this, this.client, this.onQuerySnapshotRegister, this.onRecordSnapshotRegister)
   }
 
   private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {
     const k = q.key()
     if (!this.querySubs[k]) {
-      this.querySubs[k] = new Subscription<CollectionList<T>>(q.request(), this.client, this.isReadPubliclyAccessible())
+      this.querySubs[k] = new Subscription<CollectionList<T>>(q.request(), this.client, this.isReadPubliclyAccessible(), (res) => res.data)
     }
     return this.querySubs[k].subscribe(fn, errFn)
   }
 
-  private onCollectionRecordSnapshotRegister = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => {
+  private onRecordSnapshotRegister = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => {
     const k = d.key()
     if (!this.recordSubs[k]) {
-      this.recordSubs[k] = new Subscription<CollectionRecordResponse<T>>(d.request(), this.client, this.isReadPubliclyAccessible())
+      this.recordSubs[k] = new Subscription<CollectionRecordResponse<T>>(d.request(), this.client, this.isReadPubliclyAccessible(), (res) => res.data)
     }
     return this.recordSubs[k].subscribe(fn, errFn)
   }
