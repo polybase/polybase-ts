@@ -65,7 +65,7 @@ test('creates collections from schema in namespace', async () => {
     {} as AxiosRequestConfig,
     {},
     {
-      status: 400,
+      status: 404,
       data: {
         error: {
           reason: 'record/not-found',
@@ -78,7 +78,11 @@ test('creates collections from schema in namespace', async () => {
 
   sender.mockResolvedValueOnce({
     status: 200,
-    data: {},
+    data: {
+      data: {
+        id: 'Col2',
+      },
+    },
   })
 
   sender.mockResolvedValueOnce({
@@ -231,7 +235,11 @@ test('creates collections from schema in defaultNamespace', async () => {
 
   sender.mockResolvedValueOnce({
     status: 200,
-    data: {},
+    data: {
+      data: {
+        id: 'Col2',
+      },
+    },
   })
 
   sender.mockResolvedValueOnce({

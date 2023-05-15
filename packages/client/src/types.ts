@@ -1,12 +1,10 @@
 
 import { AxiosRequestConfig } from 'axios'
-import { CollectionRecord, CollectionRecordReference } from './Record'
+import { CollectionRecord, CollectionRecordReference, CollectionRecordResponse } from './Record'
+import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 export type QueryValue = string | number | boolean | PublicKey | CollectionRecord<any> | CollectionRecordReference
 
-export interface CollectionRecordResponse<T> {
-  block: string
-  data: T
-}
+export type CollectionRecordSnapshotRegister<T> = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export interface CollectionList<T> {
   data: CollectionRecordResponse<T>[]
@@ -47,10 +45,23 @@ export type QueryWhereKey = '$lt' | '$gt' | '$gte' | '$lte' | '$eq'
 export type QueryWhereOperator = '==' | '>' | '<' | '>=' | '<='
 
 export type Sender = (config: AxiosRequestConfig) => Promise<SenderResponse>
-export interface SenderResponse {
+export interface SenderResponse<T = any> {
   status: number
   headers: Record<string, string>
-  data: any
+  data: T
+}
+
+export interface SenderRawRecordResponse<T = any> {
+  data: T
+  block: Block
+}
+
+export interface SenderRawListResponse<T = any> {
+  data: SenderRawRecordResponse<T>[]
+  cursor: {
+    after: string
+    before: string
+  }
 }
 
 export type Signer = (data: string, req: Request) => Promise<SignerResponse | null> | SignerResponse | null
@@ -76,6 +87,10 @@ export type FieldTypes =
 export type CallArg = FieldTypes | CollectionRecord<any> | CollectionRecord<any>[]
 
 export type CallArgs = CallArg[]
+
+export type Block = {
+  hash: string
+} | null
 
 export interface PublicKey {
   alg: string,

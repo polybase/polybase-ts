@@ -1,10 +1,9 @@
 import { Collection } from './Collection'
 import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
+import { CollectionRecordSnapshotRegister, Request, CallArgs, SenderRawRecordResponse, Block } from './types'
 import { Client } from './Client'
-import { Request, CollectionRecordResponse, CallArgs } from './types'
+import { PolybaseError } from './errors'
 import { decodeBase64, getCollectionProperties, serializeValue } from './util'
-
-export type CollectionRecordSnapshotRegister<T> = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export type CollectionRecordReference = {
   collectionId: string
@@ -24,7 +23,7 @@ export class CollectionRecord<T> {
     this.onSnapshotRegister = onSnapshotRegister
   }
 
-  call = async (functionName: string, args: CallArgs = []): Promise<CollectionRecordResponse<T>> => {
+  call = async (functionName: string, args: CallArgs = []): Promise<CollectionRecordResponse<T, T | null>> => {
     const meta = await this.collection.getMeta()
     const ast = JSON.parse(meta.ast)
     const isCallPubliclyAccessible = await this.collection.isCallPubliclyAccessible(functionName)
@@ -35,26 +34,36 @@ export class CollectionRecord<T> {
       data: {
         args: args.map(serializeValue),
       },
-    }).send(isCallPubliclyAccessible ? 'optional' : 'required')
+    }).send<SenderRawRecordResponse<T | null>>(isCallPubliclyAccessible ? 'optional' : 'required')
 
-    deserializeRecord(res.data.data, getCollectionProperties(this.collection.id, ast))
+    deserializeRecord(res.data.data as any, getCollectionProperties(this.collection.id, ast))
 
-    return res.data
+    return new CollectionRecordResponse(this.id, res.data.data, res.data.block, this.collection, this.client, this.onSnapshotRegister)
   }
 
-  get = async (): Promise<CollectionRecordResponse<T>> => {
+  get = async (): Promise<CollectionRecordResponse<T, T | null>> => {
     const isReadPubliclyAccessible = await this.collection.isReadPubliclyAccessible()
     const sixtyMinutes = 60 * 60 * 1000
-    const res = await this.client.request(this.request()).send(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
 
-    // Without this, we would be infinitely recursing, trying to get the meta of Collection
-    if (this.collection.id !== 'Collection') {
-      const meta = await this.collection.getMeta()
-      const ast = JSON.parse(meta.ast)
-      deserializeRecord(res.data.data, getCollectionProperties(this.collection.id, ast))
+    try {
+      const res = await this.client.request(this.request())
+        .send<SenderRawRecordResponse<T | null>>(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
+
+      // Without this, we would be infinitely recursing, trying to get the meta of Collection
+      if (this.collection.id !== 'Collection') {
+        const meta = await this.collection.getMeta()
+        const ast = JSON.parse(meta.ast)
+        deserializeRecord(res.data.data as Record<string, any>, getCollectionProperties(this.collection.id, ast))
+      }
+
+      return new CollectionRecordResponse<T, T | null>(this.id, res.data.data, res.data.block, this.collection, this.client, this.onSnapshotRegister)
+    } catch (err) {
+      if (err instanceof PolybaseError && err.reason === 'record/not-found') {
+        return new CollectionRecordResponse<T, T | null>(this.id, null, null, this.collection, this.client, this.onSnapshotRegister)
+      }
+
+      throw err
     }
-
-    return res.data
   }
 
   reference = (): CollectionRecordReference => ({
@@ -74,6 +83,28 @@ export class CollectionRecord<T> {
     url: `/collections/${encodeURIComponent(this.collection.id)}/records/${encodeURIComponent(this.id)}`,
     method: 'GET',
   })
+}
+
+export class CollectionRecordResponse<T, NT extends T | null = T> extends CollectionRecord<T> {
+  data: NT
+  block: Block
+
+  constructor(id: string, data: NT, block: Block, collection: Collection<T>, client: Client, onSnapshotRegister: CollectionRecordSnapshotRegister<T>) {
+    super(id, collection, client, onSnapshotRegister)
+    this.data = data
+    this.block = block
+  }
+
+  exists = (): this is CollectionRecordResponse<NonNullable<T>> => {
+    return this.data !== null
+  }
+
+  toJSON = () => {
+    return {
+      data: this.data,
+      block: this.block,
+    }
+  }
 }
 
 /**

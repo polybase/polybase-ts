@@ -55,7 +55,7 @@ export class ClientRequest {
   }
 
   /* Sending a request to the server. */
-  send = async (withAuth: 'none' | 'optional' | 'required', sigExtraTimeMs?: number): Promise<SenderResponse> => {
+  send = async <T = any>(withAuth: 'none' | 'optional' | 'required', sigExtraTimeMs?: number): Promise<SenderResponse<T>> => {
     try {
       const req = this.req as AxiosRequestConfig
       // Error if we require a signer and its not set

@@ -70,7 +70,7 @@ test('get request is sent to client', async () => {
   })
 
   const d = new CollectionRecord('id1', collection, client, register)
-  expect(await d.get()).toEqual({ data })
+  expect((await d.get()).data).toEqual(data)
 
   expect(sender).toHaveBeenCalledTimes(2)
   expect(sender).toHaveBeenCalledWith({
@@ -164,11 +164,9 @@ test('.call() sends a call request', async () => {
     },
   })
 
-  expect(result).toEqual({
-    data: {
-      id: 'id1',
-      age: 20,
-    },
+  expect(result.data).toEqual({
+    id: 'id1',
+    age: 20,
   })
 })
 
@@ -236,11 +234,9 @@ test('.call() works with boolean arguments', async () => {
     },
   })
 
-  expect(result).toEqual({
-    data: {
-      id: 'id1',
-      isActive: true,
-    },
+  expect(result.data).toEqual({
+    id: 'id1',
+    isActive: true,
   })
 })
 

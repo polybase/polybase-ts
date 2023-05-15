@@ -52,7 +52,10 @@ export class Polybase {
     const col = this.collection('Collection')
 
     try {
+      // Checks that the collection exists
       await this.collection(id).getMeta()
+
+      // Updates the collection code
       await col.record(id).call('updateCode', [data.code])
     } catch (e: any) {
       if (e && typeof e === 'object' &&

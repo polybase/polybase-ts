@@ -1,6 +1,6 @@
 import { Client } from './Client'
-import { Collection } from './Collection'
-import { CollectionRecord, deserializeRecord } from './Record'
+import { Collection, QuerySnapshotRegister } from './Collection'
+import { CollectionRecord, CollectionRecordResponse, deserializeRecord } from './Record'
 import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import {
   Request,
@@ -9,10 +9,10 @@ import {
   QueryWhereOperator,
   QueryWhereKey,
   CollectionList,
+  CollectionRecordSnapshotRegister,
+  SenderRawListResponse,
 } from './types'
 import { getCollectionProperties } from './util'
-
-export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export const QueryWhereOperatorMap: Record<QueryWhereOperator, QueryWhereKey> = {
   '>': '$gt',
@@ -26,13 +26,15 @@ export class Query<T> {
   collection: Collection<T>
   private params: RequestParams
   private client: Client
-  private onSnapshotRegister: QuerySnapshotRegister<T>
+  private onQuerySnapshotRegister: QuerySnapshotRegister<T>
+  private onRecordSnapshotRegister: CollectionRecordSnapshotRegister<T>
 
-  constructor(collection: Collection<T>, client: Client, onSnapshotRegister: QuerySnapshotRegister<T>) {
+  constructor(collection: Collection<T>, client: Client, onQuerySnapshotRegister: QuerySnapshotRegister<T>, onRecordSnapshotRegister: CollectionRecordSnapshotRegister<T>) {
     this.params = {}
     this.collection = collection
     this.client = client
-    this.onSnapshotRegister = onSnapshotRegister
+    this.onQuerySnapshotRegister = onQuerySnapshotRegister
+    this.onRecordSnapshotRegister = onRecordSnapshotRegister
   }
 
   sort = (field: string, direction?: 'asc' | 'desc') => {
@@ -79,17 +81,19 @@ export class Query<T> {
     const isReadPubliclyAccessible = await this.collection.isReadPubliclyAccessible()
     const sixtyMinutes = 60 * 60 * 1000
 
-    const res = await this.client.request(this.request()).send(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
+    const res = await this.client.request(this.request())
+      .send<SenderRawListResponse<T>>(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
 
+    const { data, cursor } = res.data
     const meta = await this.collection.getMeta()
     const ast = JSON.parse(meta.ast)
-    for (const record of (res.data?.data ?? [])) {
-      deserializeRecord(record.data, getCollectionProperties(this.collection.id, ast))
-    }
 
     return {
-      data: res.data?.data,
-      cursor: res.data?.cursor,
+      data: data.map((record) => {
+        deserializeRecord(record.data as any, getCollectionProperties(this.collection.id, ast))
+        return new CollectionRecordResponse(this.collection.id, record.data, record.block, this.collection, this.client, this.onRecordSnapshotRegister)
+      }),
+      cursor,
     }
   }
 
@@ -101,7 +105,7 @@ export class Query<T> {
   }
 
   onSnapshot = (fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {
-    return this.onSnapshotRegister(this, fn, errFn)
+    return this.onQuerySnapshotRegister(this, fn, errFn)
   }
 
   request = (): Request => {
@@ -113,7 +117,7 @@ export class Query<T> {
   }
 
   clone = (): Query<T> => {
-    const q = new Query<T>(this.collection, this.client, this.onSnapshotRegister)
+    const q = new Query<T>(this.collection, this.client, this.onQuerySnapshotRegister, this.onRecordSnapshotRegister)
     q.params = {
       ...this.params,
       sort: this.params.sort ? [...this.params.sort] : undefined,

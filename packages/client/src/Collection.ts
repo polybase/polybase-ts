@@ -1,12 +1,14 @@
-import { CollectionRecord, deserializeRecord } from './Record'
+import { CollectionRecord, deserializeRecord, CollectionRecordResponse } from './Record'
 import { Query } from './Query'
-import { Subscription, SubscriptionFn, SubscriptionErrorFn } from './Subscription'
+import { Subscription, SubscriptionFn, SubscriptionErrorFn, UnsubscribeFn } from './Subscription'
 import { Client } from './Client'
-import { QueryValue, CollectionMeta, CollectionRecordResponse, CollectionList, QueryWhereOperator, CallArgs } from './types'
+import { QueryValue, CollectionMeta, CollectionList, QueryWhereOperator, CallArgs, SenderRawListResponse, SenderRawRecordResponse } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
 import { getCollectionAST, getCollectionProperties, serializeValue } from './util'
 import { createError, PolybaseError } from './errors'
 import { Root as ASTRoot, Collection as ASTCollection, Method as ASTMethod, Directive as ASTDirective } from './ast'
+
+export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
 export class Collection<T> {
   id: string
@@ -29,22 +31,17 @@ export class Collection<T> {
     ])
   }
 
-  getMeta = async () => {
-    try {
-      if (this.meta) return this.meta
-      const col = new Collection<CollectionMeta>('Collection', this.client)
-      const res = await col.record(this.id).get()
-      this.meta = res.data
-      return this.meta
-    } catch (e: any) {
-      if (e && typeof e === 'object' && e instanceof PolybaseError) {
-        if (e.reason === 'record/not-found') {
-          throw createError('collection/not-found')
-        }
-        throw e
-      }
-      throw createError('unknown/error', { originalError: e })
+  getMeta = async (): Promise<CollectionMeta> => {
+    if (this.meta) return this.meta
+    const col = new Collection<CollectionMeta>('Collection', this.client)
+    const res = await col.record(this.id).get()
+    if (!res.exists()) {
+      throw new PolybaseError('collection/not-found', {
+        message: `Collection ${this.id} does not exist`,
+      })
     }
+    this.meta = res.data
+    return this.meta
   }
 
   private name(): string {
@@ -128,11 +125,11 @@ export class Collection<T> {
       data: {
         args: args.map(serializeValue),
       },
-    }).send('optional')
+    }).send<SenderRawRecordResponse<T>>('optional')
 
-    deserializeRecord(res.data.data, getCollectionProperties(this.id, ast))
+    deserializeRecord(res.data.data as Record<string, any>, getCollectionProperties(this.id, ast))
 
-    return res.data
+    return new CollectionRecordResponse(this.id, res.data.data, res.data.block, this, this.client, this.onRecordSnapshotRegister)
   }
 
   get = async (): Promise<CollectionList<T>> => {
@@ -143,24 +140,28 @@ export class Collection<T> {
     const res = await this.client.request({
       url: `/collections/${encodeURIComponent(this.id)}/records`,
       method: 'GET',
-    }).send(needsAuth ? 'required' : 'none', sixtyMinutes)
+    }).send<SenderRawListResponse<T>>(needsAuth ? 'required' : 'none', sixtyMinutes)
 
+    const { data, cursor } = res.data
     const meta = await this.getMeta()
     const ast = JSON.parse(meta.ast)
-    for (const record of res.data.data) {
-      deserializeRecord(record.data, getCollectionProperties(this.id, ast))
-    }
 
-    return res.data
+    return {
+      cursor,
+      data: data.map((record) => {
+        deserializeRecord(record.data as any, getCollectionProperties(this.id, ast))
+        return new CollectionRecordResponse(this.id, record.data, record.block, this, this.client, this.onRecordSnapshotRegister)
+      }),
+    }
   }
 
   record = (id: string): CollectionRecord<T> => {
-    return new CollectionRecord<T>(id, this, this.client, this.onCollectionRecordSnapshotRegister)
+    return new CollectionRecord<T>(id, this, this.client, this.onRecordSnapshotRegister)
   }
 
   /**
-   * @deprecated use .record(id: string)
-   */
+ * @deprecated use .record(id: string)
+ */
   doc = (id: string): CollectionRecord<T> => {
     return this.record(id)
   }
@@ -194,21 +195,40 @@ export class Collection<T> {
   }
 
   private createQuery() {
-    return new Query<T>(this, this.client, this.onQuerySnapshotRegister)
+    return new Query<T>(this, this.client, this.onQuerySnapshotRegister, this.onRecordSnapshotRegister)
   }
 
-  private onQuerySnapshotRegister = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => {
+  private onQuerySnapshotRegister: QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn): UnsubscribeFn => {
     const k = q.key()
     if (!this.querySubs[k]) {
-      this.querySubs[k] = new Subscription<CollectionList<T>>(q.request(), this.client, this.isReadPubliclyAccessible())
+      this.querySubs[k] = new Subscription<CollectionList<T>, SenderRawListResponse<T>>(q.request(), this.client, this.isReadPubliclyAccessible(), async (res) => {
+        const { data, cursor } = res.data
+        const meta = await this.getMeta()
+        const ast = JSON.parse(meta.ast)
+
+        const list: CollectionList<T> = {
+          cursor,
+          data: data.map((record) => {
+            deserializeRecord(record.data as any, getCollectionProperties(this.id, ast))
+            return new CollectionRecordResponse(this.id, record.data, record.block, this, this.client, this.onRecordSnapshotRegister)
+          }),
+        }
+
+        return list
+      })
     }
     return this.querySubs[k].subscribe(fn, errFn)
   }
 
-  private onCollectionRecordSnapshotRegister = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn) => {
+  private onRecordSnapshotRegister = (d: CollectionRecord<T>, fn: SubscriptionFn<CollectionRecordResponse<T>>, errFn?: SubscriptionErrorFn): UnsubscribeFn => {
     const k = d.key()
     if (!this.recordSubs[k]) {
-      this.recordSubs[k] = new Subscription<CollectionRecordResponse<T>>(d.request(), this.client, this.isReadPubliclyAccessible())
+      this.recordSubs[k] = new Subscription<CollectionRecordResponse<T>>(
+        d.request(),
+        this.client,
+        this.isReadPubliclyAccessible(),
+        (res) => new CollectionRecordResponse<T>(this.id, res.data.data, res.data.block, this, this.client, this.onRecordSnapshotRegister),
+      )
     }
     return this.recordSubs[k].subscribe(fn, errFn)
   }

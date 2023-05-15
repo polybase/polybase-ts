@@ -5,7 +5,7 @@ import { getPublicKey } from '@polybase/util/dist/algorithems/secp256k1'
 
 jest.setTimeout(10000)
 
-const BASE_API_URL = process.env.E2E_API_URL ?? 'http://localhost:8080'
+const BASE_API_URL = process.env.E2E_API_URL ?? 'http://127.0.0.1:8080'
 const API_URL = `${BASE_API_URL}/v0`
 const wait = (time: number) => new Promise((resolve) => { setTimeout(resolve, time) })
 
@@ -92,7 +92,7 @@ test('create data on collection', async () => {
   await c.create(['id1', 'Calum', 20, ['Cal'], { ETH: 1 }])
   const res = await c.record('id1').get()
 
-  expect(res).toEqual({
+  expect(res).toMatchObject({
     data: {
       id: 'id1',
       name: 'Calum',
@@ -117,7 +117,7 @@ test('call setName on collection', async () => {
   await c.record('id1').call('setName', ['Calum2'])
   const res = await c.record('id1').get()
 
-  expect(res).toEqual({
+  expect(res).toMatchObject({
     data: {
       id: 'id1',
       name: 'Calum2',
@@ -157,7 +157,7 @@ test('list data from collection', async () => {
 
   const res = await c.get()
 
-  expect(res).toEqual({
+  expect(res).toMatchObject({
     cursor: {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
@@ -204,7 +204,7 @@ test('list data with == where clause', async () => {
 
   const res = await c.where('name', '==', 'Sally').get()
 
-  expect(res).toEqual({
+  expect(res).toMatchObject({
     cursor: {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
@@ -251,7 +251,7 @@ test('list data with > where clause', async () => {
 
   const res = await c.where('name', '>', 'John').get()
 
-  expect(res).toEqual({
+  expect(res).toMatchObject({
     cursor: {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
@@ -298,7 +298,7 @@ test('list data with sort clause', async () => {
 
   const res = await c.sort('name').get()
 
-  expect(res).toEqual({
+  expect(res).toMatchObject({
     cursor: {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
@@ -363,10 +363,10 @@ test('list data with snapshot', async () => {
   await wait(2000)
 
   expect(spy).toHaveBeenCalledTimes(1)
-  expect(spy).toHaveBeenCalledWith({
+  expect(spy.mock.calls[0][0]).toMatchObject({
     cursor: {
-      after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
+      after: expect.stringMatching(/^./),
     },
     data: [{
       data: {
@@ -398,7 +398,7 @@ test('list data with cursor', async () => {
   await c.create(['id2', 'Sally', 21, [], {}])
 
   const first = await c.limit(1).get()
-  expect(first).toEqual({
+  expect(first).toMatchObject({
     cursor: {
       before: expect.stringMatching(/^./),
       after: expect.stringMatching(/^./),
@@ -421,7 +421,7 @@ test('list data with cursor', async () => {
   })
 
   const second = await c.limit(1).after(first.cursor.after).get()
-  expect(second).toEqual({
+  expect(second).toMatchObject({
     cursor: {
       before: expect.stringMatching(/^./),
       after: expect.stringMatching(/^./),
@@ -444,7 +444,7 @@ test('list data with cursor', async () => {
   })
 
   const firstWithBefore = await c.limit(1).before(second.cursor.before).get()
-  expect(firstWithBefore).toEqual({
+  expect(firstWithBefore).toMatchObject({
     cursor: {
       before: expect.stringMatching(/^./),
       after: expect.stringMatching(/^./),
@@ -498,14 +498,19 @@ collection User {
   const { data: user } = await userCol.create(['0'])
   const { data: user2 } = await userCol.create(['1'])
 
+  expect(user?.id).toBeTruthy()
+  expect(user2?.id).toBeTruthy()
+
+  if (!user?.id || !user2?.id) return
+
   const { data: account } = await accountCol.create(['0', {
     collectionId: userCol.id,
-    id: user.id,
+    id: user?.id,
   }])
 
   const { data: account2 } = await accountCol.create(['1', {
     collectionId: userCol.id,
-    id: user2.id,
+    id: user2?.id,
   }])
 
   await accountCol.create(['2'])
@@ -515,7 +520,7 @@ collection User {
     id: user.id,
   }).get()
 
-  expect(list).toEqual({
+  expect(list).toMatchObject({
     cursor: {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
@@ -533,7 +538,7 @@ collection User {
     id: user2.id,
   }).get()
 
-  expect(list2).toEqual({
+  expect(list2).toMatchObject({
     cursor: {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
@@ -548,7 +553,7 @@ collection User {
 
   const list3 = await accountCol.where('user', '==', s.collection(userCol.id).record(user2.id)).get()
 
-  expect(list3).toEqual({
+  expect(list3).toMatchObject({
     cursor: {
       after: expect.stringMatching(/^./),
       before: expect.stringMatching(/^./),
@@ -593,8 +598,8 @@ collection PrivateCol {
   await c.create(['id1'])
 
   const record = await c.record('id1').get()
-  expect(record.data.id).toEqual('id1')
-  expect(record.data.publicKey).toEqual({
+  expect(record.data?.id).toEqual('id1')
+  expect(record.data?.publicKey).toEqual({
     kty: 'EC',
     crv: 'secp256k1',
     alg: 'ES256K',
@@ -607,7 +612,7 @@ collection PrivateCol {
     throw new Error('Signer should not be called')
   })
   const record2 = await c.record('id1').get()
-  expect(record2.data.id).toEqual('id1')
+  expect(record2.data?.id).toEqual('id1')
 
   const list = await c.get()
   expect(list.data[0].data.id).toEqual('id1')
@@ -676,7 +681,6 @@ collection BankAccount {
 test('signing', async () => {
   const namespace = `${prefix}-signing`
   const pv = await secp256k1.generatePrivateKey()
-  // console.log(getPublicKey(pv))
   const pk = encodeToString(stripPublicKeyPrefix(getPublicKey(pv)), 'hex')
 
   s = new Polybase({
@@ -752,7 +756,10 @@ test('delete', async () => {
   await c.create(['id1', 'Calum2', 20, [], {}])
   await c.record('id1').call('destroy', [])
 
-  await expect(c.record('id1').get()).rejects.toThrow()
+  expect(await c.record('id1').get()).toMatchObject({
+    data: null,
+    block: null,
+  })
 })
 
 test('bytes', async () => {
@@ -792,7 +799,7 @@ test('bytes', async () => {
   })
 
   const list = await c.get()
-  expect(list.data).toEqual([{
+  expect(list.data).toMatchObject([{
     data: {
       id: 'rec1',
       name: 'rec1',
@@ -804,7 +811,7 @@ test('bytes', async () => {
   }])
 
   const listWhere = await c.where('name', '==', 'rec1').get()
-  expect(listWhere.data).toEqual([{
+  expect(listWhere.data).toMatchObject([{
     data: {
       id: 'rec1',
       name: 'rec1',
