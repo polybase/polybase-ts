@@ -129,6 +129,14 @@ export class QueryResponse<T> extends Query<T> {
     this.cursor = cursor
   }
 
+  async previous() {
+    return this.before(this.cursor.before).get()
+  }
+
+  async next() {
+    return this.after(this.cursor.after).get()
+  }
+
   toJSON = () => {
     return {
       data: this.data,
