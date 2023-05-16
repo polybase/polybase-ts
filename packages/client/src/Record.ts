@@ -3,7 +3,8 @@ import { SubscriptionErrorFn, SubscriptionFn } from './Subscription'
 import { CollectionRecordSnapshotRegister, Request, CallArgs, SenderRawRecordResponse, Block } from './types'
 import { Client } from './Client'
 import { PolybaseError } from './errors'
-import { decodeBase64, getCollectionProperties, serializeValue } from './util'
+import { getCollectionProperties, deserializeRecord, serializeValue } from './util'
+import { Collection as ASTCollection } from '@polybase/polylang/dist/ast'
 
 export type CollectionRecordReference = {
   collectionId: string
@@ -24,8 +25,7 @@ export class CollectionRecord<T> {
   }
 
   call = async (functionName: string, args: CallArgs = []): Promise<CollectionRecordResponse<T, T | null>> => {
-    const meta = await this.collection.getMeta()
-    const ast = JSON.parse(meta.ast)
+    const ast = await this.collection.getAST()
     const isCallPubliclyAccessible = await this.collection.isCallPubliclyAccessible(functionName)
 
     const res = await this.client.request({
@@ -36,32 +36,22 @@ export class CollectionRecord<T> {
       },
     }).send<SenderRawRecordResponse<T | null>>(isCallPubliclyAccessible ? 'optional' : 'required')
 
-    deserializeRecord(res.data.data as any, getCollectionProperties(this.collection.id, ast))
-
-    return new CollectionRecordResponse(this.id, res.data.data, res.data.block, this.collection, this.client, this.onSnapshotRegister)
+    return new CollectionRecordResponse(this.id, res.data, ast, this.collection, this.client, this.onSnapshotRegister)
   }
 
   get = async (): Promise<CollectionRecordResponse<T, T | null>> => {
+    const ast = await this.collection.getAST()
     const isReadPubliclyAccessible = await this.collection.isReadPubliclyAccessible()
     const sixtyMinutes = 60 * 60 * 1000
 
     try {
       const res = await this.client.request(this.request())
         .send<SenderRawRecordResponse<T | null>>(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
-
-      // Without this, we would be infinitely recursing, trying to get the meta of Collection
-      if (this.collection.id !== 'Collection') {
-        const meta = await this.collection.getMeta()
-        const ast = JSON.parse(meta.ast)
-        deserializeRecord(res.data.data as Record<string, any>, getCollectionProperties(this.collection.id, ast))
-      }
-
-      return new CollectionRecordResponse<T, T | null>(this.id, res.data.data, res.data.block, this.collection, this.client, this.onSnapshotRegister)
+      return new CollectionRecordResponse<T, T | null>(this.id, res.data, ast, this.collection, this.client, this.onSnapshotRegister)
     } catch (err) {
       if (err instanceof PolybaseError && err.reason === 'record/not-found') {
-        return new CollectionRecordResponse<T, T | null>(this.id, null, null, this.collection, this.client, this.onSnapshotRegister)
+        return new CollectionRecordResponse<T, T | null>(this.id, { data: null, block: null }, ast, this.collection, this.client, this.onSnapshotRegister)
       }
-
       throw err
     }
   }
@@ -89,8 +79,10 @@ export class CollectionRecordResponse<T, NT extends T | null = T> extends Collec
   data: NT
   block: Block
 
-  constructor(id: string, data: NT, block: Block, collection: Collection<T>, client: Client, onSnapshotRegister: CollectionRecordSnapshotRegister<T>) {
+  constructor(id: string, response: SenderRawRecordResponse, ast: ASTCollection, collection: Collection<T>, client: Client, onSnapshotRegister: CollectionRecordSnapshotRegister<T>) {
     super(id, collection, client, onSnapshotRegister)
+    const { data, block } = response
+    deserializeRecord(data as any, getCollectionProperties(ast)) as NT
     this.data = data
     this.block = block
   }
@@ -111,23 +103,3 @@ export class CollectionRecordResponse<T, NT extends T | null = T> extends Collec
  * @deprecated use CollectionRecord
  */
 export const Doc = CollectionRecord
-
-export function deserializeRecord(data: Record<string, any>, properties: { name: string, type: any; fields?: any }[]) {
-  if (!data) return
-
-  for (const property of properties) {
-    switch (property.type.kind) {
-      case 'primitive':
-        switch (property.type.value) {
-          case 'bytes':
-            if (property.name in data) {
-              data[property.name] = decodeBase64(data[property.name])
-            }
-        }
-        break
-      case 'object':
-        deserializeRecord(data[property.name], property.type.fields)
-        break
-    }
-  }
-}

@@ -1,6 +1,6 @@
 import { Client } from './Client'
 import { Collection, QuerySnapshotRegister } from './Collection'
-import { CollectionRecord, CollectionRecordResponse, deserializeRecord } from './Record'
+import { CollectionRecord, CollectionRecordResponse } from './Record'
 import { SubscriptionFn, SubscriptionErrorFn } from './Subscription'
 import {
   Request,
@@ -10,9 +10,10 @@ import {
   QueryWhereKey,
   CollectionList,
   CollectionRecordSnapshotRegister,
+  QueryResponseCursor,
   SenderRawListResponse,
 } from './types'
-import { getCollectionProperties } from './util'
+import { Collection as ASTCollection } from '@polybase/polylang/dist/ast'
 
 export const QueryWhereOperatorMap: Record<QueryWhereOperator, QueryWhereKey> = {
   '>': '$gt',
@@ -78,27 +79,15 @@ export class Query<T> {
   }
 
   get = async (): Promise<CollectionList<T>> => {
+    const ast = await this.collection.getAST()
     const isReadPubliclyAccessible = await this.collection.isReadPubliclyAccessible()
     const sixtyMinutes = 60 * 60 * 1000
 
     const res = await this.client.request(this.request())
       .send<SenderRawListResponse<T>>(isReadPubliclyAccessible ? 'none' : 'required', sixtyMinutes)
 
-    const { data, cursor } = res.data
-    const meta = await this.collection.getMeta()
-    const ast = JSON.parse(meta.ast)
-
-    return {
-      data: data.map((record) => {
-        deserializeRecord(record.data as any, getCollectionProperties(this.collection.id, ast))
-        return new CollectionRecordResponse(this.collection.id, record.data, record.block, this.collection, this.client, this.onRecordSnapshotRegister)
-      }),
-      cursor,
-    }
+    return new QueryResponse(this.collection, this.client, this.onQuerySnapshotRegister, this.onRecordSnapshotRegister, res.data, ast)
   }
-
-  // TODO: validate query has required indexes
-  validate = () => { }
 
   key = () => {
     return `query:${this.collection.id}?${JSON.stringify(this.params)}`
@@ -124,5 +113,26 @@ export class Query<T> {
       where: this.params.where ? { ...this.params.where } : undefined,
     }
     return q
+  }
+}
+
+export class QueryResponse<T> extends Query<T> {
+  data: CollectionRecordResponse<T>[]
+  cursor: QueryResponseCursor
+
+  constructor(collection: Collection<T>, client: Client, onQuerySnapshotRegister: QuerySnapshotRegister<T>, onRecordSnapshotRegister: CollectionRecordSnapshotRegister<T>, response: SenderRawListResponse<T>, ast: ASTCollection) {
+    super(collection, client, onQuerySnapshotRegister, onRecordSnapshotRegister)
+    const { data, cursor } = response
+    this.data = data.map((record) => {
+      return new CollectionRecordResponse(collection.id, record, ast, this.collection, client, onRecordSnapshotRegister)
+    })
+    this.cursor = cursor
+  }
+
+  toJSON = () => {
+    return {
+      data: this.data,
+      cursor: this.cursor,
+    }
   }
 }

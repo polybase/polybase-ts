@@ -1,12 +1,12 @@
-import { CollectionRecord, deserializeRecord, CollectionRecordResponse } from './Record'
-import { Query } from './Query'
+import { CollectionRecord, CollectionRecordResponse } from './Record'
+import { Query, QueryResponse } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn, UnsubscribeFn } from './Subscription'
 import { Client } from './Client'
 import { QueryValue, CollectionMeta, CollectionList, QueryWhereOperator, CallArgs, SenderRawListResponse, SenderRawRecordResponse } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
-import { getCollectionAST, getCollectionProperties, serializeValue } from './util'
+import { getCollectionASTFromId, serializeValue, getCollectionShortNameFromId } from './util'
 import { createError, PolybaseError } from './errors'
-import { Root as ASTRoot, Collection as ASTCollection, Method as ASTMethod, Directive as ASTDirective } from './ast'
+import { Root as ASTRoot, Collection as ASTCollection, Method as ASTMethod, Directive as ASTDirective } from '@polybase/polylang/dist/ast'
 
 export type QuerySnapshotRegister<T> = (q: Query<T>, fn: SubscriptionFn<CollectionList<T>>, errFn?: SubscriptionErrorFn) => (() => void)
 
@@ -15,69 +15,58 @@ export class Collection<T> {
   private querySubs: Record<string, Subscription<CollectionList<T>>> = {}
   private recordSubs: Record<string, Subscription<CollectionRecordResponse<T>>> = {}
   private meta?: CollectionMeta
-  private validator?: (data: Partial<T>) => Promise<boolean>
   private client: Client
   private astCache?: ASTCollection
 
-  // TODO: this will be fetched
   constructor(id: string, client: Client) {
     this.id = id
     this.client = client
   }
 
+  /**
+   * @deprecated You do not need to call load()
+   */
   load = async () => {
-    await Promise.all([
-      this.getValidator(),
-    ])
   }
 
   getMeta = async (): Promise<CollectionMeta> => {
     if (this.meta) return this.meta
+    // Manually get Collection meta, otherwise we would recursively call this function
     const col = new Collection<CollectionMeta>('Collection', this.client)
-    const res = await col.record(this.id).get()
-    if (!res.exists()) {
+    const res = await this.client.request(col.record(this.id).request())
+      .send<SenderRawRecordResponse<CollectionMeta>>('none')
+    if (!res.data.data) {
       throw new PolybaseError('collection/not-found', {
         message: `Collection ${this.id} does not exist`,
       })
     }
-    this.meta = res.data
+    this.meta = res.data.data
     return this.meta
   }
 
-  private name(): string {
-    return this.id.split('/').pop() as string // there is always at least one element from split
-  }
-
-  private getCollectionAST = async (): Promise<ASTCollection> => {
+  getAST = async (): Promise<ASTCollection> => {
     // Return cached value if it exists
     if (this.astCache) return this.astCache
     const meta = await this.getMeta()
     const ast = JSON.parse(meta.ast) as ASTRoot
-    const collectionAST = ast.find((node) => node.kind === 'collection' && node.name === this.name())
+    const collectionAST = getCollectionASTFromId(this.id, ast)
     if (!collectionAST) throw createError('collection/invalid-ast')
     this.astCache = collectionAST
     return collectionAST
   }
 
-  private getValidator = async (): Promise<(data: Partial<T>) => Promise<boolean>> => {
-    if (this.validator) return this.validator
-    const meta = await this.getMeta()
-    const ast = JSON.parse(meta.ast)
-    this.validator = async (data: Partial<T>) => {
-      try {
-        await validateSet(getCollectionAST(this.id, ast), data)
-        return true
-      } catch {
-        return false
-      }
-    }
-
-    return this.validator
+  name(): string {
+    return getCollectionShortNameFromId(this.id)
   }
 
   validate = async (data: Partial<T>) => {
-    const validator = await this.getValidator()
-    return await validator(data)
+    const ast = await this.getAST()
+    try {
+      await validateSet(ast, data)
+      return true
+    } catch {
+      return false
+    }
   }
 
   isReadPubliclyAccessible = async (): Promise<boolean> => {
@@ -91,7 +80,7 @@ export class Collection<T> {
     // Without this, we would recursively call this function
     if (this.id === 'Collection') return true
 
-    const colAST = await this.getCollectionAST()
+    const colAST = await this.getAST()
 
     // Find the method in the AST
     const methodAST = colAST.attributes.find((attr) => attr.kind === 'method' && attr.name === methodName) as ASTMethod | undefined
@@ -109,50 +98,29 @@ export class Collection<T> {
   }
 
   private isCollectionPubliclyAccessible = async (type: 'call' | 'read'): Promise<boolean> => {
-    const colAST = await this.getCollectionAST()
+    const colAST = await this.getAST()
     const hasPublicDirective = colAST.attributes.some((attr) => attr.kind === 'directive' && attr.name === 'public')
     const hasTypeDirective = colAST.attributes.some((attr) => attr.kind === 'directive' && attr.name === type && attr.arguments?.length === 0)
     return hasPublicDirective || hasTypeDirective
   }
 
   create = async (args: CallArgs): Promise<CollectionRecordResponse<T>> => {
-    const meta = await this.getMeta()
-    const ast = JSON.parse(meta.ast)
+    const [res, ast] = await Promise.all([
+      this.client.request({
+        url: `/collections/${encodeURIComponent(this.id)}/records`,
+        method: 'POST',
+        data: {
+          args: args.map(serializeValue),
+        },
+      }).send<SenderRawRecordResponse<T>>('optional'),
+      await this.getAST(),
+    ])
 
-    const res = await this.client.request({
-      url: `/collections/${encodeURIComponent(this.id)}/records`,
-      method: 'POST',
-      data: {
-        args: args.map(serializeValue),
-      },
-    }).send<SenderRawRecordResponse<T>>('optional')
-
-    deserializeRecord(res.data.data as Record<string, any>, getCollectionProperties(this.id, ast))
-
-    return new CollectionRecordResponse(this.id, res.data.data, res.data.block, this, this.client, this.onRecordSnapshotRegister)
+    return new CollectionRecordResponse(this.id, res.data, ast, this, this.client, this.onRecordSnapshotRegister)
   }
 
   get = async (): Promise<CollectionList<T>> => {
-    const isPubliclyAccessible = await this.isReadPubliclyAccessible()
-    const needsAuth = !isPubliclyAccessible
-    const sixtyMinutes = 60 * 60 * 1000
-
-    const res = await this.client.request({
-      url: `/collections/${encodeURIComponent(this.id)}/records`,
-      method: 'GET',
-    }).send<SenderRawListResponse<T>>(needsAuth ? 'required' : 'none', sixtyMinutes)
-
-    const { data, cursor } = res.data
-    const meta = await this.getMeta()
-    const ast = JSON.parse(meta.ast)
-
-    return {
-      cursor,
-      data: data.map((record) => {
-        deserializeRecord(record.data as any, getCollectionProperties(this.id, ast))
-        return new CollectionRecordResponse(this.id, record.data, record.block, this, this.client, this.onRecordSnapshotRegister)
-      }),
-    }
+    return this.createQuery().get()
   }
 
   record = (id: string): CollectionRecord<T> => {
@@ -160,8 +128,8 @@ export class Collection<T> {
   }
 
   /**
- * @deprecated use .record(id: string)
- */
+   * @deprecated use .record(id: string)
+   */
   doc = (id: string): CollectionRecord<T> => {
     return this.record(id)
   }
@@ -202,19 +170,8 @@ export class Collection<T> {
     const k = q.key()
     if (!this.querySubs[k]) {
       this.querySubs[k] = new Subscription<CollectionList<T>, SenderRawListResponse<T>>(q.request(), this.client, this.isReadPubliclyAccessible(), async (res) => {
-        const { data, cursor } = res.data
-        const meta = await this.getMeta()
-        const ast = JSON.parse(meta.ast)
-
-        const list: CollectionList<T> = {
-          cursor,
-          data: data.map((record) => {
-            deserializeRecord(record.data as any, getCollectionProperties(this.id, ast))
-            return new CollectionRecordResponse(this.id, record.data, record.block, this, this.client, this.onRecordSnapshotRegister)
-          }),
-        }
-
-        return list
+        const ast = await this.getAST()
+        return new QueryResponse(this, this.client, this.onQuerySnapshotRegister, this.onRecordSnapshotRegister, res.data, ast)
       })
     }
     return this.querySubs[k].subscribe(fn, errFn)
