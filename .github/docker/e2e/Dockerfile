@@ -17,7 +17,7 @@ RUN chown -R spaceman:spaceman /app/polybase-ts
 
 # Switch to the spaceman user and install the dependencies
 USER spaceman
-RUN cd /app/polybase-ts/packages/client && yarn install
+RUN cd /app/polybase-ts && yarn install && yarn lerna run build && yarn lerna link
 
 # Reset the entrypoint
 ENTRYPOINT []
