@@ -1,6 +1,21 @@
 name: Test
 on: [push]
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - name: Install packages
+        run: yarn
+
+      - name: Build packages
+        run: yarn lerna run build
+
   unit-test:
     runs-on: ubuntu-latest
     steps:
@@ -20,7 +35,7 @@ jobs:
         run: yarn lerna run test
 
   e2e-test:
-    runs-on: ubuntu-latest-16-cores
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
