@@ -19,5 +19,8 @@ RUN chown -R spaceman:spaceman /app/polybase-ts
 USER spaceman
 RUN cd /app/polybase-ts/packages/client && yarn install
 
+# Reset the entrypoint
+ENTRYPOINT []
+
 # Run the binary in the background, run the tests and then stop the binary
 CMD ["bash", "-c", "/usr/bin/polybase & p1=$! && cd /app/polybase-ts/packages/client && yarn test:e2e && kill \"$p1\" && echo \"Tests passed\""]
