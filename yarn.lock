@@ -1339,10 +1339,10 @@
   dependencies:
     esquery "^1.0.1"
 
-"@polybase/polylang@0.4.10":
-  version "0.4.10"
-  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.4.10.tgz#0ebbba8862ee982237055f3544065e8da81ed459"
-  integrity sha512-CcBGLPXdbIkpdLEblH1ylyfZ82PbjnQc8vz8YPXkrC78U2kMcAeelel812b/eDv3v3uYVPrsCGfqSuUmtXiPOA==
+"@polybase/polylang@^0.4.11":
+  version "0.4.11"
+  resolved "https://registry.yarnpkg.com/@polybase/polylang/-/polylang-0.4.11.tgz#3a72271cedc065a795a9f8cb5468d2a43ca86b6a"
+  integrity sha512-+x1XwsEpeX/4/P+UJfq0Ryip7ZMyC5beaGIktwI/GHquEeBv0sH165MSbgnFXHhSQ5+6VuA1ewPNEb2Ow3DF7g==
 
 "@sideway/address@^4.1.3":
   version "4.1.4"

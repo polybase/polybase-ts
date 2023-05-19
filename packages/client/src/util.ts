@@ -1,6 +1,6 @@
 import { CollectionRecord } from './Record'
 import type { CallArg, FieldTypes } from './types'
-import { Root as AST, Property as ASTProperty, Collection as ASTCollection, CollectionAttribute } from '@polybase/polylang/dist/ast'
+import { Root as AST, Property as ASTProperty, Collection as ASTCollection, CollectionAttribute, ObjectField } from '@polybase/polylang/dist/ast'
 
 export function getCollectionASTFromId(id: string, ast: AST): ASTCollection | undefined {
   return getCollectionASTFromName(getCollectionShortNameFromId(id), ast)
@@ -54,12 +54,11 @@ export function serializeValue(arg: CallArg): CallArg {
   return arg
 }
 
-export function deserializeRecord(data: Record<string, any>, properties: ASTProperty[]) {
+export function deserializeRecord(data: Record<string, any>, properties: (ASTProperty | ObjectField)[]) {
   if (!data) return
 
   for (const property of properties) {
-    // TODO: remove any when we update @polybase/polylang to include object as a valid type
-    switch (property.type.kind as any) {
+    switch (property.type.kind) {
       case 'primitive':
         switch (property.type.value) {
           case 'bytes':
@@ -69,8 +68,7 @@ export function deserializeRecord(data: Record<string, any>, properties: ASTProp
         }
         break
       case 'object':
-        // TODO: remove any when we update @polybase/polylang to include object as a valid type
-        deserializeRecord(data[property.name], (property.type as any).fields)
+        deserializeRecord(data[property.name], property.type.fields)
         break
     }
   }
