@@ -1,24 +1,31 @@
 import { CollectionRecord } from './Record'
 import type { CallArg, FieldTypes } from './types'
+import { Root as AST, Property as ASTProperty, Collection as ASTCollection, CollectionAttribute } from '@polybase/polylang/dist/ast'
 
-export function getCollectionAST (id: string, ast: any): any {
-  const name = getCollectionShortNameFromId(id)
-  return ast.filter((n: any) => n.kind === 'collection').find((n: any) => n.name === name)
+export function getCollectionASTFromId(id: string, ast: AST): ASTCollection | undefined {
+  return getCollectionASTFromName(getCollectionShortNameFromId(id), ast)
 }
 
-export function getCollectionProperties (id: string, ast: any): any {
-  return getCollectionAST(id, ast).attributes.filter((a: any) => a.kind === 'property')
+export function getCollectionASTFromName(name: string, ast: AST): ASTCollection | undefined {
+  const collections = ast.filter((n) => n.kind === 'collection') as ASTCollection[]
+  return collections.find((n: ASTCollection) => n.name === name)
 }
 
-export function getCollectionShortNameFromId (id: string) {
-  return id.split('/').pop()
+export function getCollectionProperties(collection: ASTCollection): ASTProperty[] {
+  return collection.attributes.filter((a: CollectionAttribute) => a.kind === 'property') as ASTProperty[]
 }
 
-export function encodeBase64 (value: Uint8Array): string {
+export function getCollectionShortNameFromId(id: string): string {
+  const name = id.split('/').pop()
+  if (!name) throw new Error(`Invalid collection id: ${id}`)
+  return name
+}
+
+export function encodeBase64(value: Uint8Array): string {
   return btoa(String.fromCharCode.apply(null, value as unknown as number[]))
 }
 
-export function decodeBase64 (value: string): Uint8Array {
+export function decodeBase64(value: string): Uint8Array {
   const binaryString = atob(value)
 
   const bytes = new Uint8Array(binaryString.length)
@@ -29,7 +36,7 @@ export function decodeBase64 (value: string): Uint8Array {
   return bytes
 }
 
-export function referenceArg (arg: CallArg): CallArg {
+export function referenceArg(arg: CallArg): CallArg {
   if (arg instanceof CollectionRecord) return arg.reference()
 
   if (Array.isArray(arg)) {
@@ -41,10 +48,30 @@ export function referenceArg (arg: CallArg): CallArg {
   return arg
 }
 
-export function serializeValue (arg: CallArg): CallArg {
+export function serializeValue(arg: CallArg): CallArg {
   if (arg instanceof Uint8Array) return encodeBase64(arg)
-
   arg = referenceArg(arg)
-
   return arg
+}
+
+export function deserializeRecord(data: Record<string, any>, properties: ASTProperty[]) {
+  if (!data) return
+
+  for (const property of properties) {
+    // TODO: remove any when we update @polybase/polylang to include object as a valid type
+    switch (property.type.kind as any) {
+      case 'primitive':
+        switch (property.type.value) {
+          case 'bytes':
+            if (property.name in data) {
+              data[property.name] = decodeBase64(data[property.name])
+            }
+        }
+        break
+      case 'object':
+        // TODO: remove any when we update @polybase/polylang to include object as a valid type
+        deserializeRecord(data[property.name], (property.type as any).fields)
+        break
+    }
+  }
 }

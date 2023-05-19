@@ -14,6 +14,11 @@ export interface CollectionList<T> {
   }
 }
 
+export interface QueryResponseCursor {
+  after: string
+  before: string
+}
+
 export interface CollectionMeta {
   id: string
   name: string
@@ -58,10 +63,7 @@ export interface SenderRawRecordResponse<T = any> {
 
 export interface SenderRawListResponse<T = any> {
   data: SenderRawRecordResponse<T>[]
-  cursor: {
-    after: string
-    before: string
-  }
+  cursor: QueryResponseCursor
 }
 
 export type Signer = (data: string, req: Request) => Promise<SignerResponse | null> | SignerResponse | null

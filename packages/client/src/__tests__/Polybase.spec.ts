@@ -307,8 +307,11 @@ test('creates collections from schema in defaultNamespace', async () => {
   expect(sender.mock.calls[2][0]).toMatchObject({
     ...defaultRequest,
     baseURL,
-    url: '/collections/Collection/records/Collection',
-    method: 'GET',
+    url: '/collections/Collection/records',
+    method: 'POST',
+    data: {
+      args: ['test/Col', schema],
+    },
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',
     },
@@ -327,11 +330,8 @@ test('creates collections from schema in defaultNamespace', async () => {
   expect(sender.mock.calls[4][0]).toMatchObject({
     ...defaultRequest,
     baseURL,
-    url: '/collections/Collection/records',
-    method: 'POST',
-    data: {
-      args: ['test/Col', schema],
-    },
+    url: '/collections/Collection/records/Collection',
+    method: 'GET',
     headers: {
       'X-Polybase-Client': 'polybase@ts/client:v0',
     },

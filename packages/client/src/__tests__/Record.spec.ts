@@ -1,9 +1,9 @@
-import { CollectionRecord, deserializeRecord } from '../Record'
+import { CollectionRecord } from '../Record'
 import { Collection } from '../Collection'
 import { Client } from '../Client'
 import { defaultRequest } from './util'
 import { parse } from '@polybase/polylang'
-import { encodeBase64, getCollectionProperties } from '../util'
+import { encodeBase64, getCollectionProperties, deserializeRecord, getCollectionASTFromId } from '../util'
 
 let sender: jest.Mock
 let signer: jest.Mock
@@ -52,6 +52,7 @@ test('get request is sent to client', async () => {
       data,
     },
   })
+
   sender.mockResolvedValueOnce({
     data: {
       data: {
@@ -261,7 +262,10 @@ test('deserializeRecord', async () => {
     },
   }
 
-  deserializeRecord(data, getCollectionProperties('col', (await parse(code, ''))[1]))
+  const collectionAST = getCollectionASTFromId('col', (await parse(code, ''))[1])
+  if (!collectionAST) throw new Error('Unable to parse AST: Collection not found in code')
+
+  deserializeRecord(data, getCollectionProperties(collectionAST))
   expect(data).toEqual({
     id: 'id1',
     age: 20,
