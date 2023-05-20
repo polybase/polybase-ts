@@ -1,9 +1,12 @@
+import FakeTimers from '@sinonjs/fake-timers'
 import { CollectionRecord } from '../Record'
 import { Collection } from '../Collection'
 import { Client } from '../Client'
 import { defaultRequest } from './util'
 import { parse } from '@polybase/polylang'
 import { encodeBase64, getCollectionProperties, deserializeRecord, getCollectionASTFromId } from '../util'
+
+const clock = FakeTimers.install()
 
 let sender: jest.Mock
 let signer: jest.Mock
@@ -86,13 +89,56 @@ test('get request is sent to client', async () => {
   })
 })
 
-test('registers snapshot', () => {
-  const listener = jest.fn()
-  const d = new CollectionRecord('id1', collection, client, register)
+test('registers snapshot', async () => {
+  const fn = jest.fn()
+  const errorFn = jest.fn()
+  const timestamp = '1661981492.0362'
+  const rec = {
+    id: '123',
+  }
 
-  d.onSnapshot(listener)
+  sender.mockResolvedValueOnce({
+    data: {
+      data: {
+        code: `
+          collection col1 {
+            id: string;
+          }
+        `,
+        ast: JSON.stringify((await parse(`
+          collection col1 {
+            id: string;
+          }
+        `, ''))[1]),
+      },
+    },
+  })
 
-  expect(register).toHaveBeenCalledWith(d, listener, undefined)
+  sender.mockResolvedValueOnce({
+    status: 200,
+    data: {
+      data: rec,
+    },
+    headers: {
+      'x-polybase-timestamp': timestamp,
+    },
+  })
+
+  const d = collection.record('id1')
+
+  d.onSnapshot(fn, errorFn)
+
+  await clock.tickAsync(0)
+
+  expect(sender).toHaveBeenCalled()
+
+  await clock.tickAsync(0)
+
+  expect(errorFn).toHaveBeenCalledTimes(0)
+  expect(fn).toHaveBeenCalledTimes(1)
+  expect(fn.mock.calls[0][0]).toMatchObject({
+    data: rec,
+  })
 })
 
 test('record key is correct', () => {
