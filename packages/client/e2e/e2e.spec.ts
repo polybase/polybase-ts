@@ -853,3 +853,70 @@ test('calls to functions with optional parameters', async () => {
   await expect(c.create([])).rejects.toThrow('incorrect number of arguments, expected 1, got 0')
   await expect(c.create(['rec3', 20, 30])).rejects.toThrow('incorrect number of arguments, expected 2, got 3')
 })
+
+test('publicKey arrays are supported', async () => {
+  const namespace = `${prefix}-read-access`
+  const pv = secp256k1.generatePrivateKey()
+
+  s = new Polybase({
+    baseURL: API_URL,
+    signer: async (d: string) => {
+      const sig = ethPersonalSign(pv, d)
+      return {
+        sig,
+        h: 'eth-personal-sign',
+      }
+    },
+  })
+
+  const c: Collection<{ id: string, publicKeys: PublicKey[] }> = await createCollection(s, namespace, `
+collection PublicKeyArrayCol {
+  id: string;
+  @read
+  publicKeys: PublicKey[];
+
+  function constructor (id: string) {
+    this.id = id;
+    this.publicKeys = [];
+    this.publicKeys.push(ctx.publicKey);
+    this.publicKeys.push(ctx.publicKey);
+  }
+}
+  `)
+
+  await c.create(['id1'])
+
+  const record = await c.record('id1').get()
+  expect(record.data?.id).toEqual('id1')
+  expect(record.data?.publicKeys[0]).toEqual({
+    kty: 'EC',
+    crv: 'secp256k1',
+    alg: 'ES256K',
+    use: 'sig',
+    x: expect.any(String),
+    y: expect.any(String),
+  })
+
+  expect(record.data?.publicKeys[1]).toEqual({
+    kty: 'EC',
+    crv: 'secp256k1',
+    alg: 'ES256K',
+    use: 'sig',
+    x: expect.any(String),
+    y: expect.any(String),
+  });
+
+  s.signer((d: string) => {
+    throw new Error('Signer should not be called')
+  })
+  const record2 = await c.record('id1').get()
+  expect(record2.data?.id).toEqual('id1')
+
+  const list = await c.get()
+  expect(list.data[0].data.id).toEqual('id1')
+
+  const queryList = await c.where('id', '==', 'id1').get()
+  expect(queryList.data[0].data.id).toEqual('id1')
+})
+
+
