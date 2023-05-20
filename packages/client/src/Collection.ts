@@ -2,7 +2,7 @@ import { CollectionRecord, CollectionRecordResponse } from './Record'
 import { Query, QueryResponse } from './Query'
 import { Subscription, SubscriptionFn, SubscriptionErrorFn, UnsubscribeFn } from './Subscription'
 import { Client } from './Client'
-import { QueryValue, CollectionMeta, CollectionList, QueryWhereOperator, CallArgs, SenderRawListResponse, SenderRawRecordResponse } from './types'
+import { QueryValue, CollectionMeta, CollectionList, QueryWhereOperator, CallArgs, SenderRawListResponse, SenderRawRecordResponse, SenderResponse } from './types'
 import { validateSet } from '@polybase/polylang/dist/validator'
 import { getCollectionASTFromId, serializeValue, getCollectionShortNameFromId } from './util'
 import { createError, PolybaseError } from './errors'
@@ -184,7 +184,9 @@ export class Collection<T> {
         d.request(),
         this.client,
         this.isReadPubliclyAccessible(),
-        (res) => new CollectionRecordResponse<T>(this.id, res.data.data, res.data.block, this, this.client, this.onRecordSnapshotRegister),
+        async (res: SenderResponse<SenderRawRecordResponse>) => {
+          return new CollectionRecordResponse<T>(this.id, res.data, await this.getAST(), this, this.client, this.onRecordSnapshotRegister)
+        },
       )
     }
     return this.recordSubs[k].subscribe(fn, errFn)
