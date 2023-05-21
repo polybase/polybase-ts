@@ -49,6 +49,3 @@ jobs:
           token: ${{ secrets.PACKAGE_UPDATE_TOKEN }}
           repository: ${{ matrix.repo }}
           event-type: update-packages
-
-      
-      
