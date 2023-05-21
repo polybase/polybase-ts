@@ -36,4 +36,19 @@ jobs:
       - name: "Publish"
         run: yarn lerna publish --canary --preid beta --dist-tag beta --tag-version-prefix beta --yes
 
-     # TODO trigger update dependencies in other repos
+  dispatch:
+    needs: publish
+    strategy:
+      matrix:
+        repo: ['polybase/chat', 'polybase/social', 'polybase/explorer', 'polybase/auth']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger repo updates
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.PACKAGE_UPDATE_TOKEN }}
+          repository: ${{ matrix.repo }}
+          event-type: update-packages
+
+      
+      
