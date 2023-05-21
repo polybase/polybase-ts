@@ -46,6 +46,6 @@ jobs:
       - name: Trigger repo updates
         uses: peter-evans/repository-dispatch@v2
         with:
-          token: ${{ secrets.PACKAGE_UPDATE_TOKEN }}
+          token: ${{ secrets.ADMIN_TOKEN }}
           repository: ${{ matrix.repo }}
           event-type: update-packages-beta
