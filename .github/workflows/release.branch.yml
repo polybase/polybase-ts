@@ -27,7 +27,7 @@ jobs:
           cache: 'yarn'
 
       - name: Run Lerna version
-        run: npx lerna version v$VERSION --no-git-tag-version --force-publish --tag-version-prefix='' --yes
+        run: npx lerna version v$VERSION --no-git-tag-version --tag-version-prefix='' --yes
 
       - name: Commit changes
         run: |
