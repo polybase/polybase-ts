@@ -1,7 +1,7 @@
 {
   "name": "@polybase/auth",
   "description": "Auth for Polybase",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "homepage": "https://github.com/polybase/polybase-ts/tree/main/packages/auth",
