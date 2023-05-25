@@ -24,7 +24,7 @@ jobs:
         id: version
         run: |
           latest_version=$(npm show @polybase/polylang version)
-          echo "::set-output name=latest_beta_version::$latest_version"
+          echo "::set-output name=latest_version::$latest_version"
 
       - name: Create a PR  # Action will update PR automatically if it already exists
         uses: peter-evans/create-pull-request@v3
