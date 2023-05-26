@@ -104,7 +104,7 @@ export class Collection<T> {
     return hasPublicDirective || hasTypeDirective
   }
 
-  create = async (args: CallArgs): Promise<CollectionRecordResponse<T>> => {
+  create = async (args: CallArgs = []): Promise<CollectionRecordResponse<T>> => {
     const [res, ast] = await Promise.all([
       this.client.request({
         url: `/collections/${encodeURIComponent(this.id)}/records`,
