@@ -762,6 +762,35 @@ test('delete', async () => {
   })
 })
 
+test('allow calls with zero parameters to skip passing []', async () => {
+  const namespace = `${prefix}-zero-param-calls`
+  
+  const c = await createCollection(s, namespace, `
+    @public
+    collection ZeroParamCallCol {
+      id: string;
+      name: string;
+
+      constructor(id: string, name: string) {
+        this.id = id;
+        this.name = name;
+      }
+
+      del() {
+        selfdestruct();
+      }
+    }
+  `)
+
+  await c.create(['id1', 'Timmy'])
+  await c.record('id1').call('del')
+
+  expect(await c.record('id1').get()).toMatchObject({
+    data: null,
+    block: null
+  })
+})
+
 test('bytes', async () => {
   const namespace = `${prefix}-bytes`
 

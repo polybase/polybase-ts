@@ -104,7 +104,11 @@ export class Collection<T> {
     return hasPublicDirective || hasTypeDirective
   }
 
-  create = async (args: CallArgs): Promise<CollectionRecordResponse<T>> => {
+  create = async (args: CallArgs = []): Promise<CollectionRecordResponse<T>> => {
+    if (!Array.isArray(args)) {
+      throw new TypeError('invalid argument: `args` must be an array')
+    }
+
     const [res, ast] = await Promise.all([
       this.client.request({
         url: `/collections/${encodeURIComponent(this.id)}/records`,
