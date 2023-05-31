@@ -33,5 +33,4 @@ jobs:
           title: Update packages to version ${{ steps.version.outputs.latest_version }}
           branch: update-packages
           delete-branch: true
-          base: main
           team-reviewers: engineering
