@@ -764,7 +764,7 @@ test('delete', async () => {
 
 test('allow calls with zero parameters to skip passing []', async () => {
   const namespace = `${prefix}-zero-param-calls`
-  
+
   const c = await createCollection(s, namespace, `
     @public
     collection ZeroParamCallCol {
@@ -787,7 +787,7 @@ test('allow calls with zero parameters to skip passing []', async () => {
 
   expect(await c.record('id1').get()).toMatchObject({
     data: null,
-    block: null
+    block: null,
   })
 })
 
@@ -933,7 +933,7 @@ collection PublicKeyArrayCol {
     use: 'sig',
     x: expect.any(String),
     y: expect.any(String),
-  });
+  })
 
   s.signer((d: string) => {
     throw new Error('Signer should not be called')
@@ -947,5 +947,3 @@ collection PublicKeyArrayCol {
   const queryList = await c.where('id', '==', 'id1').get()
   expect(queryList.data[0].data.id).toEqual('id1')
 })
-
-

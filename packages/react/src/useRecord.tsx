@@ -13,11 +13,11 @@ export function useRecord<T = any>(record?: CollectionRecord<T> | null): UseReco
 
   useEffect(() => {
     if (!record) return
-    setResult({ ...res, loading: true })
+    setResult((res) => ({ ...res, loading: true }))
     const unsub = record.onSnapshot((data) => {
       setResult({ data, error: null, loading: false })
     }, (err) => {
-      setResult({ data: res.data, error: err, loading: false })
+      setResult((res) => ({ data: res.data, error: err, loading: false }))
     })
     return unsub
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -53,7 +53,7 @@ export class Subscription<T, R = any> {
     if (this._stopped || id !== this.id) return
 
     const params = this.req.params ? { ...this.req.params } : {}
-    if (this.since) {
+    if (this.since && this.data) {
       params.since = `${this.since}`
     }
 
