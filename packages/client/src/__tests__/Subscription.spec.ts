@@ -2,7 +2,8 @@ import FakeTimers from '@sinonjs/fake-timers'
 import { Subscription } from '../Subscription'
 import { Client } from '../Client'
 import { wait } from './util'
-import { createError } from '../errors'
+import { createError, createErrorFromAxiosError } from '../errors'
+import { AxiosError } from 'axios'
 
 const clock = FakeTimers.install()
 
@@ -78,11 +79,17 @@ test('subscriber does not error on 304', async () => {
   const spyOk = jest.fn()
   const spyErr = jest.fn()
 
-  sender.mockRejectedValue({
-    response: {
+  sender.mockRejectedValue(createErrorFromAxiosError(
+    new AxiosError('No content', '', {}, {}, {
       status: 304,
-    },
-  })
+      statusText: '',
+      data: '',
+      headers: {
+        'access-control-allow-origin': 'https://polybase.xyz',
+      },
+      config: {},
+    }),
+  ))
 
   const c = new Subscription({
     url: '/collections/col/records/id',
@@ -92,6 +99,7 @@ test('subscriber does not error on 304', async () => {
 
   const unsub = c.subscribe(spyOk, spyErr)
 
+  await clock.tickAsync(0)
   await clock.tickAsync(0)
 
   expect(spyOk).toHaveBeenCalledTimes(0)

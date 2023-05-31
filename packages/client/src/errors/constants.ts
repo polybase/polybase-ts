@@ -1,4 +1,5 @@
 export const ERROR_CODES = {
+  'not-modified': 304,
   'invalid-argument': 400,
   'failed-precondition': 400,
   'out-of-range': 400,
