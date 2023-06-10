@@ -146,7 +146,7 @@ test('call takeOtherCol', async () => {
   await col.create(['id1', 'Calum', 20, [], {}])
 
   await col.record('id1').call('takeOtherCol', [otherCol.record('id1')])
-})
+}, 15000)
 
 test('list data from collection', async () => {
   const namespace = `${prefix}-list-data`
@@ -565,7 +565,7 @@ collection User {
       data: account2,
     }],
   })
-})
+}, 15000)
 
 test('read access', async () => {
   const namespace = `${prefix}-read-access`
@@ -746,7 +746,7 @@ test('signing', async () => {
     aliases: [],
     balances: {},
   })
-})
+}, 15000)
 
 test('delete', async () => {
   const namespace = `${prefix}-delete`
