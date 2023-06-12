@@ -45,20 +45,14 @@ export function createModal(modal: HTMLDivElement, iframe: HTMLIFrameElement, ur
   modal.style.display = 'none'
   modal.classList.add(`${POLYBASE_AUTH_CSS_PREFIX}modal`)
 
-  // Create the modal content container
-  const modalContent = document.createElement('div')
-  modalContent.classList.add(`${POLYBASE_AUTH_CSS_PREFIX}modal-content`)
-
   // Create iframe
   iframe.id = POLYBASE_AUTH_MODAL_IFRAME_ID
   iframe.src = url ?? POLYBASE_DEFAULT_IFRAME_URL
   iframe.classList.add(`${POLYBASE_AUTH_CSS_PREFIX}modal-iframe`)
-
-  // Append the iframe to the modal content container
-  modalContent.appendChild(iframe)
+  iframe.style.colorScheme = 'normal'
 
   // Append the modal content container to the modal element
-  modal.appendChild(modalContent)
+  modal.appendChild(iframe)
 
   // Append the modal to the body
   document.body.appendChild(modal)
@@ -72,22 +66,8 @@ export function createModal(modal: HTMLDivElement, iframe: HTMLIFrameElement, ur
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.75);
       z-index: 2147483647;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       display: none;
-    }
-    
-    .${POLYBASE_AUTH_CSS_PREFIX}modal-content {
-      background-color: white;
-      border-radius: 10px;
-      overflow: hidden;
-      height: 400px;
-      max-width: 340px;
-      width: 100%;
-      box-shadow: 0px 3px 6px rgb(0 0 0 / 16%), 0px 3px 6px rgb(0 0 0 / 23%);
     }
     
     .${POLYBASE_AUTH_CSS_PREFIX}modal-iframe{
