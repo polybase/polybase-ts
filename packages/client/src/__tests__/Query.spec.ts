@@ -125,6 +125,53 @@ test('sort/where/limit... methods return a new instance', () => {
   expect(q3).not.toBe(q4)
 })
 
+test('where clause > and < are addative', () => {
+  const collection = new Collection('col1', client)
+
+  const q1 = (new Query<any>(collection, client, queryRegister, recordRegister))
+    .where('name', '==', 'Hannah')
+
+  expect(q1.request().params).toMatchObject({
+    sort: undefined,
+    where: {
+      name: 'Hannah',
+    },
+  })
+
+  const q2 = q1.where('name', '>', 'Hann').where('name', '<', 'Hann~')
+
+  expect(q2.request().params).toMatchObject({
+    sort: undefined,
+    where: {
+      name: {
+        $gt: 'Hann',
+        $lt: 'Hann~',
+      },
+    },
+  })
+
+  const q3 = q2.where('name', '<=', 'Hann~')
+
+  expect(q3.request().params).toMatchObject({
+    sort: undefined,
+    where: {
+      name: {
+        $gt: 'Hann',
+        $lte: 'Hann~',
+      },
+    },
+  })
+
+  const q4 = q1.where('name', '==', 'Hann')
+
+  expect(q4.request().params).toMatchObject({
+    sort: undefined,
+    where: {
+      name: 'Hann',
+    },
+  })
+})
+
 test('records are valid query values', async () => {
   const collection = new Collection('col1', client)
   const userCollection = new Collection('user', client)

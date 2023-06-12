@@ -14,6 +14,7 @@ import {
   SenderRawListResponse,
 } from './types'
 import { Collection as ASTCollection } from '@polybase/polylang/dist/ast'
+import { addKeyValue, removeKey } from './util'
 
 export const QueryWhereOperatorMap: Record<QueryWhereOperator, QueryWhereKey> = {
   '>': '$gt',
@@ -21,6 +22,14 @@ export const QueryWhereOperatorMap: Record<QueryWhereOperator, QueryWhereKey> = 
   '>=': '$gte',
   '<=': '$lte',
   '==': '$eq',
+}
+
+export const QueryWhereOperatorRelationMap: Record<QueryWhereKey, QueryWhereKey> = {
+  $gt: '$gte',
+  $gte: '$gt',
+  $lt: '$lte',
+  $lte: '$lt',
+  $eq: '$eq',
 }
 
 export class Query<T> {
@@ -72,9 +81,11 @@ export class Query<T> {
         : value
 
     if (!q.params.where) q.params.where = {}
+    const apiOp = QueryWhereOperatorMap[op]
     q.params.where[field] = op === '=='
       ? referencedValue
-      : { [QueryWhereOperatorMap[op]]: referencedValue } as Record<QueryWhereKey, QueryValue>
+      : addKeyValue(QueryWhereOperatorMap[op], referencedValue, removeKey(QueryWhereOperatorRelationMap[apiOp], q.params.where[field]))
+
     return q
   }
 

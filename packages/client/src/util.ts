@@ -73,3 +73,26 @@ export function deserializeRecord(data: Record<string, any>, properties: (ASTPro
     }
   }
 }
+
+// Adds a key/value to a record, or creates an object with the key/value
+export function addKeyValue(key: string, value: any, obj?: Record<string, any>): Record<string, any> {
+  const o = obj ?? {}
+  o[key] = value
+  return o
+}
+
+// Removes given keys from the object
+export function removeKey(key: string, obj?: any): Record<string, any> {
+  if (!obj || !isPlainObject(obj)) return {}
+  for (const k of key) {
+    if (k in obj) {
+      delete obj[k]
+    }
+  }
+  return obj
+}
+
+// Returns true if the object is a plain object
+export function isPlainObject(val: any): val is Record<string, any> {
+  return typeof val === 'object' && val.constructor === Object
+}
