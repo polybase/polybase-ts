@@ -85,7 +85,6 @@ export class Query<T> {
     q.params.where[field] = op === '=='
       ? referencedValue
       : addKeyValue(QueryWhereOperatorMap[op], referencedValue, removeKey(QueryWhereOperatorRelationMap[apiOp], q.params.where[field]))
-    // : { [QueryWhereOperatorMap[op]]: referencedValue } as Record<QueryWhereKey, QueryValue>
 
     return q
   }
