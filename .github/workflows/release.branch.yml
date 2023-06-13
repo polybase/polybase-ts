@@ -2,8 +2,6 @@ name: Create PR for Release Branch
 
 on:
   create:
-    branches:
-      - '**'
        
 jobs:
   create_release_branch:
