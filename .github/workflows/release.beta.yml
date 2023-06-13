@@ -40,7 +40,7 @@ jobs:
     needs: publish
     strategy:
       matrix:
-        repo: ['polybase/chat', 'polybase/social', 'polybase/explorer', 'polybase/auth']
+        repo: ['polybase/chat', 'polybase/social', 'polybase/explorer', 'polybase/auth', 'polybase/changelog']
     runs-on: ubuntu-latest
     steps:
       - name: Trigger repo updates
