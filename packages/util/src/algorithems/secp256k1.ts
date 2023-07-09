@@ -37,21 +37,45 @@ export async function generateKeyPair() {
 /**
  * Generate 65-byte uncompressed public key from private key
  *
- * @returns public key
+ * @returns 65 byte public key
  */
 export function getPublicKey(privateKey: Uint8Array): Uint8Array {
   return secp256k1.publicKeyCreate(privateKey, false)
 }
 
 /**
+ * Generate 64-byte uncompressed public key from private key
+ *
+ * @returns 64 byte public key
+ */
+export function getPublicKey64(privateKey: Uint8Array): Uint8Array {
+  return secp256k1.publicKeyCreate(privateKey, false).slice(1)
+}
+
+/**
  * Generate 65-byte uncompressed public key from private key
  *
- * @returns public key
+ * @returns 65 byte public key
  */
 export function getPublicCompressed(privateKey: Uint8Array): Uint8Array {
   return secp256k1.publicKeyCreate(privateKey, true)
 }
 
+/**
+ * Removes the prefix from a 65 byte public key, if the key is not 65 bytes, it is returned as is.
+ *
+ * @returns 64 byte public key
+ */
+export function removePublicKeyPrefix(publicKey: Uint8Array): Uint8Array {
+  if (publicKey.byteLength === 65) return publicKey.slice(1)
+  return publicKey
+}
+
+/**
+ * Compess a 64 or 65 byte public key to 33 bytes
+ *
+ * @returns 33 byte public key
+ */
 export function compressPublicKey(publicKey: Uint8Array): Uint8Array {
   if (publicKey.byteLength === 65) return secp256k1.publicKeyConvert(publicKey, true)
   if (publicKey.byteLength === 64) return secp256k1.publicKeyConvert(addPublicKeyPrefix(publicKey), true)
