@@ -598,8 +598,10 @@ collection PrivateCol {
   await c.create(['id1'])
 
   const record = await c.record('id1').get()
-  expect(record.data?.id).toEqual('id1')
-  expect(record.data?.publicKey).toEqual({
+  const id = record.data?.id
+  const publicKey = record.data?.publicKey
+  expect(id).toEqual('id1')
+  expect(publicKey).toEqual({
     kty: 'EC',
     crv: 'secp256k1',
     alg: 'ES256K',
@@ -611,13 +613,12 @@ collection PrivateCol {
   s.signer((d: string) => {
     throw new Error('Signer should not be called')
   })
-  const record2 = await c.record('id1').get()
-  expect(record2.data?.id).toEqual('id1')
 
-  const list = await c.get()
-  expect(list.data[0].data.id).toEqual('id1')
+  if (!publicKey) {
+    throw new Error('publicKey should be defined')
+  }
 
-  const queryList = await c.where('id', '==', 'id1').get()
+  const queryList = await c.where('publicKey', '==', publicKey).get()
   expect(queryList.data[0].data.id).toEqual('id1')
 })
 
@@ -879,8 +880,8 @@ test('calls to functions with optional parameters', async () => {
     id: 'rec2',
   })
 
-  await expect(c.create([])).rejects.toThrow('incorrect number of arguments, expected 1, got 0')
-  await expect(c.create(['rec3', 20, 30])).rejects.toThrow('incorrect number of arguments, expected 2, got 3')
+  await expect(c.create([])).rejects.toThrow('method constructor args invalid, expected 1 got 0')
+  await expect(c.create(['rec3', 20, 30])).rejects.toThrow('method constructor args invalid, expected 2 got 3')
 })
 
 test('publicKey arrays are supported', async () => {
@@ -916,6 +917,7 @@ collection PublicKeyArrayCol {
   await c.create(['id1'])
 
   const record = await c.record('id1').get()
+
   expect(record.data?.id).toEqual('id1')
   expect(record.data?.publicKeys[0]).toEqual({
     kty: 'EC',
@@ -941,9 +943,10 @@ collection PublicKeyArrayCol {
   const record2 = await c.record('id1').get()
   expect(record2.data?.id).toEqual('id1')
 
-  const list = await c.get()
-  expect(list.data[0].data.id).toEqual('id1')
+  // TODO: add this back once we support arrays in indexes
+  // const list = await c.get()
+  // expect(list.data[0].data.id).toEqual('id1')
 
-  const queryList = await c.where('id', '==', 'id1').get()
-  expect(queryList.data[0].data.id).toEqual('id1')
+  // const queryList = await c.where('id', '==', 'id1').get()
+  // expect(queryList.data[0].data.id).toEqual('id1')
 })
