@@ -1,5 +1,9 @@
 {
-  "entryPoints": ["src"],
+  "entryPoints": [
+    "src"
+  ],
   "entryPointStrategy": "expand",
+  "excludeExternals": true,
+  "excludePrivate": false,
   "out": "./doc"
 }
