@@ -1,5 +1,4 @@
 /**
- *
  * @module
  * @see [Filter records](https://polybase.xyz/docs/read#filter-records)
  * @see [Pagination](https://polybase.xyz/docs/read#pagination)

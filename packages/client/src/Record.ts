@@ -34,7 +34,7 @@ export class CollectionRecord<T> {
   }
 
   /**
-   * Call a function on this collection record.
+   * Calls a function on this collection record.
    * The function must be a custom function defined in the collection schema.
    *
    * @see [Write Data](https://polybase.xyz/docs/write-data)
@@ -56,8 +56,9 @@ export class CollectionRecord<T> {
   }
 
   /**
-   * Retrieve the collection record.
+   * Retrieves the collection record.
    *
+   * @returns The collection recod.
    * @see [Read Data](https://polybase.xyz/docs/read)
    */
   get = async (): Promise<CollectionRecordResponse<T, T | null>> => {

@@ -1,5 +1,5 @@
 /**
- * <p>Defines the types and values of the Polybase Client SDK.</p>
+ * <p>The Polybase Client SDK.</p>
  *
  * <p>The Polybase module is how we communicate with the Polybase service.
  * @see [Getting Started](https://polybase.xyz/docs/get-started)
@@ -72,7 +72,7 @@ export class Polybase {
   }
 
   /**
-   * Retrieve the collection with the given path.
+   * Retrieves the collection with the given path.
    *
    * @param path - the fully-qualified path to the collection.
    * @returns The given {@link Collection} instance.
