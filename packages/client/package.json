@@ -17,7 +17,8 @@
     "release": "npx np",
     "test": "jest ./src",
     "test:e2e": "jest ./e2e --verbose",
-    "fix": "yarn eslint \"./src/**/*.{ts,tsx}\" --fix"
+    "fix": "yarn eslint \"./src/**/*.{ts,tsx}\" --fix",
+    "doc": "npx typedoc"
   },
   "jest": {
     "preset": "ts-jest",
