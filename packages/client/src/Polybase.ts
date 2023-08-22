@@ -1,3 +1,13 @@
+/**
+ * <p>Defines the types and values of the Polybase Client SDK.</p>
+ *
+ * <p>The Polybase module is how we communicate with the Polybase service.
+ * @see [Getting Started](https://polybase.xyz/docs/get-started)
+ *</p>
+ *
+ * @module
+ */
+
 import { parse } from '@polybase/polylang'
 import axios from 'axios'
 import { Client } from './Client'
@@ -61,6 +71,12 @@ export class Polybase {
     )
   }
 
+  /**
+   * Retrieve the collection with the given path.
+   *
+   * @param path - the fully-qualified path to the collection.
+   * @returns The given {@link Collection} instance.
+   */
   collection<T = any>(path: string): Collection<T> {
     const rp = this.getResolvedPath(path)
     if (this.collections[rp]) return this.collections[rp]
@@ -103,7 +119,7 @@ export class Polybase {
    *
    * @param schema: The schema to apply.
    * @param namespace: The namespace for the collection.
-   * @returns An array of collections.
+   * @returns An array of {@link Collection} instances.
    */
   applySchema = async (schema: string, namespace?: string): Promise<Collection<any>[]> => {
     const collections = []

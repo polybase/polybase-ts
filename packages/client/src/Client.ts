@@ -165,6 +165,9 @@ export class ClientRequest {
   }
 }
 
+/**
+ * Parse the given request parameters into a {@link Record} object.
+ */
 export function parseParams(params?: RequestParams): Record<string, QueryValue | undefined> {
   if (!params) return {}
   return {
