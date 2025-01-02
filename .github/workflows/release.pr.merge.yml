@@ -23,12 +23,14 @@ jobs:
       - run: git config --global user.name "Polybase CI"
 
       - name: Get PR Info
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_DESC: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+
         run: |
-          PR_TITLE="${{ github.event.pull_request.title }}"
-          PR_DESC="${{ github.event.pull_request.body }}"
-          PR_BRANCH="${{ github.event.pull_request.head.ref }}"
           PR_VERSION="${PR_BRANCH#*release-}"
-  
+
           echo "PR Title: $PR_TITLE"
           echo "PR Description: $PR_DESC"
           echo "PR Branch: $PR_BRANCH"
